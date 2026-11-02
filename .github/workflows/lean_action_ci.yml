@@ -18,4 +18,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: leanprover/lean-action@v1
+      - name: Check axioms of the main theorems
+        run: |
+          lake env lean scripts/Axioms.lean | tee axioms.txt
+          if grep -v "\[propext, Classical.choice, Quot.sound\]" axioms.txt; then
+            echo "Unexpected axioms (see above)"; exit 1
+          fi
       - uses: leanprover-community/docgen-action@v1

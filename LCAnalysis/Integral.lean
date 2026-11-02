@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Gabriel Larotonda
+-/
 import LCAnalysis.Higher
 
 /-!
@@ -41,6 +46,7 @@ theorem HasWeakIntegral.unique (hy : HasWeakIntegral γ a b y) (hz : HasWeakInte
     y = z :=
   (SeparatingDual.eq_iff_forall_dual_eq (R := ℝ)).mpr fun φ ↦ by rw [hy φ, hz φ]
 
+omit [IsTopologicalAddGroup F] [ContinuousSMul ℝ F] [LocallyConvexSpace ℝ F] [T2Space F] in
 theorem HasWeakIntegral.sub (hab : a ≤ b) (hγ : ContinuousOn γ (Icc a b))
     (hη : ContinuousOn η (Icc a b)) (hy : HasWeakIntegral γ a b y)
     (hz : HasWeakIntegral η a b z) : HasWeakIntegral (fun t ↦ γ t - η t) a b (y - z) := by
@@ -52,12 +58,14 @@ theorem HasWeakIntegral.sub (hab : a ≤ b) (hγ : ContinuousOn γ (Icc a b))
   simp only [map_sub]
   rw [intervalIntegral.integral_sub i₁ i₂, hy φ, hz φ]
 
+omit [IsTopologicalAddGroup F] [ContinuousSMul ℝ F] [LocallyConvexSpace ℝ F] [T2Space F] in
 theorem HasWeakIntegral.const_smul (hy : HasWeakIntegral γ a b y) (c : ℝ) :
     HasWeakIntegral (fun t ↦ c • γ t) a b (c • y) := by
   intro φ
   simp only [map_smul, smul_eq_mul]
   rw [intervalIntegral.integral_const_mul, hy φ]
 
+omit [T2Space F] in
 /-- Mean value inclusion for weak integrals. -/
 theorem HasWeakIntegral.mem_smul (hab : a ≤ b) (hγ : ContinuousOn γ (Icc a b))
     (hy : HasWeakIntegral γ a b y) {W : Set F} (hWc : Convex ℝ W) (hWcl : IsClosed W)
@@ -85,6 +93,7 @@ theorem HasWeakIntegral.mem_smul (hab : a ≤ b) (hγ : ContinuousOn γ (Icc a b
   rw [← hy φ] at hle
   linarith
 
+omit [T2Space F] in
 /-- Weak integrals of uniformly small curves are small. -/
 theorem exists_nhds_weakIntegral_mem (hab : a ≤ b) {N : Set F} (hN : N ∈ 𝓝 (0 : F)) :
     ∃ W ∈ 𝓝 (0 : F), ∀ (γ : ℝ → F) (y : F), ContinuousOn γ (Icc a b) →
@@ -98,6 +107,7 @@ theorem exists_nhds_weakIntegral_mem (hab : a ≤ b) {N : Set F} (hN : N ∈ �
   have h2 := Set.smul_set_mono (a := b - a + 1) hWM h1
   rwa [smul_inv_smul₀ hc] at h2
 
+omit [T2Space F] in
 /-- Parameter-dependent weak integrals of continuous maps are continuous. -/
 theorem continuousOn_weakIntegral {X : Type*} [TopologicalSpace X] {f : X × ℝ → F}
     {U : Set X} {T : Set ℝ} (hU : IsOpen U) (hT : IsOpen T) (hab : a ≤ b)
@@ -129,6 +139,7 @@ theorem continuousOn_weakIntegral {X : Type*} [TopologicalSpace X] {f : X × ℝ
     ((hI x hxU).sub hab (hcurve x hxU) (hcurve x₀ hx₀) (hI x₀ hx₀)) fun t ht ↦ (hx t ht).2
   simpa using this
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] in
 /-- Differentiation under the integral sign, for weak integrals. -/
 theorem hasDirDerivAt_weakIntegral {f : E × ℝ → F} {U : Set E} {T : Set ℝ} (hU : IsOpen U)
     (hT : IsOpen T) (hab : a ≤ b) (hTab : Icc a b ⊆ T) (hf : ContinuousOn f (U ×ˢ T))
@@ -175,7 +186,6 @@ theorem hasDirDerivAt_weakIntegral {f : E × ℝ → F} {U : Set E} {T : Set ℝ
   have hxU : ∀ᶠ s : ℝ in 𝓝 0, x + s • h ∈ U := by
     have : Continuous fun s : ℝ ↦ x + s • h := by fun_prop
     exact this.continuousAt.eventually_mem (by simpa using hU.mem_nhds hx)
-
   filter_upwards [nhdsWithin_le_nhds htube, nhdsWithin_le_nhds hxU, self_mem_nhdsWithin]
     with s hs hsU (hs0 : s ≠ 0)
   have hint : HasWeakIntegral
@@ -188,6 +198,7 @@ theorem hasDirDerivAt_weakIntegral {f : E × ℝ → F} {U : Set E} {T : Set ℝ
   have := hsmall _ _ hcont hint fun t ht ↦ hs t ht hs0
   simpa using this
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] in
 /-- Parameter-dependent weak integrals of `C^1` maps are `C^1`, provided the weak integrals of the
 partial derivatives exist: `d(∫_a^b f(·, t) dt)(x)(h) = ∫_a^b d₁f((x, t), h) dt`. -/
 theorem ContDiffMBOn.contDiffMBOn_one_of_hasWeakIntegral {f : E × ℝ → F} {U : Set E}

@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Gabriel Larotonda
+-/
 import LCAnalysis.MichalBastiani
 
 /-!
@@ -19,7 +24,6 @@ The `k`-th differential of `f : E → F` is
 open Set Filter Function
 open scoped Topology
 
-set_option linter.unusedSectionVars false
 
 noncomputable section
 
@@ -45,11 +49,14 @@ def HasContIterDerivOn (k : ℕ) (f : E → F) (U : Set E) : Prop :=
 
 /-! ### Algebraic identities -/
 
+omit [TopologicalSpace E] [ContinuousSMul ℝ F] in
 theorem iteratedDMB_zero (f : E → F) (p : E × (Fin 0 → E)) : iteratedDMB 0 f p = f p.1 := rfl
 
+omit [TopologicalSpace E] [ContinuousSMul ℝ F] in
 theorem iteratedDMB_one (f : E → F) (x : E) (v : Fin 1 → E) :
     iteratedDMB 1 f (x, v) = dMB f (x, v 0) := rfl
 
+omit [TopologicalSpace E] [ContinuousSMul ℝ F] in
 theorem iteratedDMB_succ (k : ℕ) (f : E → F) (x : E) (v : Fin (k + 1) → E) :
     iteratedDMB (k + 1) f (x, v) =
       dMB (fun z ↦ iteratedDMB k f (z, Fin.init v)) (x, v (Fin.last k)) := rfl
@@ -59,6 +66,7 @@ private theorem init_cons {n : ℕ} {α : Type*} (a : α) (v : Fin (n + 1) → �
   funext i
   refine Fin.cases ?_ (fun i ↦ ?_) i <;> rfl
 
+omit [TopologicalSpace E] [ContinuousSMul ℝ F] in
 /-- Peeling off the first direction:
 `d^(k+1) f (x, y, v) = d^(k) (df(·, y)) (x, v)`. -/
 theorem iteratedDMB_cons : ∀ (k : ℕ) (f : E → F) (y x : E) (v : Fin k → E),
@@ -69,16 +77,19 @@ theorem iteratedDMB_cons : ∀ (k : ℕ) (f : E → F) (y x : E) (v : Fin k → 
     simp only [iteratedDMB_cons k]
     rfl
 
+omit [TopologicalSpace E] [ContinuousSMul ℝ F] in
 theorem dMB_slice {E' : Type*} [AddCommGroup E'] [Module ℝ E'] [TopologicalSpace E']
     (g : E × E' → F) (x h : E) (a : E') :
     dMB g ((x, a), (h, 0)) = dMB (fun z ↦ g (z, a)) (x, h) := by
   simp only [dMB, Prod.smul_mk, smul_zero, Prod.mk_add_mk, add_zero]
 
+omit [TopologicalSpace E] [ContinuousSMul ℝ F] in
 theorem hasDirDerivAt_slice {E' : Type*} [AddCommGroup E'] [Module ℝ E'] [TopologicalSpace E']
     {g : E × E' → F} {x h : E} {a : E'} {y : F} :
     HasDirDerivAt g (x, a) (h, 0) y ↔ HasDirDerivAt (fun z ↦ g (z, a)) x h y := by
   simp only [HasDirDerivAt, Prod.smul_mk, smul_zero, Prod.mk_add_mk, add_zero]
 
+omit [TopologicalSpace E] [ContinuousSMul ℝ F] in
 /-- Differentials of a slice `z ↦ g (z, a)` are differentials of `g` in directions `(y, 0)`. -/
 theorem iteratedDMB_slice {E' : Type*} [AddCommGroup E'] [Module ℝ E'] [TopologicalSpace E'] :
     ∀ (k : ℕ) (g : E × E' → F) (a : E') (x : E) (v : Fin k → E),
@@ -89,6 +100,7 @@ theorem iteratedDMB_slice {E' : Type*} [AddCommGroup E'] [Module ℝ E'] [Topolo
     simp only [iteratedDMB_slice k]
     rfl
 
+omit [ContinuousSMul ℝ F] in
 /-- Glöckner–Neeb (1.36): `d^(k+1) f (x, y₀, …, yₖ) = d^(k) (df) ((x, y₀), (y₁, 0), …, (yₖ, 0))`. -/
 theorem iteratedDMB_succ_eq_dMB (k : ℕ) (f : E → F) (x : E) (v : Fin (k + 1) → E) :
     iteratedDMB (k + 1) f (x, v) = iteratedDMB k (dMB f) ((x, v 0), fun i ↦ (v i.succ, 0)) := by
@@ -97,10 +109,12 @@ theorem iteratedDMB_succ_eq_dMB (k : ℕ) (f : E → F) (x : E) (v : Fin (k + 1)
 
 /-! ### Proposition 1.3.10, first half -/
 
+omit [ContinuousSMul ℝ F] in
 theorem ContinuousOn.iteratedDMB_zero {f : E → F} {U : Set E} (hf : ContinuousOn f U) :
     ContinuousOn (iteratedDMB 0 f) (U ×ˢ univ) :=
   hf.comp continuousOn_fst fun _ hp ↦ hp.1
 
+omit [ContinuousSMul ℝ F] in
 /-- A `C^k` map has continuous differentials `d^(j) f` for `j ≤ k`. -/
 theorem ContDiffMBOn.hasContIterDerivOn : ∀ {k : ℕ} {E₁ : Type u} [AddCommGroup E₁]
     [Module ℝ E₁] [TopologicalSpace E₁] {f : E₁ → F} {U : Set E₁},
@@ -138,11 +152,13 @@ theorem ContDiffMBOn.hasContIterDerivOn : ∀ {k : ℕ} {E₁ : Type u} [AddComm
         rw [e]
         exact h1.comp (by fun_prop) fun p hp ↦ ⟨⟨hp.1, mem_univ _⟩, mem_univ _⟩
 
+omit [TopologicalSpace E] [ContinuousSMul ℝ F] in
 theorem hasDirDerivAt_slice₂ {E' : Type*} [AddCommGroup E'] [Module ℝ E'] [TopologicalSpace E']
     {g : E × E' → F} {x : E} {a h : E'} {y : F} :
     HasDirDerivAt g (x, a) (0, h) y ↔ HasDirDerivAt (fun w ↦ g (x, w)) a h y := by
   simp only [HasDirDerivAt, Prod.smul_mk, smul_zero, Prod.mk_add_mk, add_zero]
 
+omit [ContinuousSMul ℝ F] in
 /-- The directional derivative of a continuous map that is additive and homogeneous in each
 variable separately: `D_h M (w) = ∑ᵢ M (w₁, …, hᵢ, …, wₗ)`. -/
 theorem hasDirDerivAt_of_multilinear {ℓ : ℕ} {M : (Fin ℓ → E) → F}
@@ -184,6 +200,7 @@ theorem hasDirDerivAt_of_multilinear {ℓ : ℕ} {M : (Fin ℓ → E) → F}
   filter_upwards [self_mem_nhdsWithin] with t (ht : t ≠ 0)
   rw [hkey, smul_smul, inv_mul_cancel₀ ht, one_smul]
 
+omit [ContinuousSMul ℝ F] in
 theorem HasDirDerivAt.add {E₁ : Type*} [AddCommGroup E₁] [Module ℝ E₁] [TopologicalSpace E₁]
     [IsTopologicalAddGroup F] {f g : E₁ → F} {x h : E₁} {a b : F} (hf : HasDirDerivAt f x h a)
     (hg : HasDirDerivAt g x h b) : HasDirDerivAt (fun y ↦ f y + g y) x h (a + b) :=
@@ -202,6 +219,7 @@ section LocallyConvex
 variable [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E] [T2Space E]
   [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] [T2Space F]
 
+omit [ContinuousSMul ℝ F] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] in
 theorem contDiffMBOn_const : ∀ (k : ℕ) {E₁ : Type u} [AddCommGroup E₁] [Module ℝ E₁]
     [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁]
     [LocallyConvexSpace ℝ E₁] [T2Space E₁] (c : F) (U : Set E₁),
@@ -250,6 +268,7 @@ private def updateCLM (ℓ : ℕ) (i : Fin ℓ) :
   cont := (continuous_fst.comp continuous_fst).prodMk ((continuous_snd.comp continuous_fst).update i
     ((continuous_apply i).comp (continuous_snd.comp continuous_snd)))
 
+omit [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E] [T2Space E] in
 @[simp] private theorem updateCLM_apply (ℓ : ℕ) (i : Fin ℓ) (q) :
     updateCLM (E := E) ℓ i q = (q.1.1, update q.1.2 i (q.2.2 i)) := rfl
 
@@ -266,6 +285,7 @@ private def consCLM (ℓ : ℕ) :
   cont := (continuous_fst.comp continuous_fst).prodMk
     (Continuous.finCons (continuous_fst.comp continuous_snd) (continuous_snd.comp continuous_fst))
 
+omit [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E] [T2Space E] in
 @[simp] private theorem consCLM_apply (ℓ : ℕ) (q) :
     consCLM (E := E) ℓ q = (q.1.1, Fin.cons q.2.1 q.1.2) := rfl
 
@@ -273,7 +293,8 @@ private def consCLM (ℓ : ℕ) :
 variable and has continuous differentials `d^(j)` in the first variable for `j ≤ r` is `C^r`. -/
 theorem contDiffMBOn_of_multilinear {U : Set E} (hU : IsOpen U) : ∀ (r ℓ : ℕ)
     (f : E × (Fin ℓ → E) → F),
-    (∀ x ∈ U, ∀ w i (a b : E), f (x, update w i (a + b)) = f (x, update w i a) + f (x, update w i b)) →
+    (∀ x ∈ U, ∀ w i (a b : E),
+      f (x, update w i (a + b)) = f (x, update w i a) + f (x, update w i b)) →
     (∀ x ∈ U, ∀ w i (c : ℝ) (a : E), f (x, update w i (c • a)) = c • f (x, update w i a)) →
     (∀ j < r, ∀ x ∈ U, ∀ w, ∀ v : Fin (j + 1) → E,
       HasDirDerivAt (fun z ↦ iteratedDMB j (fun z' ↦ f (z', w)) (z, Fin.init v)) x (v (Fin.last j))
@@ -300,7 +321,8 @@ theorem contDiffMBOn_of_multilinear {U : Set E} (hU : IsOpen U) : ∀ (r ℓ : �
       fun_prop
     have hc1' := (hcont 1 (by omega)).comp hφ1.continuousOn
       fun q (hq : q ∈ (U ×ˢ univ) ×ˢ (univ : Set E)) ↦ ⟨hq.1, mem_univ _⟩
-    have hc1 : ContinuousOn (fun q : (E × (Fin ℓ → E)) × E ↦ dMB (fun z ↦ f (z, q.1.2)) (q.1.1, q.2))
+    have hc1 : ContinuousOn
+        (fun q : (E × (Fin ℓ → E)) × E ↦ dMB (fun z ↦ f (z, q.1.2)) (q.1.1, q.2))
         ((U ×ˢ univ) ×ˢ univ) := hc1'.congr fun q _ ↦ by
       simp only [Function.comp_apply, iteratedDMB_one]
     have hslice : ∀ w, ContDiffMBOn 1 (fun z ↦ f (z, w)) U := by
@@ -308,7 +330,7 @@ theorem contDiffMBOn_of_multilinear {U : Set E} (hU : IsOpen U) : ∀ (r ℓ : �
       have e1 : Continuous fun z : E ↦ (z, w) := by fun_prop
       have e2 : Continuous fun p : E × E ↦ ((p.1, w), p.2) := by fun_prop
       refine ⟨hc.comp e1.continuousOn fun z hz ↦ ⟨hz, mem_univ _⟩, fun x hx y ↦ hd1 x hx w y, ?_⟩
-      show ContinuousOn (dMB fun z ↦ f (z, w)) (U ×ˢ univ)
+      change ContinuousOn (dMB fun z ↦ f (z, w)) (U ×ˢ univ)
       refine (hc1.comp e2.continuousOn ?_).congr fun p _ ↦ ?_
       · intro p hp; exact ⟨⟨hp.1, mem_univ _⟩, mem_univ _⟩
       · rfl
@@ -424,6 +446,7 @@ private def shiftCLM (k : ℕ) : E × (Fin (k + 1) → E) →L[ℝ] (E × E) × 
   map_smul' c p := by ext <;> simp
   cont := by fun_prop
 
+omit [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] [ContinuousSMul ℝ F] in
 theorem ContDiffMBOn.contDiffMBOn_iteratedDMB : ∀ (k : ℕ) {r : ℕ} {E₁ : Type u}
     [AddCommGroup E₁] [Module ℝ E₁] [TopologicalSpace E₁] [IsTopologicalAddGroup E₁]
     [ContinuousSMul ℝ E₁] [LocallyConvexSpace ℝ E₁] [T2Space E₁] {f : E₁ → F} {U : Set E₁},
@@ -462,6 +485,8 @@ theorem ContDiffMBOn.contDiffMBOn_iteratedDMB_slice {k r : ℕ} {f : E → F} {U
 
 /-! ### Proposition 1.3.17: Schwarz's theorem -/
 
+omit [ContinuousSMul ℝ F] [LocallyConvexSpace ℝ E] [T2Space E] [IsTopologicalAddGroup F]
+    [LocallyConvexSpace ℝ F] [T2Space F] in
 theorem dMB_congr_of_eventuallyEq {f₁ f₂ : E → F} {x : E} (h : f₁ =ᶠ[𝓝 x] f₂) (v : E) :
     dMB f₁ (x, v) = dMB f₂ (x, v) := by
   have hl : Tendsto (fun t : ℝ ↦ x + t • v) (𝓝[≠] 0) (𝓝 x) := by
@@ -473,6 +498,8 @@ theorem dMB_congr_of_eventuallyEq {f₁ f₂ : E → F} {x : E} (h : f₁ =ᶠ[�
   filter_upwards [hl.eventually h] with t ht
   simp only [ht, h.eq_of_nhds]
 
+omit [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E] [T2Space E]
+    [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] [T2Space F] [ContinuousSMul ℝ F] in
 theorem iteratedDMB_add_two (k : ℕ) (f : E → F) (x : E) (v : Fin (k + 2) → E) :
     iteratedDMB (k + 2) f (x, v) = dMB (dMB fun z ↦ iteratedDMB k f (z, Fin.init (Fin.init v)))
       ((x, v (Fin.last k).castSucc), (v (Fin.last (k + 1)), 0)) := by
@@ -547,7 +574,8 @@ theorem ContDiffMBOn.iteratedDMB_snoc_add {m k : ℕ} {f : E → F} {U : Set E} 
 theorem ContDiffMBOn.iteratedDMB_snoc_smul {m k : ℕ} {f : E → F} {U : Set E}
     (hU : IsOpen U) (hf : ContDiffMBOn m f U) (hk : k + 1 ≤ m) {x : E} (hx : x ∈ U)
     (v : Fin k → E) (c : ℝ) (a : E) :
-    iteratedDMB (k + 1) f (x, Fin.snoc v (c • a)) = c • iteratedDMB (k + 1) f (x, Fin.snoc v a) := by
+    iteratedDMB (k + 1) f (x, Fin.snoc v (c • a)) =
+      c • iteratedDMB (k + 1) f (x, Fin.snoc v a) := by
   simp only [iteratedDMB_succ, Fin.init_snoc, Fin.snoc_last]
   exact ((hf.of_le hk).contDiffMBOn_iteratedDMB_slice hU v).dMB_smul hx c a
 

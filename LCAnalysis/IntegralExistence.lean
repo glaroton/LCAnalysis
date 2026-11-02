@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Gabriel Larotonda
+-/
 import LCAnalysis.Integral
 
 /-!
@@ -23,7 +28,6 @@ uniform additive group, completeness implies sequential completeness.
 open Set Filter Function Finset
 open scoped Topology Pointwise
 
-set_option linter.unusedSectionVars false
 
 noncomputable section
 
@@ -47,6 +51,7 @@ section Cauchy
 variable {F : Type v} [AddCommGroup F] [Module ℝ F] [TopologicalSpace F]
   [IsTopologicalAddGroup F]
 
+omit [Module ℝ F] in
 /-- A one-sided Cauchy condition implies the two-sided one. -/
 theorem cauchy_of_forall_ge {u : ℕ → F}
     (h : ∀ V ∈ 𝓝 (0 : F), ∃ K, ∀ k ≥ K, ∀ l ≥ k, u l - u k ∈ V) :
@@ -97,11 +102,13 @@ variable {F : Type v} [AddCommGroup F] [Module ℝ F] [TopologicalSpace F]
 def riemannSum (γ : ℝ → F) (a b : ℝ) (N : ℕ) : F :=
   ((b - a) / N) • ∑ i ∈ range N, γ (a + i * ((b - a) / N))
 
+omit [IsTopologicalAddGroup F] [ContinuousSMul ℝ F] in
 theorem map_riemannSum {G : Type*} [AddCommGroup G] [Module ℝ G] [TopologicalSpace G]
     (φ : F →L[ℝ] G) (N : ℕ) :
     φ (riemannSum γ a b N) = riemannSum (fun t ↦ φ (γ t)) a b N := by
   simp [riemannSum, map_sum]
 
+omit [Module ℝ F] [TopologicalSpace F] [IsTopologicalAddGroup F] [ContinuousSMul ℝ F] in
 private theorem sum_range_mul (g : ℕ → F) (N m : ℕ) :
     ∑ j ∈ range (N * m), g j = ∑ i ∈ range N, ∑ r ∈ range m, g (i * m + r) := by
   induction N with
@@ -130,6 +137,7 @@ theorem riemann_points (hab : a ≤ b) {N m i r : ℕ} (hm : 0 < m) (hi : i < N)
   rw [hs]
   refine ⟨⟨by nlinarith, by nlinarith⟩, ⟨by nlinarith, by nlinarith⟩, by nlinarith, by nlinarith⟩
 
+omit [TopologicalSpace F] [IsTopologicalAddGroup F] [ContinuousSMul ℝ F] in
 /-- Comparison of a Riemann sum with a refinement: if the increments of `γ` over steps of
 length at most `(b - a) / N` lie in a convex set `V`, then the difference lies in `(b - a) • V`. -/
 theorem riemannSum_mul_sub_mem (hab : a ≤ b) {N m : ℕ} (hN : 0 < N) (hm : 0 < m) {V : Set F}
@@ -240,6 +248,7 @@ variable {F : Type v} [AddCommGroup F] [Module ℝ F] [TopologicalSpace F]
   [IsTopologicalAddGroup F] [ContinuousSMul ℝ F] [LocallyConvexSpace ℝ F] [T2Space F]
   {γ : ℝ → F} {a b : ℝ} {y : F}
 
+omit [LocallyConvexSpace ℝ F] [T2Space F] [IsTopologicalAddGroup F] [ContinuousSMul ℝ F] in
 /-- If the dyadic Riemann sums of a continuous curve converge, the limit is its weak integral. -/
 theorem hasWeakIntegral_of_tendsto (hab : a ≤ b) (hγ : ContinuousOn γ (Icc a b))
     (h : Tendsto (fun k : ℕ ↦ riemannSum γ a b (2 ^ k)) atTop (𝓝 y)) :
@@ -251,6 +260,7 @@ theorem hasWeakIntegral_of_tendsto (hab : a ≤ b) (hγ : ContinuousOn γ (Icc a
     (tendsto_atTop_mono (fun k ↦ (Nat.lt_two_pow_self (n := k)).le) tendsto_id)
   exact tendsto_nhds_unique h1 h2
 
+omit [Module ℝ F] [ContinuousSMul ℝ F] [LocallyConvexSpace ℝ F] [T2Space F] in
 /-- Uniform continuity of continuous curves on compact intervals. -/
 theorem exists_pos_forall_sub_mem (hγ : ContinuousOn γ (Icc a b)) {W : Set F}
     (hW : W ∈ 𝓝 (0 : F)) :
@@ -266,6 +276,7 @@ theorem exists_pos_forall_sub_mem (hγ : ContinuousOn γ (Icc a b)) {W : Set F}
   have := hδs (a := t) (b := s) (by rwa [Real.dist_eq, abs_sub_comm]) ⟨ht, hs⟩
   simpa [sub_eq_add_neg] using this
 
+omit [T2Space F] in
 /-- In a sequentially complete space, continuous curves have weak integrals. -/
 theorem exists_hasWeakIntegral_of_le [SeqComplete F] (hab : a ≤ b)
     (hγ : ContinuousOn γ (Icc a b)) : ∃ y, HasWeakIntegral γ a b y := by
@@ -304,13 +315,16 @@ theorem exists_hasWeakIntegral_of_le [SeqComplete F] (hab : a ≤ b)
   rw [mem_smul_set_iff_inv_smul_mem₀ (inv_ne_zero hc), inv_inv, smul_smul] at this
   rwa [show (b - a + 1) * ((b - a) / (b - a + 1)) = b - a by field_simp] at this
 
+omit [IsTopologicalAddGroup F] [ContinuousSMul ℝ F] [LocallyConvexSpace ℝ F] [T2Space F] in
 theorem HasWeakIntegral.symm (hy : HasWeakIntegral γ a b y) : HasWeakIntegral γ b a (-y) := by
   intro φ
   rw [map_neg, hy φ, intervalIntegral.integral_symm, neg_neg]
 
+omit [IsTopologicalAddGroup F] [ContinuousSMul ℝ F] [LocallyConvexSpace ℝ F] [T2Space F] in
 theorem hasWeakIntegral_same (γ : ℝ → F) (a : ℝ) : HasWeakIntegral γ a a 0 := by
   intro φ; simp
 
+omit [T2Space F] in
 /-- In a sequentially complete space, continuous curves have weak integrals. -/
 theorem exists_hasWeakIntegral [SeqComplete F] (hγ : ContinuousOn γ (uIcc a b)) :
     ∃ y, HasWeakIntegral γ a b y := by
@@ -319,6 +333,7 @@ theorem exists_hasWeakIntegral [SeqComplete F] (hγ : ContinuousOn γ (uIcc a b)
   · obtain ⟨y, hy⟩ := exists_hasWeakIntegral_of_le hba (by rwa [uIcc_of_ge hba] at hγ)
     exact ⟨-y, hy.symm⟩
 
+omit [IsTopologicalAddGroup F] [ContinuousSMul ℝ F] [T2Space F] in
 /-- In a locally convex space, the convex hull of a bounded set is bounded. -/
 theorem isVonNBounded_convexHull {B : Set F} (hB : Bornology.IsVonNBounded ℝ B) :
     Bornology.IsVonNBounded ℝ (convexHull ℝ B) := by
@@ -515,6 +530,7 @@ theorem SmoothMBOn.smoothMBOn_weakIntegral [MackeyComplete F] {T : Set ℝ} (hT 
     SmoothMBOn (fun x ↦ weakIntegral (fun t ↦ f (x, t)) a b) U := fun k ↦
   ContDiffMBOn.contDiffMBOn_weakIntegral_of_mackey hT hab hTab hU (hf (k + 1))
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] in
 /-- Differentiation under the integral sign, sequentially complete case:
 `d(∫_a^b f(·, t) dt)(x)(h) = ∫_a^b d₁f((x, t), h) dt` for `f` of class `C^1`. -/
 theorem ContDiffMBOn.dMB_weakIntegral [SeqComplete F] {T : Set ℝ} (hT : IsOpen T)

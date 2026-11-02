@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Gabriel Larotonda
+-/
 import LCAnalysis.Higher
 
 /-!
@@ -39,6 +44,9 @@ variable {A B : Type u} [AddCommGroup A] [Module ℝ A] [TopologicalSpace A]
   (β : A →ₗ[ℝ] B →ₗ[ℝ] F) (hβ : Continuous fun p : A × B ↦ β p.1 p.2)
 include hβ
 
+omit [LocallyConvexSpace ℝ F] [T2Space F] [TopologicalSpace A] [IsTopologicalAddGroup A]
+    [ContinuousSMul ℝ A] [LocallyConvexSpace ℝ A] [T2Space A] [TopologicalSpace B]
+    [IsTopologicalAddGroup B] [ContinuousSMul ℝ B] [LocallyConvexSpace ℝ B] [T2Space B] hβ in
 theorem hasDirDerivAt_bilin (p q : A × B) :
     HasDirDerivAt (fun p : A × B ↦ β p.1 p.2) p q (β p.1 q.2 + β q.1 p.2) := by
   have key : ∀ t : ℝ, t ≠ 0 → t⁻¹ • (β (p + t • q).1 (p + t • q).2 - β p.1 p.2) =
@@ -64,9 +72,9 @@ theorem contDiffMBOn_bilin (k : ℕ) : ContDiffMBOn k (fun p : A × B ↦ β p.1
   | succ k ih =>
     have heq : dMB (fun p : A × B ↦ β p.1 p.2) =
         fun r ↦ β r.1.1 r.2.2 + β r.2.1 r.1.2 :=
-      funext fun r ↦ (hasDirDerivAt_bilin β hβ r.1 r.2).dMB_eq
+      funext fun r ↦ (hasDirDerivAt_bilin β r.1 r.2).dMB_eq
     refine ⟨hβ.continuousOn, fun p _ q ↦ ?_, ?_⟩
-    · rw [heq]; exact hasDirDerivAt_bilin β hβ p q
+    · rw [heq]; exact hasDirDerivAt_bilin β p q
     · rw [heq, univ_prod_univ]
       let L₁ : (A × B) × (A × B) →L[ℝ] A × B :=
         ((ContinuousLinearMap.fst ℝ A B).comp (ContinuousLinearMap.fst ℝ _ _)).prod
@@ -94,13 +102,15 @@ theorem ContDiffMBOn.dMB_bilin {f : E → A} {g : E → B} {U : Set E} (hU : IsO
     (contDiffMBOn_bilin β hβ 1) (hf.prodMk hU hg) (mapsTo_univ _ _) hx h
   have hp : dMB (fun x ↦ (f x, g x)) (x, h) = (dMB f (x, h), dMB g (x, h)) :=
     ((hf.2.1 x hx h).prodMk (hg.2.1 x hx h)).dMB_eq
-  rw [hp, (hasDirDerivAt_bilin β hβ _ _).dMB_eq] at hc
+  rw [hp, (hasDirDerivAt_bilin β _ _).dMB_eq] at hc
   exact hc
 
 end Bilinear
 
 /-! ### Taylor's formula -/
 
+omit [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E] [T2Space E]
+    [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] [T2Space F] [ContinuousSMul ℝ F] in
 /-- Along a line, `t ↦ ψ (d^(j) f (x + t h, h, …, h))` has derivative
 `ψ (d^(j+1) f (x + t h, h, …, h))`. -/
 theorem ContDiffMBOn.hasDerivAt_iteratedDMB_line {k j : ℕ} {f : E → F} {U : Set E}
@@ -110,6 +120,8 @@ theorem ContDiffMBOn.hasDerivAt_iteratedDMB_line {k j : ℕ} {f : E → F} {U : 
       (ψ (iteratedDMB (j + 1) f (x + t • h, fun _ ↦ h))) t :=
   (hf.hasContIterDerivOn.1 j hj _ ht (fun _ ↦ h)).hasDerivAt_clm ψ
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F]
+    [T2Space F] [ContinuousSMul ℝ F] in
 theorem ContDiffMBOn.continuousOn_iteratedDMB_line {k j : ℕ} {f : E → F} {U : Set E}
     (hf : ContDiffMBOn k f U) (hj : j ≤ k) {x h : E} {s : Set ℝ}
     (hs : ∀ t ∈ s, x + t • h ∈ U) (ψ : F →L[ℝ] ℝ) :
@@ -117,6 +129,8 @@ theorem ContDiffMBOn.continuousOn_iteratedDMB_line {k j : ℕ} {f : E → F} {U 
   ψ.continuous.comp_continuousOn ((hf.hasContIterDerivOn.2 j hj).comp (by fun_prop)
     fun t ht ↦ ⟨hs t ht, mem_univ _⟩)
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F]
+    [T2Space F] [ContinuousSMul ℝ F] in
 /-- Taylor's formula with integral remainder, in weak form. -/
 theorem ContDiffMBOn.taylor {f : E → F} {U : Set E} {x h : E}
     (hxh : ∀ t ∈ Icc (0 : ℝ) 1, x + t • h ∈ U) (ψ : F →L[ℝ] ℝ) : ∀ (k : ℕ),
@@ -159,7 +173,8 @@ theorem ContDiffMBOn.taylor {f : E → F} {U : Set E} {x h : E}
     have hu' : IntervalIntegrable (fun t : ℝ ↦ (1 - t) ^ k / k !) MeasureTheory.volume 0 1 :=
       (by fun_prop : Continuous fun t : ℝ ↦ (1 - t) ^ k / k !).intervalIntegrable 0 1
     have hv' : IntervalIntegrable
-        (fun t : ℝ ↦ ψ (iteratedDMB (k + 1 + 1) f (x + t • h, fun _ ↦ h))) MeasureTheory.volume 0 1 :=
+        (fun t : ℝ ↦ ψ (iteratedDMB (k + 1 + 1) f (x + t • h, fun _ ↦ h)))
+        MeasureTheory.volume 0 1 :=
       (hf.continuousOn_iteratedDMB_line le_rfl (hI ▸ hxh) ψ).intervalIntegrable
     have := intervalIntegral.integral_mul_deriv_eq_deriv_mul hu hv hu' hv'
     simp only [neg_mul, intervalIntegral.integral_neg, sub_self,

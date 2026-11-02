@@ -1,12 +1,222 @@
 # LCAnalysis
 
-Differential and integral calculus on locally convex spaces (Michal–Bastiani calculus), formalized in Lean 4 on top of Mathlib.
+**Differential and integral calculus on locally convex spaces, formalized in Lean 4 and Mathlib.**
 
-* `LCAnalysis/MichalBastiani.lean`: directional derivatives, `C^k` maps, weak Riemann integral, fundamental theorem, mean value inclusion, chain rule, partial derivatives, symmetry of the second derivative.
-* `LCAnalysis/Higher.lean`: higher differentials `d^(k) f`; the recursive definition of `C^k` agrees with Bastiani–Neeb's (Glöckner–Neeb, Prop. 1.3.10); `d^(k) f` is `C^{r-k}` (Remark 1.3.13); Schwarz's theorem: `d^(k) f (x, ·)` is a continuous symmetric `k`-linear map (Prop. 1.3.17).
-* `LCAnalysis/Rules.lean`: continuous bilinear maps are smooth; product rule; Taylor's formula with integral remainder (weak form).
-* `LCAnalysis/Integral.lean`: weak integrals of curves; mean value inclusion; continuity of parameter-dependent integrals; differentiation under the integral sign.
-* `LCAnalysis/IntegralExistence.lean`: sequentially complete and Mackey complete spaces; weak integrals of continuous curves exist in sequentially complete spaces, and of `C^1` curves in Mackey complete spaces (limits of dyadic Riemann sums); parameter-dependent integrals of `C^k` maps are `C^k` (sequentially complete) or `C^{k-1}` (Mackey complete; smooth ⇒ smooth), with no existence hypotheses.
-* `LCAnalysis/MBFrechet.lean`: for normed spaces, MB `C^{k+1}` ⇒ Fréchet `C^k`, and MB smooth ⇔ Fréchet smooth.
+This library formalizes the *Michal–Bastiani* calculus (Keller's `C^k_c`). It is the usual
+foundation for infinite-dimensional Lie theory and global analysis, where manifolds and Lie groups
+are modeled on arbitrary locally convex spaces: Fréchet spaces of smooth functions, spaces of test
+functions, direct limits. Mathlib's differential calculus (`HasFDerivAt`, `ContDiff`) is built on
+normed spaces, so it does not cover these models.
 
-References: Neeb, arXiv:1501.06269; Glöckner–Neeb, arXiv:2602.12362.
+There is no `sorry`. The main theorems depend only on Lean's standard axioms `propext`,
+`Classical.choice` and `Quot.sound`; the [Verification](#verification) section explains how to
+check this.
+
+* [The setting](#the-setting)
+* [Main results](#main-results)
+* [Design decisions](#design-decisions)
+* [What is new here and what is not](#what-is-new-here-and-what-is-not)
+* [References and acknowledgements](#references-and-acknowledgements)
+* [How this library was written](#how-this-library-was-written)
+* [Verification](#verification)
+
+## The setting
+
+Let `E`, `F` be real locally convex Hausdorff spaces, `U ⊆ E` open and `f : U → F`.
+
+* **Differentiability.** `f` is `C^1` if every directional derivative
+  `df(x)(h) = lim_{t → 0} t⁻¹ (f (x + t h) - f x)` exists and `df : U × E → F` is continuous. It is
+  `C^{k+1}` if moreover `df` is `C^k`.
+* **Tools in place of norm estimates.** Hahn–Banach: continuous linear functionals separate points
+  from closed convex sets. Local convexity: closed convex neighborhoods of `0` form a basis.
+* **Integrals.** Integrals of curves are *weak* integrals: `y = ∫_a^b γ` means
+  `φ y = ∫_a^b φ (γ t) dt` for every continuous linear functional `φ`. They are unique, but they
+  need not exist. They do exist under mild completeness conditions on `F`.
+
+## Main results
+
+Statements are paraphrased here; the Lean declarations are the precise versions. References of
+the form "G–N 1.2.13" point to the numbered results of Glöckner and Neeb [GN26], the main source.
+
+### First-order calculus — [`MichalBastiani.lean`](LCAnalysis/MichalBastiani.lean)
+
+| Result | Lean | Source |
+|---|---|---|
+| Directional derivatives; `C^k` and smooth maps | `HasDirDerivAt`, `dMB`, `ContDiffMBOn`, `SmoothMBOn` | G–N 1.2.1, 1.3.1 |
+| `df(x)` is a continuous linear map | `ContDiffMBOn.exists_clm` | G–N 1.2.4, 1.2.11 |
+| Mean value theorem `f(x+h) - f(x) = ∫₀¹ df(x+th)(h) dt` (weak form) | `ContDiffMBOn.integral_dMB` | G–N 1.2.6 |
+| Mean value inclusion: increments lie in the closed convex hull of the derivatives | `sub_mem_of_hasDirDerivAt` | [Mic80] 8.4 |
+| Characterization of `C^1` by continuous extension of difference quotients | `ContDiffMBOn.tendsto_quotient` | G–N 1.2.10, [Glö02] |
+| Chain rule, for every `k` | `ContDiffMBOn.comp`, `ContDiffMBOn.dMB_comp` | G–N 1.2.13, 1.3.4 |
+| Continuous partial derivatives imply `C^1` | `contDiffMBOn_one_of_partials` | G–N 1.2.8, [Mic80] 8.3 |
+| Symmetry of the second derivative | `ContDiffMBOn.dMB_dMB_symm` | G–N 1.3.17 (`k = 2`) |
+| Fréchet `C^k` implies Michal–Bastiani `C^k` (normed spaces) | `ContDiffOn.contDiffMBOn` | [Nee06] I.2.2 |
+
+### Higher differentials — [`Higher.lean`](LCAnalysis/Higher.lean)
+
+| Result | Lean | Source |
+|---|---|---|
+| Iterated differentials `d^(k) f : U × E^k → F` | `iteratedDMB` | G–N 1.3.10–1.3.11 |
+| The recursive definition of `C^k` agrees with Bastiani's (continuous iterated directional derivatives) | `contDiffMBOn_iff_hasContIterDerivOn` | G–N 1.3.10, 1.3.12 |
+| `d^(k) f` is `C^{r-k}` | `ContDiffMBOn.contDiffMBOn_iteratedDMB` | G–N 1.3.13 |
+| Schwarz's theorem: `d^(k) f(x)` is a continuous symmetric `k`-linear map | `ContDiffMBOn.iteratedDMB_perm`, `ContDiffMBOn.exists_iteratedDMB_multilinear` | G–N 1.3.17 |
+
+### Rules — [`Rules.lean`](LCAnalysis/Rules.lean)
+
+| Result | Lean | Source |
+|---|---|---|
+| Continuous bilinear maps are smooth; product rule | `contDiffMBOn_bilin`, `ContDiffMBOn.bilin`, `ContDiffMBOn.dMB_bilin` | G–N 1.2.3, 1.3.5 |
+| Taylor's formula with integral remainder (weak form) | `ContDiffMBOn.taylor` | cf. G–N 1.6.1, 1.6.14 |
+
+### Comparison with Fréchet calculus — [`MBFrechet.lean`](LCAnalysis/MBFrechet.lean)
+
+| Result | Lean | Source |
+|---|---|---|
+| Between normed spaces, Michal–Bastiani `C^{k+1}` implies Fréchet `C^k` | `ContDiffMBOn.contDiffOn` | G–N 2.3.17 |
+| Between normed spaces, the two notions of smoothness agree | `smoothMBOn_iff_contDiffOn` | G–N 2.3.17 |
+
+### Weak integrals — [`Integral.lean`](LCAnalysis/Integral.lean), [`IntegralExistence.lean`](LCAnalysis/IntegralExistence.lean), [`FundamentalTheorem.lean`](LCAnalysis/FundamentalTheorem.lean)
+
+| Result | Lean | Source |
+|---|---|---|
+| Weak integrals and their uniqueness | `HasWeakIntegral`, `HasWeakIntegral.unique` | G–N 1.1.6–1.1.7 |
+| Integrals of small curves are small | `HasWeakIntegral.mem_smul` | cf. G–N 1.1.9 |
+| Continuity of parameter-dependent integrals | `continuousOn_weakIntegral` | G–N 1.1.11 |
+| Sequentially complete and Mackey complete spaces; complete ⇒ sequentially complete ⇒ Mackey complete | `SeqComplete`, `MackeyComplete`, `SeqComplete.of_completeSpace`, `SeqComplete.mackeyComplete` | G–N 1.1.18, [KM97] 2.2, 2.14 |
+| Continuous curves have weak integrals in sequentially complete spaces | `exists_hasWeakIntegral` | G–N 1.1.15 |
+| `C^1` curves have weak integrals in Mackey complete spaces | `ContDiffMBOn.exists_hasWeakIntegral` | G–N 1.1.18, [KM97] 2.14 |
+| The convex hull of a bounded set is bounded | `isVonNBounded_convexHull` | standard |
+| Differentiation under the integral sign | `hasDirDerivAt_weakIntegral`, `ContDiffMBOn.dMB_weakIntegral` | G–N 1.3.15, 1.3.23 |
+| Parameter-dependent integrals: `C^k` ⇒ `C^k` (sequentially complete); `C^{k+1}` ⇒ `C^k`, smooth ⇒ smooth (Mackey complete) | `ContDiffMBOn.contDiffMBOn_weakIntegral`, `ContDiffMBOn.contDiffMBOn_weakIntegral_of_mackey`, `SmoothMBOn.smoothMBOn_weakIntegral` | G–N 1.3.23 |
+| Linearity, additivity in the interval, continuous linear maps | `HasWeakIntegral.add`, `HasWeakIntegral.add_adjacent`, `HasWeakIntegral.map` | G–N 1.1.4, 1.1.8 |
+| Change of variables | `hasWeakIntegral_comp_smul_deriv_iff` | standard |
+| Fundamental theorem, first part: `∫_a^b γ' = γ b - γ a`, no completeness needed | `hasWeakIntegral_sub_of_hasDirDerivAt`, `ContDiffMBOn.hasWeakIntegral_dMB` | G–N 1.1.5, 1.2.6 |
+| Fundamental theorem, second part: `d/ds ∫_a^s γ = γ s` when the integrals exist | `hasDirDerivAt_weakIntegral_right_of_exists`, `hasDirDerivAt_weakIntegral_right` | G–N 1.1.12 |
+
+## Design decisions
+
+* **Michal–Bastiani, not convenient calculus.** Convenient calculus [KM97] is the other standard
+  framework for infinite-dimensional analysis. It agrees with Michal–Bastiani calculus on Fréchet
+  spaces but not in general. This library follows the Michal–Bastiani framework of the Lie theory
+  in [Nee06, GN26], which it is meant to support.
+* **A recursive definition of `C^k`.** `ContDiffMBOn (k + 1) f U` means that `f` is `C^1` on `U`
+  and `dMB f` is `C^k` on `U ×ˢ univ`. This makes induction on `k` straightforward, for instance in
+  the chain rule and for parameter-dependent integrals. Bastiani's original definition, continuity
+  of all iterated directional derivatives, is `HasContIterDerivOn`, and the two are proved
+  equivalent.
+* **One universe for domains.** `ContDiffMBOn` is defined by recursion on `k` and quantifies over
+  domains. As a consequence, the domains of `C^k` maps live in a fixed universe `u`. Codomains are
+  unrestricted.
+* **Existence of integrals is a hypothesis, not an assumption on the space.** `HasWeakIntegral γ a b y`
+  is a relation, so results hold in every locally convex space under explicit existence
+  hypotheses, and completeness enters only through the existence theorems. The function
+  `weakIntegral`, with junk value `0`, is used only where existence is known.
+* **Completeness without uniform structures.** `SeqComplete` and `MackeyComplete` are stated
+  through the topology: a sequence is Cauchy when `u n - u m` is eventually in every neighborhood
+  of `0`. This avoids fixing a uniform structure on a topological vector space. For a uniform
+  additive group, `CompleteSpace` implies `SeqComplete`.
+* **Mackey completeness through Mackey–Cauchy sequences.** `MackeyComplete` asks every
+  Mackey–Cauchy sequence to converge: `u l - u k ∈ r k • B` for `k ≤ l`, with `B` bounded and
+  `r k → 0`. This is one of the equivalent characterizations in G–N 1.1.18(e) and [KM97, 2.2,
+  2.14]. The equivalence with the definition of G–N 1.1.17(b), via Lipschitz curves, is not
+  formalized.
+* **Mathlib conventions.** File layout, naming, docstrings and the linter set follow Mathlib.
+
+## What is new here and what is not
+
+**The mathematics is not new.** Every theorem above is classical and appears in the cited
+literature. The proofs follow the cited sources, except in these places:
+
+* All the results on parameter-dependent integrals come from a single induction. Its hypothesis is
+  that every `C^m` map on `U × T` has weak integrals in the second variable. The sequentially
+  complete case and the Mackey complete case are then corollaries.
+* Weak integrals are constructed as limits of dyadic Riemann sums. In the continuous case the
+  Cauchy estimate comes from uniform continuity; in the `C^1` case it comes from the mean value
+  inclusion.
+* The second part of the fundamental theorem is reduced, through an affine change of variables,
+  to the estimate for integrals of small curves.
+
+**The formalization is new.** Michal–Bastiani calculus is not in Mathlib, and we are not aware of
+a formalization of it in another proof assistant.
+
+**The library rests on Mathlib.** It uses, among others:
+
+* topological vector spaces, `LocallyConvexSpace`, von Neumann bounded sets
+  (`Bornology.IsVonNBounded`), and the Hahn–Banach theorems (`SeparatingDual`,
+  `geometric_hahn_banach_closed_point`);
+* the interval integral and the fundamental theorem of calculus for real functions;
+* the Fréchet calculus (`HasFDerivAt`, `ContDiffOn`, continuous multilinear maps), against which
+  `MBFrechet.lean` compares the Michal–Bastiani notions.
+
+## References and acknowledgements
+
+### Mathematics
+
+* **[GN26]** H. Glöckner, K.-H. Neeb, *Infinite-Dimensional Lie Groups*, book manuscript,
+  arXiv:2602.12362 (2026). The main reference (Part I).
+* **[Nee06]** K.-H. Neeb, *Towards a Lie theory of locally convex groups*, Jpn. J. Math. 1 (2006),
+  291–468; arXiv:1501.06269.
+* **[Glö02]** H. Glöckner, *Infinite-dimensional Lie groups without completeness restrictions*, in
+  *Geometry and Analysis on Finite- and Infinite-Dimensional Lie Groups*, Banach Center Publ. 55
+  (2002), 43–59.
+* **[Mic80]** P. W. Michor, *Manifolds of Differentiable Mappings*, Shiva Math. Series 3, 1980.
+* **[KM97]** A. Kriegl, P. W. Michor, *The Convenient Setting of Global Analysis*, Math. Surveys
+  Monogr. 53, Amer. Math. Soc., 1997.
+* **[Mil84]** J. Milnor, *Remarks on infinite-dimensional Lie groups*, in *Relativity, Groups and
+  Topology II* (Les Houches, 1983), North-Holland, 1984, 1007–1057.
+* **[Ham82]** R. S. Hamilton, *The inverse function theorem of Nash and Moser*, Bull. Amer. Math.
+  Soc. 7 (1982), 65–222.
+* **[Kel74]** H. H. Keller, *Differential Calculus in Locally Convex Spaces*, Lecture Notes in
+  Math. 417, Springer, 1974.
+* **[Bas64]** A. Bastiani, *Applications différentiables et variétés différentiables de dimension
+  infinie*, J. Analyse Math. 13 (1964), 1–114.
+* **[Mic38]** A. D. Michal, *Differential calculus in linear topological spaces*, Proc. Nat. Acad.
+  Sci. USA 24 (1938), 340–342.
+
+### Lean and Mathlib
+
+* **Lean 4.** L. de Moura, S. Ullrich, *The Lean 4 theorem prover and programming language*,
+  CADE-28, LNCS 12699 (2021), 625–635.
+* **Mathlib.** The mathlib Community, *The Lean mathematical library*, CPP 2020, 367–381.
+
+This library depends on Mathlib throughout and follows its conventions. We thank its contributors,
+in particular the authors of the parts on topological vector spaces, locally convex spaces,
+Hahn–Banach, interval integration and Fréchet calculus.
+
+## How this library was written
+
+Gabriel Larotonda set the mathematical program and chose the framework and the references. He also
+fixed the design constraints (no `sorry`, Michal–Bastiani rather than convenient calculus, Mathlib
+conventions) and reviewed the results. The Lean proofs were written by the AI assistant Claude
+(Anthropic), working under his direction.
+
+Correctness does not depend on trusting either of them:
+
+* Lean's kernel checks every proof.
+* The axiom audit below can be reproduced by anyone.
+* The definitions and theorem statements are kept close to the cited literature, so they can be
+  compared with it directly.
+
+## Verification
+
+Requirements: [`elan`](https://github.com/leanprover/elan). The Lean toolchain (`lean-toolchain`)
+and the Mathlib version (`lakefile.toml`) are pinned.
+
+```bash
+lake exe cache get                  # download compiled Mathlib
+lake build                          # build the library
+lake env lean scripts/Axioms.lean   # print the axioms used by the main theorems
+```
+
+Every line printed by the last command should read `[propext, Classical.choice, Quot.sound]`.
+The continuous integration workflow runs the same check, and it fails if any other axiom appears,
+including `sorryAx`.
+
+## Related projects
+
+* [LCManifolds](https://github.com/glaroton/LCManifolds): manifolds modeled on locally convex
+  spaces, built on this library (early stage).
+
+## License
+
+Apache 2.0, the license Mathlib uses; see [LICENSE](LICENSE).

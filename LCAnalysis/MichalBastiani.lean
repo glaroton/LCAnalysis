@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Gabriel Larotonda
+-/
 import Mathlib
 
 /-!
@@ -62,28 +67,33 @@ def SmoothMBOn (f : E → F) (U : Set E) : Prop := ∀ k, ContDiffMBOn k f U
 
 /-! ### Basic properties -/
 
+omit [ContinuousSMul ℝ F] in
 theorem ContDiffMBOn.continuousOn {k : ℕ} {f : E → F} {U : Set E} (hf : ContDiffMBOn k f U) :
     ContinuousOn f U := by
   cases k with
   | zero => exact hf
   | succ k => exact hf.1
 
+omit [ContinuousSMul ℝ F] in
 theorem ContDiffMBOn.hasDirDerivAt {k : ℕ} {f : E → F} {U : Set E}
     (hf : ContDiffMBOn (k + 1) f U) {x : E} (hx : x ∈ U) (h : E) :
     HasDirDerivAt f x h (dMB f (x, h)) :=
   hf.2.1 x hx h
 
+omit [ContinuousSMul ℝ F] in
 theorem ContDiffMBOn.of_succ : ∀ {k : ℕ} {E : Type u} [AddCommGroup E] [Module ℝ E]
     [TopologicalSpace E] {f : E → F} {U : Set E}, ContDiffMBOn (k + 1) f U → ContDiffMBOn k f U
   | 0, _, _, _, _, _, _, hf => hf.1
   | _ + 1, _, _, _, _, _, _, hf => ⟨hf.1, hf.2.1, ContDiffMBOn.of_succ hf.2.2⟩
 
+omit [ContinuousSMul ℝ F] in
 theorem ContDiffMBOn.of_le {k l : ℕ} {f : E → F} {U : Set E} (hf : ContDiffMBOn k f U)
     (hlk : l ≤ k) : ContDiffMBOn l f U := by
   induction hlk with
   | refl => exact hf
   | step _ ih => exact ih hf.of_succ
 
+omit [ContinuousSMul ℝ F] in
 theorem SmoothMBOn.contDiffMBOn {f : E → F} {U : Set E} (hf : SmoothMBOn f U) (k : ℕ) :
     ContDiffMBOn k f U :=
   hf k
@@ -97,6 +107,9 @@ variable [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace �
 
 /-! ### Proposition I.2.3 -/
 
+omit [TopologicalSpace E] [ContinuousSMul ℝ F] [IsTopologicalAddGroup E] [ContinuousSMul ℝ E]
+    [LocallyConvexSpace ℝ E] [T2Space E] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F]
+    [T2Space F] in
 /-- Along the line `t ↦ x + t • h`, a directional derivative composed with a continuous
 linear functional is an ordinary derivative. -/
 theorem HasDirDerivAt.hasDerivAt_clm {f : E → F} {x h : E} {t : ℝ} {y : F}
@@ -106,10 +119,14 @@ theorem HasDirDerivAt.hasDerivAt_clm {f : E → F} {x h : E} {t : ℝ} {y : F}
   refine ((φ.continuous.tendsto y).comp hd).congr fun s ↦ ?_
   simp [add_smul, add_assoc, smul_eq_mul]
 
+omit [TopologicalSpace E] [ContinuousSMul ℝ F] [IsTopologicalAddGroup E] [ContinuousSMul ℝ E]
+    [LocallyConvexSpace ℝ E] [T2Space E] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] in
 theorem HasDirDerivAt.dMB_eq {f : E → F} {x h : E} {y : F} (hd : HasDirDerivAt f x h y) :
     dMB f (x, h) = y :=
   hd.limUnder_eq
 
+omit [TopologicalSpace E] [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E]
+    [T2Space E] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] in
 /-- Homogeneity of directional derivatives in the direction. -/
 theorem HasDirDerivAt.smul_dir {f : E → F} {x h : E} {y : F} (hd : HasDirDerivAt f x h y)
     (c : ℝ) : HasDirDerivAt f x (c • h) (c • y) := by
@@ -121,19 +138,24 @@ theorem HasDirDerivAt.smul_dir {f : E → F} {x h : E} {y : F} (hd : HasDirDeriv
       exact ((continuous_id.mul continuous_const).tendsto' 0 0 (by simp)).mono_left
         nhdsWithin_le_nhds
     refine ((hd.comp hm).const_smul c).congr fun t ↦ ?_
-    show c • ((t * c)⁻¹ • (f (x + (t * c) • h) - f x)) = t⁻¹ • (f (x + t • c • h) - f x)
+    change c • ((t * c)⁻¹ • (f (x + (t * c) • h) - f x)) = t⁻¹ • (f (x + t • c • h) - f x)
     rw [smul_smul, smul_smul t c h, mul_inv, mul_left_comm, mul_inv_cancel₀ hc, mul_one]
 
+omit [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E] [T2Space E]
+    [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] in
 theorem ContDiffMBOn.dMB_smul {f : E → F} {U : Set E} (hf : ContDiffMBOn 1 f U) {x : E}
     (hx : x ∈ U) (c : ℝ) (h : E) : dMB f (x, c • h) = c • dMB f (x, h) :=
   tendsto_nhds_unique (hf.2.1 x hx (c • h)) ((hf.2.1 x hx h).smul_dir c)
 
+omit [ContinuousSMul ℝ F] [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E]
+    [T2Space E] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] [T2Space F] in
 /-- `h ↦ df(x)(h)` is continuous. -/
 theorem ContDiffMBOn.continuous_dMB {f : E → F} {U : Set E} (hf : ContDiffMBOn 1 f U) {x : E}
     (hx : x ∈ U) : Continuous fun h ↦ dMB f (x, h) :=
   (hf.2.2 : ContinuousOn (dMB f) (U ×ˢ univ)).comp_continuous (by fun_prop)
     fun h ↦ ⟨hx, mem_univ h⟩
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] in
 /-- Additivity of `df(x)`. The proof applies the mean value theorem to `φ ∘ f` along lines, for
 continuous linear functionals `φ`, and uses that these separate points (Hahn–Banach). -/
 theorem ContDiffMBOn.dMB_add {f : E → F} {U : Set E} (hU : IsOpen U) (hf : ContDiffMBOn 1 f U)
@@ -201,6 +223,7 @@ theorem ContDiffMBOn.dMB_add {f : E → F} {U : Set E} (hU : IsOpen U) (hf : Con
   rw [smul_add, ← add_assoc]
   ring
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] in
 /-- (i) For a `C^1` map, `df(x)` is a continuous linear map. -/
 theorem ContDiffMBOn.exists_clm {f : E → F} {U : Set E} (hU : IsOpen U)
     (hf : ContDiffMBOn 1 f U) {x : E} (hx : x ∈ U) :
@@ -210,6 +233,8 @@ theorem ContDiffMBOn.exists_clm {f : E → F} {U : Set E} (hU : IsOpen U)
      map_smul' := hf.dMB_smul hx
      cont := hf.continuous_dMB hx }, fun _ ↦ rfl⟩
 
+omit [ContinuousSMul ℝ F] [LocallyConvexSpace ℝ E] [T2Space E] [IsTopologicalAddGroup F]
+    [LocallyConvexSpace ℝ F] [T2Space F] in
 /-- (ii) Fundamental theorem of calculus, in weak form (no completeness assumption on `F`):
 for every continuous linear functional `φ`,
 `φ (f (x + h)) - φ (f x) = ∫₀¹ φ (df(x + t h)(h)) dt`. -/
@@ -237,6 +262,7 @@ the weak fundamental theorem of calculus with Hahn–Banach (the quotient lies i
 convex hull of `{dg(y + s t v)(v) : s ∈ [0, 1]}`) and local convexity (closed convex
 neighborhoods form a basis). -/
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] in
 /-- Mean value inclusion: the difference quotient lies in the closed convex hull of the
 directional derivatives along the segment. -/
 theorem ContDiffMBOn.quotient_mem_closure_convexHull {g : E → F} {U : Set E}
@@ -269,6 +295,7 @@ theorem ContDiffMBOn.quotient_mem_closure_convexHull {g : E → F} {U : Set E}
     rw [map_smul, map_sub, smul_eq_mul, hftc, hsmul, ← mul_assoc, inv_mul_cancel₀ ht, one_mul]
   linarith
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] in
 /-- Glöckner's lemma: for `g` of class `C^1`, the difference quotient
 `t⁻¹ • (g (y + t • v) - g y)` tends to `dg(y)(v)` as `(y', v', t) → (y, v, 0)` with `t ≠ 0`. -/
 theorem ContDiffMBOn.tendsto_quotient {g : E → F} {U : Set E} (hU : IsOpen U)
@@ -303,6 +330,8 @@ theorem ContDiffMBOn.tendsto_quotient {g : E → F} {U : Set E} (hU : IsOpen U)
   rintro _ ⟨s, hs, rfl⟩
   exact subset_closure (hp s hs).2
 
+omit [TopologicalSpace E] [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E]
+    [T2Space E] [LocallyConvexSpace ℝ F] [T2Space F] in
 /-- Chain rule for directional derivatives. -/
 theorem ContDiffMBOn.hasDirDerivAt_comp {f : E → F} {g : F → G} {V : Set F} (hV : IsOpen V)
     (hg : ContDiffMBOn 1 g V) {x h : E} {y : F} (hf : HasDirDerivAt f x h y) (hfx : f x ∈ V) :
@@ -315,8 +344,10 @@ theorem ContDiffMBOn.hasDirDerivAt_comp {f : E → F} {g : F → G} {V : Set F} 
       (Filter.Tendsto.prodMk_nhds hf (tendsto_id.mono_left nhdsWithin_le_nhds))
   refine (hq.comp hΔ).congr' (eventually_nhdsWithin_of_forall fun t ht ↦ ?_)
   have ht : t ≠ 0 := ht
-  simp [Function.comp_def, smul_smul, mul_inv_cancel₀ ht]
+  simp [smul_smul, mul_inv_cancel₀ ht]
 
+omit [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E] [T2Space E]
+    [LocallyConvexSpace ℝ F] [T2Space F] in
 /-- Chain rule for `C^1` maps, with the formula `d(g ∘ f)(x) = dg(f x) ∘ df(x)`. -/
 theorem ContDiffMBOn.comp_one {f : E → F} {g : F → G} {U : Set E} {V : Set F}
     (hV : IsOpen V) (hg : ContDiffMBOn 1 g V) (hf : ContDiffMBOn 1 f U) (hUV : MapsTo f U V) :
@@ -336,8 +367,10 @@ theorem ContDiffMBOn.comp_one {f : E → F} {g : F → G} {U : Set E} {V : Set F
 
 /-! ### Rules for `C^k` maps -/
 
+omit [ContinuousSMul ℝ F] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] [T2Space F] in
 theorem HasDirDerivAt.congr_of_eventuallyEq {E₁ : Type*} [AddCommGroup E₁] [Module ℝ E₁]
-    [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁] [LocallyConvexSpace ℝ E₁] [T2Space E₁] {f₁ f₂ : E₁ → F}
+    [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁]
+    [LocallyConvexSpace ℝ E₁] [T2Space E₁] {f₁ f₂ : E₁ → F}
     {x h : E₁} {y : F} (hd : HasDirDerivAt f₁ x h y) (heq : f₁ =ᶠ[𝓝 x] f₂) :
     HasDirDerivAt f₂ x h y := by
   have hl : Tendsto (fun t : ℝ ↦ x + t • h) (𝓝[≠] 0) (𝓝 x) := by
@@ -347,9 +380,11 @@ theorem HasDirDerivAt.congr_of_eventuallyEq {E₁ : Type*} [AddCommGroup E₁] [
   filter_upwards [hl.eventually heq] with t ht
   rw [ht, heq.eq_of_nhds]
 
+omit [ContinuousSMul ℝ F] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] in
 /-- `C^k` only depends on the values on the open set. -/
 theorem ContDiffMBOn.congr_of_isOpen : ∀ {k : ℕ} {E₁ : Type u} [AddCommGroup E₁] [Module ℝ E₁]
-    [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁] [LocallyConvexSpace ℝ E₁] [T2Space E₁] {f₁ f₂ : E₁ → F}
+    [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁]
+    [LocallyConvexSpace ℝ E₁] [T2Space E₁] {f₁ f₂ : E₁ → F}
     {U : Set E₁}, IsOpen U → EqOn f₁ f₂ U → ContDiffMBOn k f₁ U → ContDiffMBOn k f₂ U := by
   intro k
   induction k with
@@ -367,14 +402,19 @@ theorem ContDiffMBOn.congr_of_isOpen : ∀ {k : ℕ} {E₁ : Type u} [AddCommGro
     rw [← hdeq ⟨hx, mem_univ h⟩]
     exact hd x hx h
 
+omit [ContinuousSMul ℝ F] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] [T2Space F]
+    [IsTopologicalAddGroup G] [ContinuousSMul ℝ G] [LocallyConvexSpace ℝ G] [T2Space G] in
 theorem HasDirDerivAt.prodMk {E₁ : Type*} [AddCommGroup E₁] [Module ℝ E₁] [TopologicalSpace E₁]
     {f : E₁ → F} {g : E₁ → G} {x h : E₁} {y : F} {z : G} (hf : HasDirDerivAt f x h y)
     (hg : HasDirDerivAt g x h z) : HasDirDerivAt (fun w ↦ (f w, g w)) x h (y, z) :=
   (hf.prodMk_nhds hg).congr fun t ↦ by simp only [Prod.mk_sub_mk, Prod.smul_mk]
 
+omit [ContinuousSMul ℝ F] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F]
+    [IsTopologicalAddGroup G] [ContinuousSMul ℝ G] [LocallyConvexSpace ℝ G] in
 /-- Pairs of `C^k` maps are `C^k`. -/
 theorem ContDiffMBOn.prodMk : ∀ {k : ℕ} {E₁ : Type u} [AddCommGroup E₁] [Module ℝ E₁]
-    [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁] [LocallyConvexSpace ℝ E₁] [T2Space E₁] {f : E₁ → F}
+    [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁]
+    [LocallyConvexSpace ℝ E₁] [T2Space E₁] {f : E₁ → F}
     {g : E₁ → G} {U : Set E₁}, IsOpen U → ContDiffMBOn k f U → ContDiffMBOn k g U →
       ContDiffMBOn k (fun w ↦ (f w, g w)) U := by
   intro k
@@ -394,11 +434,14 @@ theorem ContDiffMBOn.prodMk : ∀ {k : ℕ} {E₁ : Type u} [AddCommGroup E₁] 
     rw [← hdeq ⟨hx, mem_univ h⟩]
     exact hd x hx h
 
+omit [ContinuousSMul ℝ F] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] in
 /-- Precomposition with a continuous linear map preserves `C^k`. -/
 theorem ContDiffMBOn.comp_clm : ∀ {k : ℕ} {E₁ : Type u} [AddCommGroup E₁] [Module ℝ E₁]
-    [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁] [LocallyConvexSpace ℝ E₁] [T2Space E₁] {E₂ : Type*}
+    [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁]
+    [LocallyConvexSpace ℝ E₁] [T2Space E₁] {E₂ : Type*}
     [AddCommGroup E₂] [Module ℝ E₂] [TopologicalSpace E₂] [IsTopologicalAddGroup E₂]
-    [ContinuousSMul ℝ E₂] [LocallyConvexSpace ℝ E₂] [T2Space E₂] (L : E₁ →L[ℝ] E₂) {f : E₂ → F} {U : Set E₂},
+    [ContinuousSMul ℝ E₂] [LocallyConvexSpace ℝ E₂]
+    [T2Space E₂] (L : E₁ →L[ℝ] E₂) {f : E₂ → F} {U : Set E₂},
     IsOpen U → ContDiffMBOn k f U → ContDiffMBOn k (f ∘ L) (L ⁻¹' U) := by
   intro k
   induction k with
@@ -421,12 +464,14 @@ theorem ContDiffMBOn.comp_clm : ∀ {k : ℕ} {E₁ : Type u} [AddCommGroup E₁
       rw [hpre] at h2
       exact ContDiffMBOn.congr_of_isOpen ((hU.preimage L.continuous).prod isOpen_univ) hdeq h2
 
+omit [ContinuousSMul ℝ F] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] [T2Space F] in
 theorem _root_.ContinuousLinearMap.hasDirDerivAt {E₁ : Type*} [AddCommGroup E₁] [Module ℝ E₁]
     [TopologicalSpace E₁] (L : E₁ →L[ℝ] F) (x h : E₁) : HasDirDerivAt L x h (L h) := by
   refine tendsto_nhds_of_eventually_eq ?_
   filter_upwards [self_mem_nhdsWithin] with t (ht : t ≠ 0)
   simp [smul_smul, inv_mul_cancel₀ ht]
 
+omit [ContinuousSMul ℝ F] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] in
 /-- Remark I.2.4: continuous linear maps are `C^k` for every `k`. -/
 theorem _root_.ContinuousLinearMap.contDiffMBOn : ∀ (k : ℕ) {E₁ : Type u} [AddCommGroup E₁]
     [Module ℝ E₁] [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁]
@@ -447,6 +492,7 @@ theorem _root_.ContinuousLinearMap.contDiffMBOn : ∀ (k : ℕ) {E₁ : Type u} 
     · rw [heq]
       exact ih _ _
 
+omit [ContinuousSMul ℝ F] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] in
 /-- Remark I.2.4: continuous linear maps are smooth. -/
 theorem _root_.ContinuousLinearMap.smoothMBOn (L : E →L[ℝ] F) (U : Set E) :
     SmoothMBOn L U :=
@@ -457,7 +503,8 @@ theorem smoothMBOn_id (U : Set E) : SmoothMBOn (id : E → E) U :=
 
 /-- (vi) Chain rule for `C^k` maps. -/
 theorem ContDiffMBOn.comp : ∀ {k : ℕ} {E₁ : Type u} [AddCommGroup E₁] [Module ℝ E₁]
-    [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁] [LocallyConvexSpace ℝ E₁] [T2Space E₁] {F₁ : Type v}
+    [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁]
+    [LocallyConvexSpace ℝ E₁] [T2Space E₁] {F₁ : Type v}
     [AddCommGroup F₁] [Module ℝ F₁] [TopologicalSpace F₁] [IsTopologicalAddGroup F₁]
     [ContinuousSMul ℝ F₁] [LocallyConvexSpace ℝ F₁] [T2Space F₁] {f : E₁ → F₁} {g : F₁ → G}
     {U : Set E₁} {V : Set F₁}, IsOpen U → IsOpen V → ContDiffMBOn k g V → ContDiffMBOn k f U →
@@ -482,6 +529,7 @@ theorem ContDiffMBOn.comp : ∀ {k : ℕ} {E₁ : Type u} [AddCommGroup E₁] [M
     simp only [Function.comp_apply, ContinuousLinearMap.coe_fst']
     exact (heq p.1 hp.1 p.2).symm
 
+omit [ContinuousSMul ℝ F] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] [T2Space F] in
 theorem ContDiffMBOn.mono : ∀ {k : ℕ} {E₁ : Type u} [AddCommGroup E₁] [Module ℝ E₁]
     [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁]
     [LocallyConvexSpace ℝ E₁] [T2Space E₁] {f : E₁ → F} {U V : Set E₁},
@@ -496,6 +544,7 @@ theorem ContDiffMBOn.mono : ∀ {k : ℕ} {E₁ : Type u} [AddCommGroup E₁] [M
     exact ⟨hf.1.mono hVU, fun x hx h ↦ hf.2.1 x (hVU hx) h,
       ih hf.2.2 (Set.prod_mono hVU subset_rfl)⟩
 
+omit [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] [T2Space F] [ContinuousSMul ℝ F] in
 /-- Being `C^k` is a local property. -/
 theorem ContDiffMBOn.of_local : ∀ {k : ℕ} {E₁ : Type u} [AddCommGroup E₁] [Module ℝ E₁]
     [TopologicalSpace E₁] [IsTopologicalAddGroup E₁] [ContinuousSMul ℝ E₁]
@@ -523,6 +572,8 @@ theorem ContDiffMBOn.of_local : ∀ {k : ℕ} {E₁ : Type u} [AddCommGroup E₁
       have := hf.2.2
       rwa [Set.prod_inter_prod, Set.inter_self]
 
+omit [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E] [T2Space E]
+    [LocallyConvexSpace ℝ F] [T2Space F] in
 /-- (vi) Chain rule: formula for the derivative. -/
 theorem ContDiffMBOn.dMB_comp {f : E → F} {g : F → G} {U : Set E} {V : Set F}
     (hV : IsOpen V) (hg : ContDiffMBOn 1 g V) (hf : ContDiffMBOn 1 f U)
@@ -532,6 +583,7 @@ theorem ContDiffMBOn.dMB_comp {f : E → F} {g : F → G} {U : Set E} {V : Set F
 
 /-! ### Mean value inclusion and partial derivatives (Michor 1980, 8.3–8.4) -/
 
+omit [T2Space F] in
 /-- Closed convex neighborhoods form a basis in a locally convex space. -/
 theorem exists_closed_convex_nhds_subset {a : F} {N : Set F} (hN : N ∈ 𝓝 a) :
     ∃ W ∈ 𝓝 a, IsClosed W ∧ Convex ℝ W ∧ W ⊆ N := by
@@ -540,6 +592,9 @@ theorem exists_closed_convex_nhds_subset {a : F} {N : Set F} (hN : N ∈ 𝓝 a)
   exact ⟨closure C, mem_of_superset hC subset_closure, isClosed_closure, hCconv.closure,
     (closure_minimal hCN' hN'c).trans hN'N⟩
 
+omit [TopologicalSpace E] [ContinuousSMul ℝ F] [IsTopologicalAddGroup E] [ContinuousSMul ℝ E]
+    [LocallyConvexSpace ℝ E] [T2Space E] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F]
+    [T2Space F] in
 /-- Weak fundamental theorem of calculus along a segment, assuming only the directional
 derivatives in the direction of the segment. -/
 theorem integral_of_hasDirDerivAt {f : E → F} {z w : E} {D : ℝ → F}
@@ -554,6 +609,8 @@ theorem integral_of_hasDirDerivAt {f : E → F} {z w : E} {D : ℝ → F}
     ((φ.continuous.comp_continuousOn hD).intervalIntegrable_of_Icc zero_le_one)
   simpa using this.symm
 
+omit [TopologicalSpace E] [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E]
+    [T2Space E] [T2Space F] in
 /-- Mean value inclusion (Michor 8.4, remark): the increment along a segment lies in every
 closed convex set containing the directional derivatives along the segment. -/
 theorem sub_mem_of_hasDirDerivAt {f : E → F} {z w : E} {D : ℝ → F}
@@ -572,6 +629,7 @@ theorem sub_mem_of_hasDirDerivAt {f : E → F} {z w : E} {D : ℝ → F}
   rw [map_sub] at hgt
   linarith
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] in
 /-- Directional difference quotients converge locally uniformly in the base point: if `f` has
 directional derivative `D q` in the direction `w` at every `q ∈ U`, with `D` continuous, then
 `t⁻¹ • (f (q + t • w) - f q) → D p` as `(q, t) → (p, 0)`, `t ≠ 0`. -/
@@ -606,6 +664,7 @@ theorem tendsto_quotient_of_hasDirDerivAt {f : E → F} {U : Set E} (hU : IsOpen
   exact sub_mem_of_hasDirDerivAt hd' hD' (hWc.smul r.2) (hWcl.smul_of_ne_zero ht)
     (fun s hs ↦ Set.smul_mem_smul_set (hr s hs).2)
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] in
 /-- A map with jointly continuous directional derivatives is continuous (Michor 8.1). -/
 theorem continuousOn_of_hasDirDerivAt {f : E → F} {U : Set E} (hU : IsOpen U)
     {D : E × E → F} (hd : ∀ q ∈ U, ∀ w, HasDirDerivAt f q w (D (q, w)))
@@ -614,7 +673,7 @@ theorem continuousOn_of_hasDirDerivAt {f : E → F} {U : Set E} (hU : IsOpen U)
   refine ContinuousAt.continuousWithinAt (Filter.tendsto_def.mpr fun N hN ↦ ?_)
   have hD0 : D (p, 0) = 0 := by
     refine tendsto_nhds_unique (hd p hp 0) ?_
-    simpa [HasDirDerivAt] using (tendsto_const_nhds : Tendsto (fun _ : ℝ ↦ (0 : F)) _ _)
+    simp
   have hN0 : (fun z ↦ f p + z) ⁻¹' N ∈ 𝓝 (0 : F) :=
     (continuous_const.add continuous_id).continuousAt.preimage_mem_nhds (by simpa using hN)
   obtain ⟨W, hW, hWcl, hWc, hWN⟩ := exists_closed_convex_nhds_subset hN0
@@ -639,6 +698,7 @@ theorem continuousOn_of_hasDirDerivAt {f : E → F} {U : Set E} (hU : IsOpen U)
   have := hWN hmem
   simpa using this
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] [LocallyConvexSpace ℝ F] [T2Space F] in
 /-- Michor 1980, Lemma 8.3: a map on an open subset of `E × F` whose partial directional
 derivatives exist and are jointly continuous is `C^1`, with
 `df(p)(u, v) = D₁f(p) u + D₂f(p) v`. -/
@@ -662,7 +722,7 @@ theorem contDiffMBOn_one_of_partials {f : E × F → G} {U : Set (E × F)} (hU :
       simpa using (this.tendsto 0).mono_left nhdsWithin_le_nhds
     refine ((hA.comp hr).add (h₂ p hp v)).congr fun t ↦ ?_
     have hpt : p + t • ((0, v) : E × F) + t • ((u, 0) : E × F) = p + t • (u, v) := by
-      ext <;> simp [add_assoc, add_comm]
+      ext <;> simp [add_comm]
     simp only [Function.comp_apply, hpt, ← smul_add, sub_add_sub_cancel]
   have heq : ∀ p ∈ U, ∀ u v, dMB f (p, (u, v)) = d₁ p u + d₂ p v :=
     fun p hp u v ↦ (hd p hp u v).dMB_eq
@@ -679,6 +739,7 @@ theorem contDiffMBOn_one_of_partials {f : E × F → G} {U : Set (E × F)} (hU :
 
 /-! ### Proposition I.2.3 (ii) second part, and (iv) -/
 
+omit [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [T2Space E] in
 /-- (ii) A `C^1` map on a connected open set with `df = 0` is constant. -/
 theorem ContDiffMBOn.eqOn_of_dMB_eq_zero {f : E → F} {U : Set E} (hU : IsOpen U)
     (hUc : IsPreconnected U) (hf : ContDiffMBOn 1 f U) (h0 : ∀ x ∈ U, ∀ h, dMB f (x, h) = 0)
@@ -701,16 +762,19 @@ theorem ContDiffMBOn.eqOn_of_dMB_eq_zero {f : E → F} {U : Set E} (hU : IsOpen 
     (fun z hz ↦ nhdsWithin_le_nhds (hloc z hz)) (fun _ _ _ _ _ _ h₁ h₂ ↦ h₁.trans h₂)
     (fun _ _ _ _ h ↦ h.symm) hx hy
 
+omit [ContinuousSMul ℝ F] [LocallyConvexSpace ℝ F] [T2Space F] in
 theorem HasDirDerivAt.sub {E₁ : Type*} [AddCommGroup E₁] [Module ℝ E₁] [TopologicalSpace E₁]
     {f g : E₁ → F} {x h : E₁} {a b : F} (hf : HasDirDerivAt f x h a)
     (hg : HasDirDerivAt g x h b) : HasDirDerivAt (fun y ↦ f y - g y) x h (a - b) :=
   (Filter.Tendsto.sub hf hg).congr fun t ↦ by simp only [← smul_sub]; congr 1; abel
 
+omit [ContinuousSMul ℝ F] [IsTopologicalAddGroup F] [LocallyConvexSpace ℝ F] [T2Space F] in
 theorem HasDirDerivAt.comp_add_const {E₁ : Type*} [AddCommGroup E₁] [Module ℝ E₁]
     [TopologicalSpace E₁] {f : E₁ → F} {y c w : E₁} {a : F} (hf : HasDirDerivAt f (y + c) w a) :
     HasDirDerivAt (fun z ↦ f (z + c)) y w a :=
   hf.congr fun t ↦ by simp only [add_right_comm]
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] in
 /-- The key estimate for the symmetry of the second derivative: the second difference
 `f (x + t h₁ + t h₂) - f (x + t h₁) - f (x + t h₂) + f x`, divided by `t²`, eventually lies in
 any closed convex neighborhood of `d²f(x)(h₁, h₂)`. Two applications of the mean value
@@ -794,6 +858,7 @@ theorem ContDiffMBOn.second_diff_mem {f : E → F} {U : Set E} (hU : IsOpen U)
   convert hmem using 1
   abel
 
+omit [LocallyConvexSpace ℝ E] [T2Space E] in
 /-- (iv) Symmetry of the second derivative. -/
 theorem ContDiffMBOn.dMB_dMB_symm {f : E → F} {U : Set E} (hU : IsOpen U)
     (hf : ContDiffMBOn 2 f U) {x : E} (hx : x ∈ U) (h₁ h₂ : E) :
@@ -993,7 +1058,7 @@ theorem ContDiffMBOn.contDiffOn_one (hU : IsOpen U) (hf : ContDiffMBOn 2 f U) :
     obtain ⟨δ, hδ, C, hC, hb⟩ := hf.dMB_sub_le hU hx
     refine ⟨δ, hδ, C, hC, fun y hy ↦ ⟨(hb y hy).1, ?_⟩⟩
     refine ContinuousLinearMap.opNorm_le_bound _ (by positivity) fun v ↦ ?_
-    rw [ContinuousLinearMap.sub_apply, hL y (hb y hy).1, hL x hx]
+    rw [sub_apply, hL y (hb y hy).1, hL x hx]
     calc _ ≤ C * ‖v‖ * ‖y - x‖ := (hb y hy).2 v
       _ = C * ‖y - x‖ * ‖v‖ := by ring
   -- Fréchet differentiability with derivative `L x`
@@ -1027,7 +1092,7 @@ theorem ContDiffMBOn.contDiffOn_one (hU : IsOpen U) (hf : ContDiffMBOn 2 f U) :
     have hmem := sub_mem_of_hasDirDerivAt hd hDc
       (convex_closedBall 0 (C * ‖z - x‖ * ‖z - x‖)) Metric.isClosed_closedBall
       (fun s hs ↦ by
-        rw [mem_closedBall_zero_iff, ← ContinuousLinearMap.sub_apply]
+        rw [mem_closedBall_zero_iff, ← sub_apply]
         refine ((L _ - L x).le_opNorm _).trans ?_
         gcongr
         refine ((hb _ (hseg s hs)).2).trans ?_

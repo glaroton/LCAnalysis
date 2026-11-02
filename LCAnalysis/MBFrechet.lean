@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Gabriel Larotonda
+-/
 import LCAnalysis.MichalBastiani
 
 /-!
@@ -156,6 +161,7 @@ theorem hasDirDerivAt_unc_base (hg : ContDiffMBOn 1 (unc g) (U ×ˢ univ)) {p : 
   simp only [unc_line]
   rfl
 
+omit [NormedSpace ℝ E] in
 theorem norm_prod_cons (w : E) (V : Fin m → E) :
     ∏ i, ‖(Fin.cons w V : Fin (m + 1) → E) i‖ = ‖w‖ * ∏ i, ‖V i‖ := by
   rw [Fin.prod_univ_succ]
@@ -185,7 +191,7 @@ theorem lipschitz_of_unc (hU : IsOpen U) (hg : ContDiffMBOn 1 (unc g) (U ×ˢ un
       refine ((hb _ (hseg s hs)).2 _).trans (le_of_eq ?_)
       rw [norm_prod_cons]; ring)
   rw [mem_closedBall_zero_iff, add_sub_cancel] at hmem
-  rw [ContinuousMultilinearMap.sub_apply]
+  rw [sub_apply]
   exact hmem
 
 end Structure
@@ -279,7 +285,7 @@ theorem contDiffOn_of_unc : ∀ (k m : ℕ) {g : E → ContinuousMultilinearMap 
         (convex_closedBall 0 (c * ‖z - y‖ * ∏ i, ‖V i‖)) Metric.isClosed_closedBall
         (fun s hs ↦ by
           have hp := hδ' (hseg s hs)
-          rw [mem_closedBall_zero_iff, hℓ, ← hBc _ hp.1, ← ContinuousMultilinearMap.sub_apply]
+          rw [mem_closedBall_zero_iff, hℓ, ← hBc _ hp.1, ← sub_apply]
           refine ((Bc _ - Bc y).le_opNorm _).trans ?_
           rw [norm_prod_cons]
           calc ‖Bc (y + s • (z - y)) - Bc y‖ * (‖z - y‖ * ∏ i, ‖V i‖)
@@ -287,7 +293,7 @@ theorem contDiffOn_of_unc : ∀ (k m : ℕ) {g : E → ContinuousMultilinearMap 
             _ = c * ‖z - y‖ * ∏ i, ‖V i‖ := by ring)
       rw [mem_closedBall_zero_iff, add_sub_cancel] at hmem
       have e : (g z - g y - D y (z - y)) V = g z V - ℓ z - (g y V - ℓ y) := by
-        simp only [map_sub, ContinuousMultilinearMap.sub_apply]
+        simp only [map_sub, sub_apply]
         change _ - _ - (ℓ z - ℓ y) = _
         abel
       calc ‖(g z - g y - D y (z - y)) V‖ = ‖g z V - ℓ z - (g y V - ℓ y)‖ := by rw [e]
