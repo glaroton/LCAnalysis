@@ -41,3 +41,7 @@ open LCAnalysis
 #print axioms ContDiffMBOn.hasWeakIntegral_dMB
 #print axioms hasDirDerivAt_weakIntegral_right_of_exists
 #print axioms hasDirDerivAt_weakIntegral_right
+-- Mackey completeness through Lipschitz curves (`MackeyLipschitz.lean`)
+#print axioms MackeyComplete.exists_hasWeakIntegral_of_isLipschitzCurve
+#print axioms MackeyComplete.of_integratesLipschitzCurves
+#print axioms mackeyComplete_iff_integratesLipschitzCurves

@@ -21,7 +21,9 @@ jobs:
       - name: Check axioms of the main theorems
         run: |
           lake env lean scripts/Axioms.lean | tee axioms.txt
-          if grep -v "\[propext, Classical.choice, Quot.sound\]" axioms.txt; then
+          tr -s ' \n' ' ' < axioms.txt | grep -o "axioms: \[[^]]*\]" > found.txt
+          if grep -v "axioms: \[propext, Classical.choice, Quot.sound\]" found.txt; then
             echo "Unexpected axioms (see above)"; exit 1
           fi
+          test "$(wc -l < found.txt)" -eq "$(grep -c '^#print axioms' scripts/Axioms.lean)"
       - uses: leanprover-community/docgen-action@v1

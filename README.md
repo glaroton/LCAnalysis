@@ -75,7 +75,7 @@ the form "G–N 1.2.13" point to the numbered results of Glöckner and Neeb [GN2
 | Between normed spaces, Michal–Bastiani `C^{k+1}` implies Fréchet `C^k` | `ContDiffMBOn.contDiffOn` | G–N 2.3.17 |
 | Between normed spaces, the two notions of smoothness agree | `smoothMBOn_iff_contDiffOn` | G–N 2.3.17 |
 
-### Weak integrals — [`Integral.lean`](LCAnalysis/Integral.lean), [`IntegralExistence.lean`](LCAnalysis/IntegralExistence.lean), [`FundamentalTheorem.lean`](LCAnalysis/FundamentalTheorem.lean)
+### Weak integrals — [`Integral.lean`](LCAnalysis/Integral.lean), [`IntegralExistence.lean`](LCAnalysis/IntegralExistence.lean), [`MackeyLipschitz.lean`](LCAnalysis/MackeyLipschitz.lean), [`FundamentalTheorem.lean`](LCAnalysis/FundamentalTheorem.lean)
 
 | Result | Lean | Source |
 |---|---|---|
@@ -83,6 +83,7 @@ the form "G–N 1.2.13" point to the numbered results of Glöckner and Neeb [GN2
 | Integrals of small curves are small | `HasWeakIntegral.mem_smul` | cf. G–N 1.1.9 |
 | Continuity of parameter-dependent integrals | `continuousOn_weakIntegral` | G–N 1.1.11 |
 | Sequentially complete and Mackey complete spaces; complete ⇒ sequentially complete ⇒ Mackey complete | `SeqComplete`, `MackeyComplete`, `SeqComplete.of_completeSpace`, `SeqComplete.mackeyComplete` | G–N 1.1.18, [KM97] 2.2, 2.14 |
+| Mackey completeness (convergence of Mackey–Cauchy sequences) is equivalent to the existence of weak integrals of Lipschitz curves, the definition of G–N | `IsLipschitzCurve`, `IntegratesLipschitzCurves`, `mackeyComplete_iff_integratesLipschitzCurves` | G–N 1.1.17, 1.1.18(e), [KM97] 2.14 |
 | Continuous curves have weak integrals in sequentially complete spaces | `exists_hasWeakIntegral` | G–N 1.1.15 |
 | `C^1` curves have weak integrals in Mackey complete spaces | `ContDiffMBOn.exists_hasWeakIntegral` | G–N 1.1.18, [KM97] 2.14 |
 | The convex hull of a bounded set is bounded | `isVonNBounded_convexHull` | standard |
@@ -118,8 +119,9 @@ the form "G–N 1.2.13" point to the numbered results of Glöckner and Neeb [GN2
 * **Mackey completeness through Mackey–Cauchy sequences.** `MackeyComplete` asks every
   Mackey–Cauchy sequence to converge: `u l - u k ∈ r k • B` for `k ≤ l`, with `B` bounded and
   `r k → 0`. This is one of the equivalent characterizations in G–N 1.1.18(e) and [KM97, 2.2,
-  2.14]. The equivalence with the definition of G–N 1.1.17(b), via Lipschitz curves, is not
-  formalized.
+  2.14]. It is the more convenient form for the existence proofs. The definition of G–N
+  1.1.17(b), that Lipschitz curves have weak integrals, is `IntegratesLipschitzCurves`, and the
+  two are proved equivalent (`mackeyComplete_iff_integratesLipschitzCurves`).
 * **Mathlib conventions.** File layout, naming, docstrings and the linter set follow Mathlib.
 
 ## What is new here and what is not
@@ -133,6 +135,10 @@ literature. The proofs follow the cited sources, except in these places:
 * Weak integrals are constructed as limits of dyadic Riemann sums. In the continuous case the
   Cauchy estimate comes from uniform continuity; in the `C^1` case it comes from the mean value
   inclusion.
+* For the converse direction of `mackeyComplete_iff_integratesLipschitzCurves`, a Mackey–Cauchy
+  sequence is turned into a Lipschitz curve. We pass to a fast subsequence and place its
+  increments on tents supported on the intervals `[1 - 2⁻ʲ, 1 - 2⁻ʲ⁻¹]`. The weak integral of
+  that curve is the limit of the subsequence.
 * The second part of the fundamental theorem is reduced, through an affine change of variables,
   to the estimate for integrals of small curves.
 
@@ -208,7 +214,8 @@ lake build                          # build the library
 lake env lean scripts/Axioms.lean   # print the axioms used by the main theorems
 ```
 
-Every line printed by the last command should read `[propext, Classical.choice, Quot.sound]`.
+For every theorem, the last command should report the axioms
+`[propext, Classical.choice, Quot.sound]`.
 The continuous integration workflow runs the same check, and it fails if any other axiom appears,
 including `sorryAx`.
 
