@@ -26,4 +26,11 @@ jobs:
             echo "Unexpected axioms (see above)"; exit 1
           fi
           test "$(wc -l < found.txt)" -eq "$(grep -c '^#print axioms' scripts/Axioms.lean)"
+      - name: Add swap space for the documentation build
+        run: |
+          sudo fallocate -l 16G /mnt/docswap
+          sudo chmod 600 /mnt/docswap
+          sudo mkswap /mnt/docswap
+          sudo swapon /mnt/docswap
+          free -h
       - uses: leanprover-community/docgen-action@v1
