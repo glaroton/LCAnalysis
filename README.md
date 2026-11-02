@@ -224,6 +224,11 @@ including `sorryAx`.
 * [LCManifolds](https://github.com/glaroton/LCManifolds): manifolds modeled on locally convex
   spaces, built on this library (early stage).
 
+## Author
+
+Gabriel Larotonda, Departamento de Matemática, Facultad de Ciencias Exactas y Naturales,
+Universidad de Buenos Aires, and CONICET, Argentina.
+
 ## License
 
 Apache 2.0, the license Mathlib uses; see [LICENSE](LICENSE).
