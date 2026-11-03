@@ -1,0 +1,76 @@
+\chapter{Rules of calculus}
+\label{chap:rules}
+
+\begin{theorem}[Bilinear maps]
+  \label{thm:bilinear}
+  \lean{LCAnalysis.hasDirDerivAt_bilin, LCAnalysis.contDiffMBOn_bilin}
+  \leanok
+  \uses{def:ck, thm:partials}
+  Let $\beta \colon A \times B \to F$ be continuous and bilinear. Then $\beta$ is $\Ck{k}$ for
+  every $k$, with $\dd \beta\bigl((a, b), (h, w)\bigr) = \beta(a, w) + \beta(h, b)$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  The difference quotient of $\beta$ at $(a,b)$ in the direction $(h,w)$ is
+  $\beta(a, w) + \beta(h, b) + t\,\beta(h, w)$, which gives the formula. The differential is a
+  sum of continuous bilinear maps composed with continuous linear maps, and induction on $k$
+  completes the proof. This is G--N~1.2.3 and 1.3.5.
+\end{proof}
+
+\begin{corollary}[Product rule]
+  \label{cor:product}
+  \lean{LCAnalysis.ContDiffMBOn.bilin, LCAnalysis.ContDiffMBOn.dMB_bilin}
+  \leanok
+  \uses{thm:bilinear, thm:chain-rule, lem:prod}
+  If $f \colon U \to A$ and $g \colon U \to B$ are $\Ck{k}$ and $\beta$ is continuous and
+  bilinear, then $x \mapsto \beta(f(x), g(x))$ is $\Ck{k}$ and
+  \[
+    \dd\bigl(\beta(f, g)\bigr)(x)(h) = \beta\bigl(f(x), \dd g(x)(h)\bigr)
+      + \beta\bigl(\dd f(x)(h), g(x)\bigr).
+  \]
+\end{corollary}
+
+\begin{proof}
+  \leanok
+  Chain rule applied to $\beta \circ (f, g)$.
+\end{proof}
+
+\begin{lemma}[Derivatives along a line]
+  \label{lem:line}
+  \lean{LCAnalysis.ContDiffMBOn.hasDerivAt_iteratedDMB_line, LCAnalysis.ContDiffMBOn.continuousOn_iteratedDMB_line}
+  \leanok
+  \uses{thm:iterated-regular}
+  Let $f$ be $\Ck{k}$ on $U$, $j < k$ and $\psi$ a continuous linear functional on $F$. Then the
+  real function $s \mapsto \psi\bigl(\dd^{(j)} f(x + sh; h, \dots, h)\bigr)$ has derivative
+  $\psi\bigl(\dd^{(j+1)} f(x + sh; h, \dots, h)\bigr)$ wherever $x + sh \in U$.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  By the chain rule along the line $s \mapsto (x + sh, h, \dots, h)$, whose derivative is
+  $(h, 0, \dots, 0)$.
+\end{proof}
+
+\begin{theorem}[Taylor's formula, weak form]
+  \label{thm:taylor}
+  \lean{LCAnalysis.ContDiffMBOn.taylor}
+  \leanok
+  \uses{lem:line}
+  Let $f$ be $\Ck{k+1}$ on a set containing the segment $[x, x+h]$. For every continuous linear
+  functional $\psi$ on $F$,
+  \[
+    \psi\bigl(f(x + h)\bigr) = \sum_{j=0}^{k} \frac{1}{j!}\,
+      \psi\bigl(\dd^{(j)} f(x; h, \dots, h)\bigr)
+      + \int_0^1 \frac{(1-t)^k}{k!}\,
+      \psi\bigl(\dd^{(k+1)} f(x + th; h, \dots, h)\bigr)\, dt .
+  \]
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Apply Taylor's formula with integral remainder to the real function
+  $s \mapsto \psi(f(x + sh))$, whose derivatives are given by Lemma~\ref{lem:line}. Compare
+  G--N~1.6.1 and 1.6.14, where the formula is stated for the integrals in $F$; the weak form
+  needs no completeness of $F$.
+\end{proof}

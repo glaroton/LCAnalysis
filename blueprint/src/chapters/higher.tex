@@ -1,0 +1,108 @@
+\chapter{Higher differentials}
+\label{chap:higher}
+
+The recursive definition of $\Ck{k}$ maps differentiates $\dd f$ as a map on $U \times E$. The
+classical definition, due to Bastiani, uses instead the iterated directional derivatives of $f$.
+In this chapter we prove that both agree and that the $k$-th differential is a continuous
+symmetric $k$-linear map. The reference is G--N~\S1.3.
+
+\begin{definition}[Iterated differentials]
+  \label{def:iterated}
+  \lean{LCAnalysis.iteratedDMB}
+  \leanok
+  \uses{def:dir-deriv}
+  For $f \colon E \to F$, $x \in E$ and $y_1, \dots, y_k \in E$ we define
+  \[
+    \dd^{(0)} f(x) = f(x), \qquad
+    \dd^{(k+1)} f(x; y_1, \dots, y_{k+1})
+      = \dd\bigl(z \mapsto \dd^{(k)} f(z; y_1, \dots, y_k)\bigr)(x)(y_{k+1}),
+  \]
+  that is, $\dd^{(k)} f(x; y_1, \dots, y_k) = (D_{y_k} \cdots D_{y_1} f)(x)$.
+\end{definition}
+
+\begin{definition}[Bastiani's $\Ck{k}$ maps]
+  \label{def:bastiani}
+  \lean{LCAnalysis.HasContIterDerivOn}
+  \leanok
+  \uses{def:iterated}
+  A map $f$ has continuous iterated derivatives of order $k$ on $U$ if, for every $j \leq k$,
+  the iterated differentials $\dd^{(j)} f(x; y_1, \dots, y_j)$ exist for $x \in U$ and are
+  continuous on $U \times E^j$.
+\end{definition}
+
+The bridge between the two definitions is a formula that expresses the iterated differentials
+of $f$ through those of $\dd f$, in directions of the form $(y, 0)$:
+
+\begin{lemma}[Slices]
+  \label{lem:slice}
+  \lean{LCAnalysis.iteratedDMB_slice, LCAnalysis.iteratedDMB_succ_eq_dMB}
+  \leanok
+  \uses{def:iterated}
+  For $g \colon E \times E' \to F$ and $a \in E'$,
+  \[
+    \dd^{(k)}\bigl(g(\cdot, a)\bigr)(x; v_1, \dots, v_k)
+      = \dd^{(k)} g\bigl((x, a); (v_1, 0), \dots, (v_k, 0)\bigr).
+  \]
+  In particular
+  \[
+    \dd^{(k+1)} f(x; y_0, \dots, y_k)
+      = \dd^{(k)}(\dd f)\bigl((x, y_0); (y_1, 0), \dots, (y_k, 0)\bigr).
+  \]
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  Both sides are limits of the same difference quotients; induction on $k$. The second formula
+  is G--N~(1.36).
+\end{proof}
+
+\begin{theorem}[The two definitions of $\Ck{k}$ agree]
+  \label{thm:ck-iff-bastiani}
+  \lean{LCAnalysis.contDiffMBOn_iff_hasContIterDerivOn}
+  \leanok
+  \uses{def:ck, def:bastiani, lem:slice, thm:linear, thm:partials}
+  A map $f$ is $\Ck{k}$ on $U$ in the sense of Definition~\ref{def:ck} if and only if it has
+  continuous iterated derivatives of order $k$ on $U$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Both implications go by induction on $k$, through Lemma~\ref{lem:slice}. If $f$ is $\Ck{k+1}$,
+  the iterated differentials of $f$ are slices of those of $\dd f$, which is $\Ck{k}$. For the
+  converse, the derivatives of $\dd f$ in a general direction $(h, w)$ split, by linearity in
+  the second variable and Theorem~\ref{thm:partials}, into a derivative in the direction
+  $(h, 0)$, which is an iterated differential of $f$, and one in the direction $(0, w)$, which is
+  again of the form $\dd f$. This is G--N~1.3.10 and 1.3.12.
+\end{proof}
+
+\begin{theorem}[Regularity of the differentials]
+  \label{thm:iterated-regular}
+  \lean{LCAnalysis.ContDiffMBOn.contDiffMBOn_iteratedDMB}
+  \leanok
+  \uses{thm:ck-iff-bastiani}
+  If $f$ is $\Ck{k + r}$ on $U$, then $\dd^{(k)} f$ is $\Ck{r}$ on $U \times E^k$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Induction on $k$, using that $\dd^{(k+1)} f$ is, up to reordering variables, the derivative of
+  $\dd^{(k)} f$ in directions of the form $(y, 0)$. This is G--N~1.3.13.
+\end{proof}
+
+\begin{theorem}[Schwarz]
+  \label{thm:schwarz}
+  \lean{LCAnalysis.ContDiffMBOn.iteratedDMB_perm, LCAnalysis.ContDiffMBOn.exists_iteratedDMB_multilinear}
+  \leanok
+  \uses{thm:symm2, thm:linear, thm:iterated-regular}
+  If $f$ is $\Ck{k}$ on $U$ and $x \in U$, then $\dd^{(k)} f(x; \cdot)$ is a continuous symmetric
+  $k$-linear map $E^k \to F$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Symmetry: it suffices to consider transpositions of adjacent variables, and these reduce to
+  Theorem~\ref{thm:symm2} applied to an iterated differential of lower order. Linearity in the
+  last variable is Theorem~\ref{thm:linear} applied to $\dd^{(k-1)} f$; by symmetry, the map is
+  linear in every variable. Continuity follows from the joint continuity of $\dd^{(k)} f$. This
+  is G--N~1.3.17.
+\end{proof}

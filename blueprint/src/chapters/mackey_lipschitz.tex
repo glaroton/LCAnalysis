@@ -1,0 +1,160 @@
+\chapter{Mackey completeness and Lipschitz curves}
+\label{chap:mackey-lipschitz}
+
+Glöckner and Neeb define Mackey completeness through Lipschitz curves (G--N~1.1.17(b)). In
+this chapter we prove that their definition agrees with Definition~\ref{def:mackey-complete}.
+The equivalence is stated in G--N~1.1.18(e) and \cite[2.14]{KM97}; the proof of the converse
+below is ours.
+
+\begin{definition}[Lipschitz curves]
+  \label{def:lipschitz}
+  \lean{LCAnalysis.diffQuot, LCAnalysis.IsLipschitzCurve}
+  \leanok
+  A curve $\gamma \colon [a, b] \to F$ is Lipschitz if the set of difference quotients
+  \[
+    \Bigl\{ \tfrac{1}{s - t}\bigl(\gamma(s) - \gamma(t)\bigr) : s, t \in [a, b],\ s \neq t \Bigr\}
+  \]
+  is bounded in $F$.
+\end{definition}
+
+\begin{definition}[Mackey completeness after Glöckner--Neeb]
+  \label{def:integrates-lipschitz}
+  \lean{LCAnalysis.IntegratesLipschitzCurves}
+  \leanok
+  \uses{def:lipschitz, def:weak-integral}
+  We say that $F$ integrates Lipschitz curves if every Lipschitz curve $[a, b] \to F$, $a < b$,
+  has a weak integral over $[a, b]$.
+\end{definition}
+
+\begin{lemma}[Lipschitz curves are continuous]
+  \label{lem:lipschitz-continuous}
+  \lean{LCAnalysis.IsLipschitzCurve.continuousOn, LCAnalysis.sub_mem_smul_convexHull_diffQuot}
+  \leanok
+  \uses{def:lipschitz}
+  Let $\gamma$ be a Lipschitz curve on $[a, b]$ and $K = \conv(\{0\} \cup Q)$, where $Q$ is the
+  set of difference quotients. Then $\gamma(s) - \gamma(t) \in h K$ whenever
+  $0 \leq s - t \leq h$. In particular $\gamma$ is continuous.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  We have $\gamma(s) - \gamma(t) = (s - t)\, q$ with $q \in Q$, and $(s - t)q \in hK$ since $K$ is
+  convex and contains $0$. Continuity follows because the bounded set $K$ is absorbed by every
+  neighborhood of $0$.
+\end{proof}
+
+\section{Mackey complete spaces integrate Lipschitz curves}
+
+\begin{theorem}
+  \label{thm:mackey-to-lipschitz}
+  \lean{LCAnalysis.MackeyComplete.exists_hasWeakIntegral_of_isLipschitzCurve, LCAnalysis.MackeyComplete.integratesLipschitzCurves}
+  \leanok
+  \uses{def:mackey-complete, def:integrates-lipschitz, lem:lipschitz-continuous, lem:riemann-limit, lem:conv-bounded}
+  If $F$ is Mackey complete, then $F$ integrates Lipschitz curves.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  The set $K$ of Lemma~\ref{lem:lipschitz-continuous} is bounded by Lemma~\ref{lem:conv-bounded}.
+  By Lemmas~\ref{lem:lipschitz-continuous} and~\ref{lem:riemann-refine},
+  $R_{2^m}(\gamma) - R_{2^n}(\gamma) \in (b - a)\frac{b - a}{2^n}\, K$ for $n \leq m$, so the dyadic
+  Riemann sums form a Mackey--Cauchy sequence. Its limit is the weak integral by
+  Lemma~\ref{lem:riemann-limit}. This is the argument of Theorem~\ref{thm:exists-mackey}, with
+  the difference quotients in place of the derivative.
+\end{proof}
+
+\section{The converse}
+
+\begin{lemma}[Subsequences]
+  \label{lem:mackey-subseq}
+  \lean{LCAnalysis.tendsto_of_mackeyCauchy_of_subseq}
+  \leanok
+  \uses{def:mackey-complete}
+  A Mackey--Cauchy sequence with a convergent subsequence converges, to the same limit.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  Let $u_{n_j} \to x$ and let $W$ be a neighborhood of $0$; choose a symmetric neighborhood $V$
+  with $V + V \subseteq W$. For large $k$ we have $r_k B \subseteq V$. Choosing $j$ with
+  $n_j \geq k$ and $u_{n_j} - x \in V$, we get
+  $u_k - x = -(u_{n_j} - u_k) + (u_{n_j} - x) \in V + V \subseteq W$.
+\end{proof}
+
+The idea of the converse is to encode a Mackey--Cauchy sequence as a Lipschitz curve whose
+integral is the limit we are looking for. The increments of the sequence are placed on disjoint
+tents that accumulate at $t = 1$.
+
+\begin{definition}[Tents]
+  \label{def:tents}
+  \lean{LCAnalysis.tentLeft, LCAnalysis.tentWidth, LCAnalysis.tent, LCAnalysis.tentSum, LCAnalysis.tentCurve}
+  \leanok
+  For $j \in \N$ let $l_j = 1 - 2^{-j}$ and $w_j = 2^{-(j+1)}$, so that the intervals
+  $[l_j, l_j + w_j] = [l_j, l_{j+1}]$ tile $[0, 1)$. The $j$-th tent is the function
+  \[
+    \tau_j(t) = \max\Bigl(0,\ \frac{w_j}{2} - \Bigl|t - l_j - \frac{w_j}{2}\Bigr|\Bigr),
+  \]
+  supported on $[l_j, l_{j+1}]$, with slopes $\pm 1$ and height $w_j / 2$. For a sequence
+  $(e_j)$ in $F$ we consider the curve $\gamma(t) = \sum_j \tau_j(t)\, e_j$, which is a finite
+  sum for each $t$.
+\end{definition}
+
+\begin{lemma}[Properties of the tents]
+  \label{lem:tents}
+  \lean{LCAnalysis.integral_tent, LCAnalysis.abs_tent_sub_le, LCAnalysis.tent_nonneg, LCAnalysis.tent_le_one, LCAnalysis.continuous_tent, LCAnalysis.eventually_tentCurve_eq}
+  \leanok
+  \uses{def:tents}
+  Each $\tau_j$ is continuous, takes values in $[0, 1]$, satisfies
+  $|\tau_j(s) - \tau_j(t)| \leq |s - t|$, and $\int_0^1 \tau_j = w_j^2 / 4$. For each $t$,
+  $\gamma(t) = \sum_{j < N} \tau_j(t)\, e_j$ for all large $N$.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  Elementary.
+\end{proof}
+
+\begin{theorem}
+  \label{thm:lipschitz-to-mackey}
+  \lean{LCAnalysis.MackeyComplete.of_integratesLipschitzCurves}
+  \leanok
+  \uses{def:integrates-lipschitz, def:mackey-complete, lem:tents, lem:mackey-subseq, lem:weak-integral-small, lem:weak-integral-algebra, lem:conv-bounded, lem:lipschitz-continuous}
+  If $F$ integrates Lipschitz curves, then $F$ is Mackey complete.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Let $(u_n)$ be Mackey--Cauchy, with $u_l - u_k \in r_k B$ for $k \leq l$. Let
+  $K = \conv(\{0\} \cup B \cup -B)$, which is convex, symmetric and bounded. Put
+  $c_j = 2^{-(j+1)}$, so that $\sum_j c_j = 1$.
+
+  \emph{A fast subsequence.} Since $r_k \to 0$, we can choose $n_0 < n_1 < \cdots$ with
+  $|r_{n_j}| \leq c_j w_j^2 / 4$. Let $d_j = u_{n_{j+1}} - u_{n_j}$ and
+  $e_j = (4 / w_j^2)\, d_j$. Then $e_j \in c_j K$.
+
+  \emph{The curve is Lipschitz.} Let $\gamma = \sum_j \tau_j e_j$. A difference quotient of
+  $\gamma$ is a finite sum $\sum_j \frac{\tau_j(s) - \tau_j(t)}{s - t}\, e_j$ with coefficients
+  of absolute value at most $1$, hence it lies in $\sum_j c_j K \subseteq K$. So $\gamma$ is a
+  Lipschitz curve on $[0, 1]$, and by hypothesis it has a weak integral $y$.
+
+  \emph{The integral is the limit.} Since $\int_0^1 \tau_j e_j = d_j$, the partial sum
+  $\gamma_N = \sum_{j < N} \tau_j e_j$ has weak integral $u_{n_N} - u_{n_0}$. On the other hand,
+  $\gamma(t) - \gamma_N(t) = \sum_{j \geq N} \tau_j(t) e_j \in 2^{-N} K$ for every $t$. By
+  Lemma~\ref{lem:weak-integral-small}, applied with $W$ the closure of $2^{-N} K$, we get
+  $y - (u_{n_N} - u_{n_0}) \in 2^{1-N}\, \overline{K}$, and this tends to $0$ since $K$ is
+  bounded. Hence $u_{n_N} \to u_{n_0} + y$, and by
+  Lemma~\ref{lem:mackey-subseq} the whole sequence converges.
+\end{proof}
+
+\begin{corollary}[The two definitions agree]
+  \label{cor:mackey-iff}
+  \lean{LCAnalysis.mackeyComplete_iff_integratesLipschitzCurves}
+  \leanok
+  \uses{thm:mackey-to-lipschitz, thm:lipschitz-to-mackey}
+  A locally convex space is Mackey complete if and only if it integrates Lipschitz curves.
+\end{corollary}
+
+\begin{proof}
+  \leanok
+  Theorems~\ref{thm:mackey-to-lipschitz} and~\ref{thm:lipschitz-to-mackey}.
+\end{proof}

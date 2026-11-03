@@ -1,0 +1,229 @@
+\chapter{Completeness and the existence of integrals}
+\label{chap:completeness}
+
+Weak integrals of continuous curves exist when $F$ is sequentially complete, and weak integrals
+of $\Ck{1}$ curves exist under the weaker assumption of Mackey completeness. Mackey completeness
+is the natural hypothesis for smooth calculus: it is what makes parameter-dependent integrals of
+smooth maps smooth. The references are G--N~\S1.1 and \cite[\S 2]{KM97}.
+
+\section{Completeness notions}
+
+We state completeness through the topology of $F$, without fixing a uniform structure.
+
+\begin{definition}[Sequential completeness]
+  \label{def:seq-complete}
+  \lean{LCAnalysis.SeqComplete}
+  \leanok
+  A sequence $(u_n)$ in $F$ is Cauchy if for every neighborhood $W$ of $0$ there is $N$ with
+  $u_n - u_m \in W$ for all $m, n \geq N$. The space $F$ is sequentially complete if every
+  Cauchy sequence converges.
+\end{definition}
+
+\begin{definition}[Mackey completeness]
+  \label{def:mackey-complete}
+  \lean{LCAnalysis.MackeyComplete}
+  \leanok
+  A sequence $(u_n)$ in $F$ is Mackey--Cauchy if there are a bounded set $B \subseteq F$ and
+  real numbers $r_k \to 0$ with $u_l - u_k \in r_k B$ for all $k \leq l$. The space $F$ is
+  Mackey complete if every Mackey--Cauchy sequence converges.
+\end{definition}
+
+Here bounded means bounded in the sense of von Neumann: absorbed by every neighborhood of $0$.
+This is one of the equivalent descriptions of Mackey completeness in G--N~1.1.18(e) and
+\cite[2.2, 2.14]{KM97}. Glöckner and Neeb take as definition the existence of weak integrals of
+Lipschitz curves; we prove in Chapter~\ref{chap:mackey-lipschitz} that both definitions agree.
+
+\begin{proposition}[Comparison]
+  \label{prop:completeness-chain}
+  \lean{LCAnalysis.SeqComplete.of_completeSpace, LCAnalysis.SeqComplete.mackeyComplete}
+  \leanok
+  \uses{def:seq-complete, def:mackey-complete}
+  Complete uniform additive groups are sequentially complete, and sequentially complete spaces
+  are Mackey complete.
+\end{proposition}
+
+\begin{proof}
+  \leanok
+  The first claim compares our notion of Cauchy sequence with the uniform one. For the second,
+  a Mackey--Cauchy sequence is Cauchy: given a neighborhood $W$ of $0$, $B$ is absorbed by $W$,
+  so $r_k B \subseteq W$ for large $k$.
+\end{proof}
+
+\begin{lemma}[Convex hulls of bounded sets]
+  \label{lem:conv-bounded}
+  \lean{LCAnalysis.isVonNBounded_convexHull}
+  \leanok
+  In a locally convex space, the convex hull of a bounded set is bounded.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  If $B$ is absorbed by a convex balanced neighborhood $W$ of $0$, so is $\conv B$.
+\end{proof}
+
+\section{Riemann sums}
+
+\begin{definition}[Riemann sums]
+  \label{def:riemann}
+  \lean{LCAnalysis.riemannSum}
+  \leanok
+  For $\gamma \colon \R \to F$ and $N \geq 1$, the Riemann sum of $\gamma$ over $[a, b]$ with
+  $N$ equal subintervals and left endpoints is
+  $R_N(\gamma) = \frac{b-a}{N} \sum_{i=0}^{N-1} \gamma\bigl(a + i \frac{b-a}{N}\bigr)$.
+\end{definition}
+
+\begin{lemma}[Refinements]
+  \label{lem:riemann-refine}
+  \lean{LCAnalysis.riemannSum_mul_sub_mem, LCAnalysis.tendsto_riemannSum_real, LCAnalysis.map_riemannSum}
+  \leanok
+  \uses{def:riemann}
+  Let $V \subseteq F$ be convex, and suppose that $\gamma(s) - \gamma(t) \in V$ whenever
+  $s, t \in [a, b]$ and $0 \leq s - t \leq \frac{b - a}{N}$. Then
+  $R_{Nm}(\gamma) - R_N(\gamma) \in (b - a)\, V$ for every $m \geq 1$. Moreover, for a continuous
+  real function $g$ the Riemann sums $R_N(g)$ tend to $\int_a^b g$.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  The difference $R_{Nm} - R_N$ is an average of increments of $\gamma$ over intervals of length
+  at most $\frac{b - a}{N}$, multiplied by $b - a$; convexity of $V$ concludes. The second claim
+  is the classical convergence of Riemann sums.
+\end{proof}
+
+\begin{lemma}[Limits of Riemann sums]
+  \label{lem:riemann-limit}
+  \lean{LCAnalysis.hasWeakIntegral_of_tendsto}
+  \leanok
+  \uses{lem:riemann-refine, def:weak-integral}
+  If $\gamma$ is continuous on $[a, b]$ and the dyadic Riemann sums $R_{2^n}(\gamma)$ converge to
+  $y$, then $y$ is the weak integral of $\gamma$ over $[a, b]$.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  For each functional $\varphi$, $\varphi(R_{2^n}(\gamma)) = R_{2^n}(\varphi \circ \gamma)$
+  converges both to $\varphi(y)$ and to $\int_a^b \varphi \circ \gamma$.
+\end{proof}
+
+\section{Existence of integrals}
+
+\begin{theorem}[Continuous curves, sequentially complete case]
+  \label{thm:exists-seq}
+  \lean{LCAnalysis.exists_hasWeakIntegral, LCAnalysis.exists_hasWeakIntegral_of_le}
+  \leanok
+  \uses{def:seq-complete, lem:riemann-limit}
+  If $F$ is sequentially complete, every curve that is continuous on $[a, b]$ has a weak
+  integral over $[a, b]$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  By uniform continuity on the compact interval $[a, b]$, for each closed convex neighborhood
+  $V$ of $0$ the increments of $\gamma$ over short intervals lie in $V$. By
+  Lemma~\ref{lem:riemann-refine}, the dyadic Riemann sums form a Cauchy sequence; its limit is
+  the weak integral by Lemma~\ref{lem:riemann-limit}. This is G--N~1.1.15.
+\end{proof}
+
+\begin{theorem}[$\Ck{1}$ curves, Mackey complete case]
+  \label{thm:exists-mackey}
+  \lean{LCAnalysis.exists_hasWeakIntegral_of_hasDirDerivAt_of_le, LCAnalysis.ContDiffMBOn.exists_hasWeakIntegral, LCAnalysis.sub_mem_smul_closure_convexHull}
+  \leanok
+  \uses{def:mackey-complete, lem:riemann-limit, lem:conv-bounded, lem:mean-value-inclusion}
+  If $F$ is Mackey complete, every curve that is $\Ck{1}$ on a neighborhood of $[a, b]$ has a weak
+  integral over $[a, b]$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Let $K$ be the closure of the convex hull of $\{s\,\gamma'(t) : s \in [0, 1],\ t \in [a, b]\}$.
+  It is bounded by Lemma~\ref{lem:conv-bounded}, since $\gamma'([a, b])$ is compact. By the mean
+  value inclusion, $\gamma(s) - \gamma(t) \in h\, K$ whenever $0 \leq s - t \leq h$. By
+  Lemma~\ref{lem:riemann-refine},
+  \[
+    R_{2^m}(\gamma) - R_{2^n}(\gamma) \in \frac{(b - a)^2}{2^n}\, K \qquad (n \leq m),
+  \]
+  so the dyadic Riemann sums form a Mackey--Cauchy sequence. Its limit is the weak integral.
+  Compare G--N~1.1.18 and \cite[2.14]{KM97}.
+\end{proof}
+
+\begin{remark}
+  The construction of weak integrals as limits of dyadic Riemann sums is common to both
+  theorems; only the Cauchy estimate changes. In the continuous case it comes from uniform
+  continuity; in the $\Ck{1}$ case, from the mean value inclusion.
+\end{remark}
+
+\section{The fundamental theorem of calculus, second part}
+
+\begin{theorem}[Fundamental theorem of calculus, II]
+  \label{thm:ftc2}
+  \lean{LCAnalysis.hasDirDerivAt_weakIntegral_right_of_exists, LCAnalysis.hasDirDerivAt_weakIntegral_right}
+  \leanok
+  \uses{lem:weak-integral-small, lem:weak-integral-algebra, prop:change-of-variables}
+  Let $I \subseteq \R$ be an open interval, $a \in I$ and $\gamma$ continuous on $I$. If the weak
+  integrals $\eta(s) = \int_a^s \gamma$ exist for $s \in I$, then $\eta$ is differentiable on
+  $I$ with $\eta' = \gamma$. If $F$ is sequentially complete, these integrals always exist.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  By additivity in the interval and the affine change of variables $r \mapsto t + sr$,
+  \[
+    \frac{1}{s}\bigl(\eta(t + s) - \eta(t)\bigr) - \gamma(t)
+      = \int_0^1 \bigl(\gamma(t + sr) - \gamma(t)\bigr)\, dr .
+  \]
+  For small $s$ the integrand lies in a given closed convex neighborhood $W$ of $0$, by
+  continuity of $\gamma$ at $t$, and Lemma~\ref{lem:weak-integral-small} puts the integral in
+  $2W$. The last claim follows from Theorem~\ref{thm:exists-seq}. This is G--N~1.1.12.
+\end{proof}
+
+\section{Integrals depending on parameters}
+
+\begin{theorem}[The induction behind parameter-dependent integrals]
+  \label{thm:param-induction}
+  \lean{LCAnalysis.contDiffMBOn_weakIntegral_of_exists}
+  \leanok
+  \uses{thm:diff-under-integral, prop:param-continuity, thm:partials}
+  Let $T \subseteq \R$ be open with $[a, b] \subseteq T$, and $m \in \N$. Suppose that, for
+  every $\Ck{m}$ map $f$ on a product $U \times T$, the weak integrals $\int_a^b f(x, t)\, dt$
+  exist. Then, for every $\Ck{k + m}$ map $f$ on $U \times T$, the map
+  $x \mapsto \int_a^b f(x, t)\, dt$ is $\Ck{k}$ on $U$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Induction on $k$, for all locally convex spaces $E$ at once. The case $k = 0$ is
+  Proposition~\ref{prop:param-continuity}. For the inductive step, differentiation under the
+  integral sign gives
+  $\dd\bigl(\int_a^b f(\cdot, t)\, dt\bigr)(x)(h) = \int_a^b \dd f\bigl((x, t), (h, 0)\bigr)\, dt$,
+  and the integrand is a $\Ck{k - 1 + m}$ map on the product $(U \times E) \times T$, to which
+  the inductive hypothesis applies.
+\end{proof}
+
+\begin{remark}
+  This single induction yields all the results on parameter-dependent integrals at once; the
+  sources prove the sequentially complete case and the Mackey complete case separately. The
+  quantification over all spaces $E$ is the reason for the universe restriction mentioned in
+  Chapter~\ref{chap:differentiability}.
+\end{remark}
+
+\begin{corollary}[Parameter-dependent integrals]
+  \label{cor:param}
+  \lean{LCAnalysis.ContDiffMBOn.contDiffMBOn_weakIntegral, LCAnalysis.ContDiffMBOn.contDiffMBOn_weakIntegral_of_mackey, LCAnalysis.SmoothMBOn.smoothMBOn_weakIntegral, LCAnalysis.ContDiffMBOn.dMB_weakIntegral}
+  \leanok
+  \uses{thm:param-induction, thm:exists-seq, thm:exists-mackey}
+  Let $f$ be a map on $U \times T$ with $[a, b] \subseteq T$, and
+  $I(x) = \int_a^b f(x, t)\, dt$.
+  \begin{enumerate}
+    \item If $F$ is sequentially complete and $f$ is $\Ck{k}$, then $I$ is $\Ck{k}$, and
+    $\dd I(x)(h) = \int_a^b \dd f\bigl((x,t), (h,0)\bigr)\, dt$ for $k \geq 1$.
+    \item If $F$ is Mackey complete and $f$ is $\Ck{k+1}$, then $I$ is $\Ck{k}$.
+    \item If $F$ is Mackey complete and $f$ is smooth, then $I$ is smooth.
+  \end{enumerate}
+\end{corollary}
+
+\begin{proof}
+  \leanok
+  Apply Theorem~\ref{thm:param-induction} with $m = 0$ and Theorem~\ref{thm:exists-seq} in the
+  first case, and with $m = 1$ and Theorem~\ref{thm:exists-mackey} in the other two. This is
+  G--N~1.3.23.
+\end{proof}

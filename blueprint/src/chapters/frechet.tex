@@ -1,0 +1,60 @@
+\chapter{Comparison with Fréchet calculus}
+\label{chap:frechet}
+
+On normed spaces both calculi are available. Fréchet $\Ck{k}$ maps are Michal--Bastiani
+$\Ck{k}$ (Proposition~\ref{prop:frechet-to-mb}); in this chapter we prove the converse, up to
+the loss of one derivative. As a consequence both notions of smoothness agree. Throughout, $E$
+and $F$ are real normed spaces.
+
+\begin{theorem}[Michal--Bastiani $\Ck{k+1}$ implies Fréchet $\Ck{k}$]
+  \label{thm:mb-to-frechet}
+  \lean{LCAnalysis.ContDiffMBOn.contDiffOn, LCAnalysis.ContDiffMBOn.contDiffOn_one}
+  \leanok
+  \uses{thm:linear, lem:mean-value-inclusion, lem:continuity}
+  If $f$ is $\Ck{k+1}$ on $U$ in the sense of Michal--Bastiani, then $f$ is Fréchet $\Ck{k}$ on
+  $U$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  We prove, by induction on $k$ and for all $m$ simultaneously, the following statement:
+  \emph{if $g \colon U \to \Lin^m(E; F)$ is such that
+  $\hat g(x, v_1, \dots, v_m) = g(x)(v_1, \dots, v_m)$ is $\Ck{k+1}$ in the sense of
+  Michal--Bastiani, then $g$ is Fréchet $\Ck{k}$}. Here $\Lin^m(E; F)$ is the space of continuous
+  $m$-linear maps with the operator norm. For $m = 0$ this is the theorem.
+
+  The candidate for the derivative of $g$ at $y$ is the $(m+1)$-linear map
+  $B_y(w, v) = \dd \hat g\bigl((y, v), (w, 0)\bigr)$, the derivative of $\hat g$ in a base
+  direction; it is multilinear by Theorem~\ref{thm:linear}. Since $\dd \hat g$ is jointly
+  continuous and vanishes in the direction $0$, the maps $B_{y'}$ are uniformly bounded in
+  operator norm for $y'$ near $y$. With the mean value inclusion, this shows that $g$ is locally
+  Lipschitz into $\Lin^m(E; F)$; in particular it is continuous, which is the case $k = 0$.
+
+  For the inductive step, suppose that $\hat g$ is $\Ck{k+2}$. Then
+  $(y, w, v) \mapsto B_y(w, v)$ is $\Ck{k+1}$, so by the case $(k, m + 1)$ the
+  map $y \mapsto B_y$ is Fréchet $\Ck{k}$, and in particular continuous in operator norm. The mean
+  value inclusion then gives
+  $\|g(y + w) - g(y) - B_y(w, \cdot)\| = o(\|w\|)$, so $g$ is Fréchet differentiable with
+  derivative $y \mapsto B_y$, and $g$ is Fréchet $\Ck{k+1}$.
+\end{proof}
+
+\begin{remark}
+  This is G--N~2.3.17(b). The proof in G--N goes through the compact-open topology on
+  $\Lin(E, F)$ and the exponential law (G--N~1.7.30). The proof above stays in normed spaces:
+  the derivatives are tracked as continuous multilinear maps with the operator norm, which is
+  closer to the existing Fréchet calculus of Mathlib.
+\end{remark}
+
+\begin{corollary}[Smooth maps agree]
+  \label{cor:smooth-iff}
+  \lean{LCAnalysis.smoothMBOn_iff_contDiffOn}
+  \leanok
+  \uses{thm:mb-to-frechet, prop:frechet-to-mb}
+  A map between open subsets of normed spaces is smooth in the sense of Michal--Bastiani if and
+  only if it is smooth in the sense of Fréchet.
+\end{corollary}
+
+\begin{proof}
+  \leanok
+  Theorem~\ref{thm:mb-to-frechet} and Proposition~\ref{prop:frechet-to-mb}.
+\end{proof}

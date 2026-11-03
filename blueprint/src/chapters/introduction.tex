@@ -1,0 +1,65 @@
+\chapter{Introduction}
+\label{chap:introduction}
+
+This blueprint describes the mathematics formalized in the Lean library
+\href{https://github.com/glaroton/LCAnalysis}{LCAnalysis}: the differential and integral
+calculus of Michal and Bastiani on locally convex spaces. Every definition and theorem below is
+linked to its Lean counterpart, and the dependency graph shows how the results build on each
+other. All the statements in this document are proved in Lean, with no \texttt{sorry}, and the
+main theorems depend only on the standard axioms of Lean.
+
+\section*{Why Michal--Bastiani calculus}
+
+Infinite-dimensional Lie groups and manifolds of mappings are modeled on spaces that are not
+normable: Fréchet spaces of smooth functions such as $C^\infty(M)$, spaces of test functions,
+direct limits. On such spaces the Fréchet derivative makes no sense, since there is no norm to
+measure the remainder. The calculus that has become standard in infinite-dimensional Lie theory
+goes back to Michal \cite{Mic38} and Bastiani \cite{Bas64}, and was developed by Keller
+\cite{Kel74}, Hamilton \cite{Ham82}, Milnor \cite{Mil84}, Glöckner \cite{Glo02} and Neeb
+\cite{Nee06}. Its main reference today is the book of Glöckner and Neeb \cite{GN26}, which we
+follow closely; theorem numbers of the form ``G--N~1.2.13'' refer to it.
+
+The idea is to ask for less than in the Banach case. A map is $\Ck{1}$ if all its directional
+derivatives exist and depend continuously on the point \emph{and} on the direction, jointly. No
+uniformity in the direction is required. In normed spaces this notion is weaker than Fréchet
+differentiability, but the two give the same smooth maps (Chapter~\ref{chap:frechet}).
+
+Mathlib \cite{mC20}, the mathematical library of the Lean proof assistant \cite{dMU21}, has a
+complete Fréchet calculus on normed spaces
+(\texttt{HasFDerivAt}, \texttt{ContDiff}), and a theory of topological vector spaces and
+locally convex spaces. It does not have a differential calculus beyond the normed case. The
+purpose of LCAnalysis is to fill this gap, as a foundation for the formalization of
+infinite-dimensional Lie theory.
+
+\section*{Standing assumptions}
+
+Unless otherwise stated, $E$, $F$ and $G$ denote real locally convex Hausdorff topological
+vector spaces, $U \subseteq E$ is open, and $f \colon U \to F$. The Lean statements sometimes
+need less: for instance, the definition of weak integrals makes sense in any topological vector
+space. The precise hypotheses can be read in the linked Lean declarations.
+
+Two tools replace norm estimates throughout:
+\begin{itemize}
+  \item \textbf{Hahn--Banach.} Continuous linear functionals separate points from closed convex
+  sets. In particular, a vector is determined by its images under all continuous linear
+  functionals.
+  \item \textbf{Local convexity.} The closed convex neighborhoods of $0$ form a basis of the
+  topology.
+\end{itemize}
+Most proofs reduce a statement in $F$ to statements about real functions, by composing with
+continuous linear functionals; then the one-variable calculus of Mathlib applies.
+
+\section*{What is new and what is not}
+
+The mathematics is classical: every result in this document appears in the cited literature,
+and the proofs follow it. The few places where the argument differs from the sources are
+pointed out in remarks. As far as we know, Michal--Bastiani calculus had not been formalized
+before, neither in Lean nor in another proof assistant.
+
+\section*{How the library was written}
+
+Gabriel Larotonda set the mathematical program, chose the framework and the references, fixed
+the design constraints and reviewed the results. The Lean proofs were written by the AI
+assistant Claude (Anthropic), working under his direction. Correctness does not rest on trusting
+either of them: Lean's kernel checks every proof, and the statements are kept close to the
+literature so that they can be compared with it directly.
