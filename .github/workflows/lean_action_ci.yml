@@ -38,39 +38,12 @@ jobs:
           free -h
       - uses: leanprover-community/docgen-action@v1
         with:
-          # The API documentation goes to `site/docs`; the action does not deploy it, because
-          # the home page is added below.
+          # The API documentation goes to `site/docs` and the blueprint to `site/blueprint` and
+          # `site/blueprint.pdf`, after `checkdecls` verifies the declarations it cites. The
+          # action does not deploy them, because the home page is added below.
           homepage: site
+          blueprint: true
           deploy: false
-      - name: Build the blueprint
-        # The same TeX Live image and commands as the blueprint step of the doc-gen action, without
-        # its `checkdecls` dependency; the declarations are checked below against doc-gen's index.
-        uses: xu-cheng/texlive-action@f886de8159e5952a131848a5fa9c3196a2132b5d # v2
-        with:
-          docker_image: ghcr.io/xu-cheng/texlive-full:20250401
-          run: |
-            apk update
-            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
-            git config --global --add safe.directory $GITHUB_WORKSPACE
-            git config --global --add safe.directory `pwd`
-            python3 -m venv env
-            source env/bin/activate
-            pip install --upgrade pip requests wheel
-            pip install pygraphviz --config-settings="--global-option=build_ext" --config-settings="--global-option=-L/usr/lib/graphviz/" --config-settings="--global-option=-R/usr/lib/graphviz/"
-            pip install leanblueprint
-            leanblueprint pdf
-            leanblueprint web
-      - name: Check the declarations cited in the blueprint
-        if: github.event_name == 'push'
-        run: |
-          python3 scripts/check_blueprint_decls.py blueprint/lean_decls \
-            site/docs/declarations/declaration-data.bmp
-      - name: Add the blueprint to the site
-        if: github.event_name == 'push'
-        run: |
-          sudo chown -R runner blueprint
-          cp -r blueprint/web site/blueprint
-          cp blueprint/print/print.pdf site/blueprint.pdf
       - name: Build the home page from the README
         if: github.event_name == 'push'
         run: |
