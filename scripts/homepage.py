@@ -1,4 +1,4 @@
-"""Build docs/index.html for a repo from its README.md and the doc-gen4 declaration index.
+"""Build home/index.html for a repo from its README.md and the doc-gen4 declaration index.
 
 usage: python3 homepage.py REPO_DIR REPO_NAME DECL_JSON
 
@@ -116,5 +116,5 @@ footer {{ max-width: 860px; margin: 48px auto 0; padding: 24px 16px 48px; color:
 </body>
 </html>
 """
-open(f"{repo_dir}/docs/index.html", "w").write(page)
+open(f"{repo_dir}/home/index.html", "w").write(page)
 print("ok", name, len(re.findall(r'class="decl"', out)), "declaration links")
