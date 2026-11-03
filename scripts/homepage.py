@@ -1,13 +1,14 @@
-"""Build home/index.html for a repo from its README.md and the doc-gen4 declaration index.
+"""Build the GitHub Pages home page of a repo from its README.md and the doc-gen4 declarations.
 
-usage: python3 homepage.py REPO_DIR REPO_NAME DECL_JSON
+usage: python3 homepage.py REPO_DIR REPO_NAME DECL_JSON OUT_HTML
 
-DECL_JSON is `docs/declarations/declaration-data.bmp` from the published API documentation.
+DECL_JSON is `docs/declarations/declaration-data.bmp` from the API documentation. The CI runs
+this after doc-gen, so the home page follows the README on every push.
 """
 import html, json, re, sys
 import markdown
 
-repo_dir, name, decl_path = sys.argv[1:4]
+repo_dir, name, decl_path, out_path = sys.argv[1:5]
 gh = f"https://github.com/glaroton/{name}"
 decls = json.load(open(decl_path))["declarations"]
 
@@ -116,5 +117,5 @@ footer {{ max-width: 860px; margin: 48px auto 0; padding: 24px 16px 48px; color:
 </body>
 </html>
 """
-open(f"{repo_dir}/home/index.html", "w").write(page)
+open(out_path, "w").write(page)
 print("ok", name, len(re.findall(r'class="decl"', out)), "declaration links")
