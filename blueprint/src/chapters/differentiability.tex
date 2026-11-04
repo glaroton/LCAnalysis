@@ -1,10 +1,21 @@
 \chapter{Michal--Bastiani differentiability}
 \label{chap:differentiability}
 
+On a Banach space a map is $\Ck{1}$ when its derivative is a continuous map into the space of
+bounded operators, with the operator norm. On a general locally convex space $E$ there is no
+canonical topology on the space of continuous linear maps $E \to F$ that would play this role,
+and the definition has to be rephrased. The solution of Michal \cite{Mic38} and Bastiani
+\cite{Bas64} is to consider the derivative as a function of two variables, the point and the
+direction, and to ask for joint continuity. In the recursive form used by Glöckner, which we
+adopt, $\Ck{k+1}$ means that this function of two variables is $\Ck{k}$.
+
 In this chapter we define $\Ck{k}$ maps between locally convex spaces and prove the basic
-results of first-order calculus: linearity of the differential, the mean value theorem, the
-chain rule and the symmetry of the second differential. The references are G--N~\S1.2 and
-\cite[\S I.2]{Nee06}.
+results of first-order calculus. After the definitions, we prove the mean value theorem, which
+in this setting takes the form of an inclusion in a closed convex set. From it we obtain
+Glöckner's lemma on the continuous extension of difference quotients, and from this lemma the
+linearity of the differential and the chain rule. We close the chapter with partial
+derivatives, the symmetry of the second differential, and the comparison with Fréchet $\Ck{k}$
+maps on normed spaces. The references are G--N~\S1.2 and \cite[\S I.2]{Nee06}.
 
 \section{Directional derivatives and $\Ck{k}$ maps}
 
@@ -21,8 +32,13 @@ chain rule and the symmetry of the second differential. The references are G--N~
   $E \times E$.
 \end{definition}
 
-In Lean, $\dd f$ is a total function: it takes an arbitrary value where the limit does not
-exist. This is harmless, since it is only used where the limit is known to exist.
+The limit is taken in $F$, which is Hausdorff, so it is unique when it exists. Note that
+$\dd f(x)(0) = 0$ always, and that no linearity in $h$ is built into the definition.
+
+\begin{remark}
+  In Lean, $\dd f$ is a total function: it takes an arbitrary value where the limit does not
+  exist. This is harmless, since it is only used where the limit is known to exist.
+\end{remark}
 
 \begin{definition}[$\Ck{k}$ and smooth maps]
   \label{def:ck}
@@ -35,16 +51,27 @@ exist. This is harmless, since it is only used where the limit is known to exist
   $U \times E$. The map $f$ is smooth on $U$ if it is $\Ck{k}$ for every $k$.
 \end{definition}
 
-So $f$ is $\Ck{1}$ when its directional derivatives exist and are jointly continuous in the point
-and the direction. This is G--N~1.2.1 and 1.3.1 (in the recursive form used by Glöckner);
+Thus $f$ is $\Ck{1}$ when its directional derivatives exist and are jointly continuous in the
+point and the direction. This is G--N~1.2.1 and 1.3.1, in the recursive form used by Glöckner;
 Bastiani's original definition, through the continuity of all the iterated differentials, is
 equivalent (Theorem~\ref{thm:ck-iff-bastiani}).
+
+\begin{remark}
+  Two features of the definition deserve a comment. First, linearity of $h \mapsto \dd f(x)(h)$
+  is not assumed; it is a theorem (Theorem~\ref{thm:linear}), and it depends on the joint
+  continuity in an essential way (Example~\ref{ex:not-linear} below). Second, no topology on
+  the space of continuous linear maps $E \to F$ is involved: the regularity of $\dd f$ is
+  measured on the locally convex space $E \times E$, so that the induction stays within the
+  category of locally convex spaces.
+\end{remark}
 
 \begin{remark}
   The recursive definition quantifies over the domain of $\dd f$, which is $U \times E$ rather
   than $U$. As a consequence, in Lean the domains of $\Ck{k}$ maps live in a fixed universe.
   Codomains are unrestricted.
 \end{remark}
+
+We record the two basic examples, which are used throughout.
 
 \begin{lemma}[Continuous linear maps are smooth]
   \label{lem:clm-smooth}
@@ -71,13 +98,16 @@ equivalent (Theorem~\ref{thm:ck-iff-bastiani}).
 \begin{proof}
   \leanok
   Directional derivatives of a pair are computed componentwise, so $\dd (f,g)$ is the pair
-  $(\dd f, \dd g)$; induction on $k$.
+  $(\dd f, \dd g)$; the claim follows by induction on $k$.
 \end{proof}
 
 \section{The mean value theorem}
 
-The classical mean value inequality has no meaning without a norm. Its replacement is an
-inclusion: increments of $f$ lie in the closed convex hull of the derivatives.
+The classical mean value inequality $\|f(x+h) - f(x)\| \leq \sup_s \|Df(x+sh)\|\,\|h\|$ has no
+meaning without a norm. Its replacement is an inclusion: increments of $f$ lie in the closed
+convex hull of the derivatives along the segment. Since closed convex neighborhoods form a
+basis of the topology, this inclusion carries the same information as a family of estimates,
+one for each continuous seminorm.
 
 \begin{lemma}[Mean value inclusion]
   \label{lem:mean-value-inclusion}
@@ -98,7 +128,8 @@ inclusion: increments of $f$ lie in the closed convex hull of the derivatives.
   $g(1) - g(0) = \int_0^1 \varphi(D(s))\,ds \leq c$, a contradiction.
 \end{proof}
 
-This is the remark after Lemma~8.4 in \cite{Mic80}.
+This is the remark after Lemma~8.4 in \cite{Mic80}. A first consequence is that the continuity
+required in Definition~\ref{def:ck} is, from the first order on, automatic.
 
 \begin{lemma}[Continuity]
   \label{lem:continuity}
@@ -116,6 +147,9 @@ This is the remark after Lemma~8.4 in \cite{Mic80}.
   mean value inclusion then gives $f(x + w) - f(x) \in W$. This is \cite[8.1]{Mic80}.
 \end{proof}
 
+When the derivatives are tested against continuous linear functionals, the mean value inclusion
+becomes an identity.
+
 \begin{proposition}[Mean value theorem, weak form]
   \label{prop:mean-value-weak}
   \lean{LCAnalysis.ContDiffMBOn.integral_dMB}
@@ -132,14 +166,20 @@ This is the remark after Lemma~8.4 in \cite{Mic80}.
 \begin{proof}
   \leanok
   The real function $t \mapsto \varphi(f(x + t h))$ has continuous derivative
-  $t \mapsto \varphi(\dd f(x + th)(h))$; apply the fundamental theorem of calculus for real
-  functions.
+  $t \mapsto \varphi(\dd f(x + th)(h))$; it suffices to apply the fundamental theorem of
+  calculus for real functions.
 \end{proof}
 
 In the language of Chapter~\ref{chap:integrals}, $f(x+h) - f(x)$ is the weak integral of
 $t \mapsto \dd f(x + th)(h)$ over $[0,1]$ (Corollary~\ref{cor:ftc-segment}). This is G--N~1.2.6.
+Note that no completeness of $F$ is needed here: the integral exists because its value,
+$f(x+h) - f(x)$, is given in advance.
 
 \section{Glöckner's lemma and the linearity of the differential}
+
+The following lemma is the technical core of the chapter. It says that, for a $\Ck{1}$ map, the
+difference quotient is jointly continuous in the base point, the direction and the step, up to
+and including $t = 0$.
 
 \begin{lemma}[Glöckner]
   \label{lem:glockner}
@@ -164,7 +204,7 @@ $t \mapsto \dd f(x + th)(h)$ over $[0,1]$ (Corollary~\ref{cor:ftc-segment}). Thi
 
 In other words, the difference quotient extends continuously to $t = 0$ by $\dd g$. This is the
 characterization of $\Ck{1}$ maps of Glöckner \cite{Glo02} (G--N~1.2.10), and it is the key
-step in the chain rule.
+step in the chain rule. It also gives the linearity of the differential.
 
 \begin{theorem}[The differential is linear]
   \label{thm:linear}
@@ -188,6 +228,17 @@ step in the chain rule.
   moving base point $x + th \to x$, the first one tends to $\dd f(x)(k)$. Continuity follows from
   the joint continuity of $\dd f$. This is G--N~1.2.11.
 \end{proof}
+
+\begin{example}
+  \label{ex:not-linear}
+  The existence of all directional derivatives, even everywhere and for a continuous map, does
+  not imply linearity. Let $f \colon \R^2 \to \R$ be given by $f(a, b) = a^2 b/(a^2 + b^2)$ for
+  $(a,b) \neq 0$ and $f(0) = 0$. It is continuous, since $|f(a,b)| \leq |b|$, and smooth away
+  from the origin. Since $f(t a, t b) = t f(a, b)$, we have $\dd f(0)(a, b) = f(a, b)$, which
+  is not additive: $\dd f(0)(1,0) = \dd f(0)(0,1) = 0$, while $\dd f(0)(1,1) = 1/2$. By
+  Theorem~\ref{thm:linear}, $f$ is not $\Ck{1}$; since $f$ is smooth away from the origin,
+  what fails is the joint continuity of $\dd f$ at some point of the form $(0, h)$.
+\end{example}
 
 \section{The chain rule}
 
@@ -218,7 +269,15 @@ step in the chain rule.
   the regularity follows by induction on $k$. This is G--N~1.2.13 and 1.3.4.
 \end{proof}
 
+\begin{remark}
+  The direction $q(t)$ at which Glöckner's lemma is applied moves with $t$. This is where the
+  continuity of $\dd g$ in the direction, and not only in the base point, enters the proof.
+\end{remark}
+
 \section{Partial derivatives}
+
+As in finite dimension, a map on a product is $\Ck{1}$ as soon as its partial derivatives exist
+and are continuous.
 
 \begin{theorem}[Continuous partial derivatives]
   \label{thm:partials}
@@ -245,7 +304,16 @@ step in the chain rule.
   and $f$ is continuous by Lemma~\ref{lem:continuity}. This is \cite[8.3]{Mic80} and G--N~1.2.8.
 \end{proof}
 
+This criterion is a practical way to verify that a given map is $\Ck{1}$; for instance, it is
+used in the proof that continuous bilinear maps are smooth (Theorem~\ref{thm:bilinear}).
+
 \section{Symmetry of the second differential}
+
+For a $\Ck{2}$ map, the second differential at $x$ is
+$(h_1, h_2) \mapsto \dd(\dd f)\bigl((x, h_1), (h_2, 0)\bigr)$, the derivative of
+$\dd f(\cdot)(h_1)$ in the direction $h_2$. We prove that it is symmetric. As in the classical
+proof, both orders of differentiation are compared with a second difference quotient, which is
+symmetric by construction.
 
 \begin{lemma}[Second differences]
   \label{lem:second-diff}
@@ -262,7 +330,7 @@ step in the chain rule.
 
 \begin{proof}
   \leanok
-  Apply the mean value inclusion twice: first to $s \mapsto f(x + s h_1 + t h_2) - f(x + s h_1)$,
+  We apply the mean value inclusion twice: first to $s \mapsto f(x + s h_1 + t h_2) - f(x + s h_1)$,
   then to the derivative of this map in the direction $h_2$. The second difference quotient
   lies in the closed convex hull of values of the second differential at points near $x$, and
   these lie in $W$ by continuity.
@@ -285,7 +353,11 @@ step in the chain rule.
   $k = 2$.
 \end{proof}
 
+The symmetry of the higher differentials is the subject of Chapter~\ref{chap:higher}.
+
 \section{Fréchet differentiable maps}
+
+On normed spaces both calculi are available, and the Fréchet one is the stronger of the two.
 
 \begin{proposition}[Fréchet $\Ck{k}$ implies Michal--Bastiani $\Ck{k}$]
   \label{prop:frechet-to-mb}

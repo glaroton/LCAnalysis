@@ -1,10 +1,22 @@
 \chapter{Weak integrals}
 \label{chap:integrals}
 
-Integrals of curves in a locally convex space are defined by duality. They are unique, but they
-need not exist; existence is the subject of the next two chapters. Everything in this chapter
-holds in an arbitrary locally convex space, with existence of the relevant integrals as an
-explicit hypothesis. The reference is G--N~\S1.1.
+Integration enters Michal--Bastiani calculus in two places: through the mean value theorem,
+which expresses $f(x + h) - f(x)$ as an integral of the differential along the segment, and
+through integrals depending on parameters, which are a basic tool to produce smooth maps.
+Without a norm there is no Bochner integral, and without completeness Riemann
+sums need not converge. The integral used in infinite-dimensional Lie theory is therefore
+defined by duality: a vector is the integral of a curve if every continuous linear functional
+sees it as such.
+
+Weak integrals defined in this way are unique, by Hahn--Banach, but they need not exist;
+existence is the subject of the next two chapters (Chapters~\ref{chap:completeness}
+and~\ref{chap:mackey-lipschitz}). Everything in the present chapter holds in an arbitrary
+locally convex space, with the existence of the relevant integrals as an explicit hypothesis.
+We first establish the basic properties of the integral and the change of variables formula,
+then the first part of the fundamental theorem of calculus, which needs no hypothesis on $F$
+at all, and finally the continuity and differentiability of integrals depending on parameters.
+Our reference is G--N~\S1.1.
 
 \section{Definition and basic properties}
 
@@ -34,9 +46,12 @@ explicit hypothesis. The reference is G--N~\S1.1.
   separate points by Hahn--Banach.
 \end{proof}
 
-We write $\int_a^b \gamma$ for the weak integral when it exists. In Lean, the function that
-returns it is total: its value is $0$ when the integral does not exist, and it is only used
-where existence is known.
+We write $\int_a^b \gamma$ for the weak integral when it exists.
+
+\begin{remark}
+  In Lean, the function that returns the weak integral is total: its value is $0$ when the
+  integral does not exist. It is only used where existence is known.
+\end{remark}
 
 \begin{lemma}[Algebraic rules]
   \label{lem:weak-integral-algebra}
@@ -51,10 +66,14 @@ where existence is known.
 
 \begin{proof}
   \leanok
-  Apply a functional and use the corresponding rules for real integrals. For $L$, note that
-  $\varphi \circ L$ is a continuous linear functional on $F$ whenever $\varphi$ is one on $G$.
-  This is G--N~1.1.4 and 1.1.8.
+  Apply a functional and use the corresponding rules for real integrals. For $L$, it suffices
+  to note that $\varphi \circ L$ is a continuous linear functional on $F$ whenever $\varphi$ is
+  one on $G$. This is G--N~1.1.4 and 1.1.8.
 \end{proof}
+
+The next lemma replaces the estimate $\|\int_a^b \gamma\| \leq (b - a) \sup \|\gamma\|$ of
+the normed case. Since there is no norm, the size of a vector is measured by the closed convex
+neighborhoods of $0$ that contain it.
 
 \begin{lemma}[Integrals of small curves are small]
   \label{lem:weak-integral-small}
@@ -70,9 +89,17 @@ where existence is known.
   \leanok
   If not, Hahn--Banach separates $y$ from the closed convex set $(b - a + 1)W$ by a functional
   $\varphi$. Bounding $\int_a^b \varphi(\gamma)$ by $(b - a)\sup_W \varphi$ gives a
-  contradiction. The constant $b - a + 1$ instead of $b - a$ avoids a separate treatment of the
-  case $a = b$. Compare G--N~1.1.9.
+  contradiction. The constant $b - a + 1$ instead of $b - a$ avoids a separate treatment of
+  the case $a = b$. Compare G--N~1.1.9.
 \end{proof}
+
+\begin{remark}
+  When $F$ is normed and $W$ is the closed ball of radius $r$ centered at $0$, the lemma says
+  that $\|y\| \leq (b - a + 1)\, r$ whenever $\|\gamma(t)\| \leq r$ on $[a, b]$. Up to the
+  harmless constant, this is the classical estimate. For the applications in this document
+  (continuity and convergence statements) only the shape of the bound matters, not the
+  constant.
+\end{remark}
 
 \section{Change of variables}
 
@@ -85,6 +112,11 @@ where existence is known.
   $\phi([a, b])$. Then $y$ is a weak integral of $t \mapsto \phi'(t)\,\gamma(\phi(t))$ over
   $[a, b]$ if and only if it is a weak integral of $\gamma$ over $[\phi(a), \phi(b)]$.
 \end{proposition}
+
+Note that the statement is an equivalence: the existence of either integral implies the
+existence of the other. The case used most often is the affine one,
+$\phi(t) = a + t(b - a)$ on $[0, 1]$, which shows that $\int_a^b \gamma$ exists if and only if
+$\int_0^1 (b - a)\, \gamma(a + t(b - a))\, dt$ does, and that both coincide.
 
 \begin{proof}
   \leanok
@@ -105,12 +137,14 @@ where existence is known.
 \begin{proof}
   \leanok
   For every functional $\varphi$, the real function $\varphi \circ \gamma$ has continuous
-  derivative $\varphi \circ \gamma'$; apply the real fundamental theorem of calculus. This is
-  G--N~1.1.5.
+  derivative $\varphi \circ \gamma'$, and it suffices to apply the real fundamental theorem of
+  calculus. This is G--N~1.1.5.
 \end{proof}
 
-No completeness of $F$ is needed: the integral exists because $\gamma(b) - \gamma(a)$ is a
-candidate.
+We remark that no completeness of $F$ is needed: the integral exists because
+$\gamma(b) - \gamma(a)$ is a candidate. In other words, derivatives of $\Ck{1}$ curves are
+always integrable; the difficulty of the existence problem lies with curves that are not known
+to be derivatives.
 
 \begin{corollary}[Mean value theorem]
   \label{cor:ftc-segment}
@@ -124,10 +158,16 @@ candidate.
 \begin{proof}
   \leanok
   This is Proposition~\ref{prop:mean-value-weak}, read as a statement about weak integrals.
-  This is G--N~1.2.6.
+  See G--N~1.2.6.
 \end{proof}
 
 \section{Integrals depending on parameters}
+
+We now let the integrand depend on a parameter $x$ and study the regularity of
+$x \mapsto \int_a^b f(x, t)\, dt$. As in the classical case, the arguments rest on the
+compactness of $[a, b]$, which turns pointwise closeness into uniform closeness in $t$; the
+uniform estimate is then transferred to the integrals by
+Lemma~\ref{lem:weak-integral-small}.
 
 \begin{proposition}[Continuity]
   \label{prop:param-continuity}
@@ -143,7 +183,8 @@ candidate.
   \leanok
   By compactness of $[a, b]$ (the tube lemma), for $x'$ close to $x$ the curve
   $f(x', \cdot) - f(x, \cdot)$ takes values in a given closed convex neighborhood $W$ of $0$ on
-  $[a, b]$. By Lemma~\ref{lem:weak-integral-small}, $I(x') - I(x) \in (b - a + 1)W$. This is
+  $[a, b]$. By Lemma~\ref{lem:weak-integral-small}, $I(x') - I(x) \in (b - a + 1)W$. Since
+  the closed convex neighborhoods of $0$ form a basis, this proves the claim. This is
   G--N~1.1.11.
 \end{proof}
 
@@ -158,6 +199,10 @@ candidate.
   $J = \int_a^b D(x, t)(h)\, dt$ exists. Then $I$ has derivative $J$ at $x$ in the direction
   $h$.
 \end{theorem}
+
+In other words, $\dd I(x)(h) = \int_a^b D(x, t)(h)\, dt$, as in the classical case, provided
+that both sides make sense. The existence of the integrals is part of the hypotheses; in a
+space with a suitable completeness property it is automatic (Chapter~\ref{chap:completeness}).
 
 \begin{proof}
   \leanok

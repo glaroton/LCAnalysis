@@ -1,10 +1,22 @@
 \chapter{Higher differentials}
 \label{chap:higher}
 
-The recursive definition of $\Ck{k}$ maps differentiates $\dd f$ as a map on $U \times E$. The
-classical definition, due to Bastiani, uses instead the iterated directional derivatives of $f$.
-In this chapter we prove that both agree and that the $k$-th differential is a continuous
-symmetric $k$-linear map. The reference is G--N~\S1.3.
+There are two natural ways to say that a map $f \colon U \to F$ is $\Ck{k}$. The one we adopted
+in Definition~\ref{def:ck} is recursive: $f$ is $\Ck{k+1}$ when $\dd f$, regarded as a map on the
+open set $U \times E$, is $\Ck{k}$. This is the form used by Glöckner, and it is the convenient
+one for proofs by induction. The classical definition, due to Bastiani \cite{Bas64} in 1964,
+asks instead that the iterated directional derivatives $\dd^{(j)} f(x; y_1, \dots, y_j)$ exist
+and be jointly continuous in the point and in all the directions, for $j \leq k$.
+
+In this chapter we prove that both definitions agree, and we derive from this the basic
+structure of the higher differentials: if $f$ is $\Ck{k+r}$, then $\dd^{(k)} f$ is again
+$\Ck{r}$, and for each $x$ the map $\dd^{(k)} f(x; \cdot)$ is continuous, symmetric and
+$k$-linear. We first define the iterated differentials and Bastiani's notion, and prove a
+formula (the slice lemma) relating the iterated differentials of $f$ to those of $\dd f$; this
+formula is the bridge between the two definitions. The last section deals with regularity and
+symmetry. Our reference is G--N~\S1.3.
+
+\section{Iterated differentials}
 
 \begin{definition}[Iterated differentials]
   \label{def:iterated}
@@ -20,6 +32,10 @@ symmetric $k$-linear map. The reference is G--N~\S1.3.
   that is, $\dd^{(k)} f(x; y_1, \dots, y_k) = (D_{y_k} \cdots D_{y_1} f)(x)$.
 \end{definition}
 
+So $\dd^{(k)} f(x; y_1, \dots, y_k)$ is obtained by differentiating $f$ successively in the
+directions $y_1, \dots, y_k$, keeping the directions fixed and moving only the point. Note that
+$\dd^{(1)} f(x; y) = \dd f(x)(y)$.
+
 \begin{definition}[Bastiani's $\Ck{k}$ maps]
   \label{def:bastiani}
   \lean{LCAnalysis.HasContIterDerivOn}
@@ -30,8 +46,16 @@ symmetric $k$-linear map. The reference is G--N~\S1.3.
   continuous on $U \times E^j$.
 \end{definition}
 
+\begin{remark}
+  In a Banach space the $k$-th Fréchet derivative is a map from $U$ into the space of
+  continuous $k$-linear maps $E^k \to F$, and its continuity is measured in the operator norm.
+  Here no topology is put on spaces of multilinear maps: what is required is the joint
+  continuity of $\dd^{(j)} f$ on $U \times E^j$. This is the same choice already made for
+  $k = 1$ in Definition~\ref{def:ck}, and it is what allows the theory to work without norms.
+\end{remark}
+
 The bridge between the two definitions is a formula that expresses the iterated differentials
-of $f$ through those of $\dd f$, in directions of the form $(y, 0)$:
+of $f$ through those of $\dd f$, in directions of the form $(y, 0)$.
 
 \begin{lemma}[Slices]
   \label{lem:slice}
@@ -50,10 +74,14 @@ of $f$ through those of $\dd f$, in directions of the form $(y, 0)$:
   \]
 \end{lemma}
 
+In words: differentiating the partial map $g(\cdot, a)$ is the same as differentiating $g$ in
+directions that do not move the second variable. The second formula is the case $g = \dd f$,
+$a = y_0$.
+
 \begin{proof}
   \leanok
-  Both sides are limits of the same difference quotients; induction on $k$. The second formula
-  is G--N~(1.36).
+  Both sides are limits of the same difference quotients, and the claim follows by induction on
+  $k$. The second formula is G--N~(1.36).
 \end{proof}
 
 \begin{theorem}[The two definitions of $\Ck{k}$ agree]
@@ -65,15 +93,20 @@ of $f$ through those of $\dd f$, in directions of the form $(y, 0)$:
   continuous iterated derivatives of order $k$ on $U$.
 \end{theorem}
 
+From now on we use whichever of the two descriptions is more convenient.
+
 \begin{proof}
   \leanok
-  Both implications go by induction on $k$, through Lemma~\ref{lem:slice}. If $f$ is $\Ck{k+1}$,
-  the iterated differentials of $f$ are slices of those of $\dd f$, which is $\Ck{k}$. For the
-  converse, the derivatives of $\dd f$ in a general direction $(h, w)$ split, by linearity in
-  the second variable and Theorem~\ref{thm:partials}, into a derivative in the direction
-  $(h, 0)$, which is an iterated differential of $f$, and one in the direction $(0, w)$, which is
-  again of the form $\dd f$. This is G--N~1.3.10 and 1.3.12.
+  Both implications go by induction on $k$, through Lemma~\ref{lem:slice}. If $f$ is
+  $\Ck{k+1}$, the iterated differentials of $f$ are slices of those of $\dd f$, which is
+  $\Ck{k}$; hence they exist and are continuous. For the converse, the derivatives of $\dd f$
+  in a general direction $(h, w)$ split, by linearity in the second variable and
+  Theorem~\ref{thm:partials}, into a derivative in the direction $(h, 0)$, which is an iterated
+  differential of $f$, and one in the direction $(0, w)$, which is again of the form $\dd f$.
+  The details can be found in G--N~1.3.10 and 1.3.12.
 \end{proof}
+
+\section{Regularity and symmetry}
 
 \begin{theorem}[Regularity of the differentials]
   \label{thm:iterated-regular}
@@ -83,10 +116,13 @@ of $f$ through those of $\dd f$, in directions of the form $(y, 0)$:
   If $f$ is $\Ck{k + r}$ on $U$, then $\dd^{(k)} f$ is $\Ck{r}$ on $U \times E^k$.
 \end{theorem}
 
+Thus each differentiation costs exactly one order of regularity, as in the Banach case; in
+particular, the iterated differentials of a smooth map are smooth.
+
 \begin{proof}
   \leanok
-  Induction on $k$, using that $\dd^{(k+1)} f$ is, up to reordering variables, the derivative of
-  $\dd^{(k)} f$ in directions of the form $(y, 0)$. This is G--N~1.3.13.
+  We argue by induction on $k$, using that $\dd^{(k+1)} f$ is, up to reordering the variables,
+  the derivative of $\dd^{(k)} f$ in directions of the form $(y, 0)$. This is G--N~1.3.13.
 \end{proof}
 
 \begin{theorem}[Schwarz]
@@ -94,15 +130,27 @@ of $f$ through those of $\dd f$, in directions of the form $(y, 0)$:
   \lean{LCAnalysis.ContDiffMBOn.iteratedDMB_perm, LCAnalysis.ContDiffMBOn.exists_iteratedDMB_multilinear}
   \leanok
   \uses{thm:symm2, thm:linear, thm:iterated-regular}
-  If $f$ is $\Ck{k}$ on $U$ and $x \in U$, then $\dd^{(k)} f(x; \cdot)$ is a continuous symmetric
-  $k$-linear map $E^k \to F$.
+  If $f$ is $\Ck{k}$ on $U$ and $x \in U$, then $\dd^{(k)} f(x; \cdot)$ is a continuous
+  symmetric $k$-linear map $E^k \to F$.
 \end{theorem}
+
+This is what allows us to regard $\dd^{(k)} f(x)$ as the $k$-th differential of $f$ at $x$, in
+the same sense as in finite dimension: the order in which we differentiate is irrelevant, and
+the result depends linearly on each direction.
 
 \begin{proof}
   \leanok
-  Symmetry: it suffices to consider transpositions of adjacent variables, and these reduce to
-  Theorem~\ref{thm:symm2} applied to an iterated differential of lower order. Linearity in the
-  last variable is Theorem~\ref{thm:linear} applied to $\dd^{(k-1)} f$; by symmetry, the map is
-  linear in every variable. Continuity follows from the joint continuity of $\dd^{(k)} f$. This
-  is G--N~1.3.17.
+  We begin with symmetry. It suffices to consider transpositions of adjacent variables, and
+  these reduce to Theorem~\ref{thm:symm2} applied to an iterated differential of lower order.
+  Linearity in the last variable is Theorem~\ref{thm:linear} applied to $\dd^{(k-1)} f$; by
+  symmetry, the map is linear in every variable. Continuity follows from the joint continuity
+  of $\dd^{(k)} f$. This is G--N~1.3.17.
 \end{proof}
+
+\begin{remark}
+  A word of caution: the continuity in Theorem~\ref{thm:schwarz} is continuity of the
+  $k$-linear map $\dd^{(k)} f(x; \cdot)$ on $E^k$, for a fixed $x$. Nothing is claimed about
+  the dependence of this multilinear map on $x$ in a topology on a space of multilinear maps;
+  the regularity in $x$ is expressed by the joint statement of
+  Theorem~\ref{thm:iterated-regular}.
+\end{remark}

@@ -1,10 +1,20 @@
 \chapter{Comparison with Fréchet calculus}
 \label{chap:frechet}
 
-On normed spaces both calculi are available. Fréchet $\Ck{k}$ maps are Michal--Bastiani
-$\Ck{k}$ (Proposition~\ref{prop:frechet-to-mb}); in this chapter we prove the converse, up to
-the loss of one derivative. As a consequence both notions of smoothness agree. Throughout, $E$
-and $F$ are real normed spaces.
+On normed spaces two calculi are available: the classical Fréchet calculus, in which the
+derivative is required to depend continuously on the point in the operator norm, and the
+calculus of Michal and Bastiani, which only asks for joint continuity of
+$(x, v) \mapsto \dd f(x)(v)$. The second notion is weaker; Fréchet $\Ck{k}$ maps are
+Michal--Bastiani $\Ck{k}$ (Proposition~\ref{prop:frechet-to-mb}). In this chapter we prove the
+converse, up to the loss of one derivative. As a consequence both notions of smoothness agree,
+so that for smooth maps between normed spaces one may use whichever calculus is more
+convenient.
+
+In the second part of the chapter we apply this comparison to maps with bounded below
+derivative, and show that such maps reflect smoothness. Throughout, $E$ and $F$ are real normed
+spaces; completeness is assumed only where it is stated.
+
+\section{From Michal--Bastiani to Fréchet}
 
 \begin{theorem}[Michal--Bastiani $\Ck{k+1}$ implies Fréchet $\Ck{k}$]
   \label{thm:mb-to-frechet}
@@ -14,6 +24,10 @@ and $F$ are real normed spaces.
   If $f$ is $\Ck{k+1}$ on $U$ in the sense of Michal--Bastiani, then $f$ is Fréchet $\Ck{k}$ on
   $U$.
 \end{theorem}
+
+The extra derivative is what converts joint continuity into continuity in the operator norm:
+in the proof below, joint continuity of the next derivative, together with the mean value
+inclusion, shows that the derivatives are locally Lipschitz in the operator norm.
 
 \begin{proof}
   \leanok
@@ -27,23 +41,30 @@ and $F$ are real normed spaces.
   $B_y(w, v) = \dd \hat g\bigl((y, v), (w, 0)\bigr)$, the derivative of $\hat g$ in a base
   direction; it is multilinear by Theorem~\ref{thm:linear}. Since $\dd \hat g$ is jointly
   continuous and vanishes in the direction $0$, the maps $B_{y'}$ are uniformly bounded in
-  operator norm for $y'$ near $y$. With the mean value inclusion, this shows that $g$ is locally
-  Lipschitz into $\Lin^m(E; F)$; in particular it is continuous, which is the case $k = 0$.
+  operator norm for $y'$ near $y$. With the mean value inclusion
+  (Lemma~\ref{lem:mean-value-inclusion}), this shows that $g$ is locally Lipschitz into
+  $\Lin^m(E; F)$; in particular it is continuous, which is the case $k = 0$.
 
   For the inductive step, suppose that $\hat g$ is $\Ck{k+2}$. Then
   $(y, w, v) \mapsto B_y(w, v)$ is $\Ck{k+1}$, so by the case $(k, m + 1)$ the
   map $y \mapsto B_y$ is Fréchet $\Ck{k}$, and in particular continuous in operator norm. The mean
   value inclusion then gives
-  $\|g(y + w) - g(y) - B_y(w, \cdot)\| = o(\|w\|)$, so $g$ is Fréchet differentiable with
-  derivative $y \mapsto B_y$, and $g$ is Fréchet $\Ck{k+1}$.
+  \[
+    \|g(y + w) - g(y) - B_y(w, \cdot)\| = o(\|w\|),
+  \]
+  so $g$ is Fréchet differentiable with derivative $y \mapsto B_y$, and $g$ is Fréchet
+  $\Ck{k+1}$.
 \end{proof}
 
 \begin{remark}
   This is G--N~2.3.17(b). The proof in G--N goes through the compact-open topology on
   $\Lin(E, F)$ and the exponential law (G--N~1.7.30). The proof above stays in normed spaces:
   the derivatives are tracked as continuous multilinear maps with the operator norm, which is
-  closer to the existing Fréchet calculus of Mathlib.
+  closer to the existing Fréchet calculus of Mathlib. The price is the auxiliary statement for
+  all $m$, which has to be proved simultaneously.
 \end{remark}
+
+Since the loss of one derivative disappears when $k = \infty$, we obtain the following.
 
 \begin{corollary}[Smooth maps agree]
   \label{cor:smooth-iff}
@@ -61,17 +82,28 @@ and $F$ are real normed spaces.
 
 \section{Maps with bounded below derivative}
 
-Let $E$ be a Banach space (complete), $F$ a normed space (complete or not), and
-$j \colon U \to F$ smooth on an open set $U \subseteq E$, with
-derivative bounded below on $U$: $m \|v\| \le \|\dd j(x)(v)\|$ for $x \in U$, $v \in E$, and some
-$m > 0$. No complement of the range of $\dd j(x)$ is assumed.
+In this section we consider a Banach space $E$ (complete), a normed space $F$ (complete or not),
+and a map $j \colon U \to F$, smooth on an open set $U \subseteq E$, with derivative bounded
+below on $U$: there is $m > 0$ with
+\[
+  m \|v\| \le \|\dd j(x)(v)\| \qquad (x \in U,\ v \in E).
+\]
+By Corollary~\ref{cor:smooth-iff} it makes no difference in which sense $j$ is smooth. No
+complement of the range of $\dd j(x)$ is assumed. The simplest example is a continuous linear map
+$j \colon E \to F$ with $m\|v\| \leq \|j(v)\|$, for instance an isometric embedding; in that
+case $\dd j(x) = j$ for every $x$.
+
+Our aim is to show that such a $j$ reflects smoothness: a continuous map $\gamma$ into $U$ is
+of class $\Ck{k}$ as soon as $j \circ \gamma$ is. The test maps $\gamma$ are defined on open
+subsets of arbitrary locally convex spaces. We first prove a linear version, in which the
+unknown appears linearly.
 
 \begin{lemma}[Linear bootstrap]
   \label{lem:bootstrap-linear}
   \lean{LCAnalysis.ContDiffMBOn.of_fderiv_eq_of_boundedBelow}
   \leanok
   \uses{thm:mb-to-frechet, cor:smooth-iff}
-  Let $W$ be an open subset of a locally convex space, $\gamma \colon W \to U$ and
+  Let $W$ be an open subset of a locally convex space $H$, $\gamma \colon W \to U$ and
   $w \colon W \to F$ of class $\Ck{k}$, and $z \colon W \to E$ continuous with
   $\dd j(\gamma q)(z q) = w(q)$ for $q \in W$. Then $z$ is of class $\Ck{k}$.
 \end{lemma}
@@ -87,11 +119,13 @@ $m > 0$. No complement of the range of $\dd j(x)$ is assumed.
   Since $j$ is Fréchet $C^2$ (Theorem~\ref{thm:mb-to-frechet}), $t \mapsto A_t$ is
   differentiable in the operator norm, so the right-hand side converges. As $A_0$ is bounded
   below and $E$ is complete, the difference quotients of $z$ are Cauchy, hence converge to some
-  $D$ with $A_0 D = \dd w(q)(h) - \dd^2 j(\gamma q)(\dd\gamma(q)(h), z q)$. The derivative
-  $\dd z$ is continuous, because solutions of $A(p) x(p) = r(p)$ are continuous when $A$ is
-  continuous in the operator norm and uniformly bounded below. It satisfies an equation of the
-  same type on $W \times H$, with a right-hand side of class $\Ck{k}$ by the inductive
-  hypothesis applied to $z$. So $\dd z$ is $\Ck{k}$ by the inductive hypothesis again.
+  $D$ with $A_0 D = \dd w(q)(h) - \dd^2 j(\gamma q)(\dd\gamma(q)(h), z q)$.
+
+  The derivative $\dd z$ is continuous, because solutions of $A(p) x(p) = r(p)$ are continuous
+  when $A$ is continuous in the operator norm and uniformly bounded below. Moreover, it
+  satisfies an equation of the same type on $W \times H$, with a right-hand side of class
+  $\Ck{k}$ by the inductive hypothesis applied to $z$. So $\dd z$ is $\Ck{k}$ by the inductive
+  hypothesis again, and $z$ is $\Ck{k+1}$.
 \end{proof}
 
 \begin{theorem}[Bounded below derivatives reflect smoothness]
@@ -103,21 +137,31 @@ $m > 0$. No complement of the range of $\dd j(x)$ is assumed.
   $j \circ \gamma$ is of class $\Ck{k}$, then so is $\gamma$.
 \end{theorem}
 
+In the linear example above, the theorem says that a continuous map into $E$ is $\Ck{k}$ as soon
+as it is $\Ck{k}$ when regarded, through $j$, as a map into the larger space $F$.
+
 \begin{proof}
   \leanok
   By induction on $k$. Fix $q \in W$, a direction $h$, and write $A = \dd j(\gamma q)$,
-  $d_t = \gamma(q + th) - \gamma(q)$. Since $j$ is strictly differentiable at $\gamma q$,
-  $\|j(\gamma(q + th)) - j(\gamma q) - A d_t\| \le c \|d_t\|$ for small $t$, for any $c > 0$.
-  With $c \le m/2$ the lower bound gives $\|d_t / t\| \le (2/m) \|(j(\gamma(q+th)) - j(\gamma q))/t\|$,
-  so $A(d_t/t) \to \dd(j\circ\gamma)(q)(h)$, and as in Lemma~\ref{lem:bootstrap-linear} the
+  $d_t = \gamma(q + th) - \gamma(q)$. Since $j$ is strictly differentiable at $\gamma q$, for
+  any $c > 0$ we have
+  \[
+    \|j(\gamma(q + th)) - j(\gamma q) - A d_t\| \le c \|d_t\|
+  \]
+  for small $t$. With $c \le m/2$ the lower bound gives
+  $\|d_t / t\| \le (2/m) \|(j(\gamma(q+th)) - j(\gamma q))/t\|$, so
+  $A(d_t/t) \to \dd(j\circ\gamma)(q)(h)$, and as in Lemma~\ref{lem:bootstrap-linear} the
   quotients $d_t/t$ converge. The derivative $\dd\gamma$ then solves
-  $\dd j(\gamma q)(\dd\gamma(q)(h)) = \dd(j \circ \gamma)(q)(h)$, and
-  Lemma~\ref{lem:bootstrap-linear} applies.
+  \[
+    \dd j(\gamma q)\bigl(\dd\gamma(q)(h)\bigr) = \dd(j \circ \gamma)(q)(h),
+  \]
+  and Lemma~\ref{lem:bootstrap-linear} applies.
 \end{proof}
 
 \begin{remark}
-  The proof uses that $x \mapsto \dd j(x)$ is continuous in the operator norm, to keep the lower
-  bound near a point. The Michal--Bastiani definition only gives the joint continuity of
-  $(x, v) \mapsto \dd j(x)(v)$. For Fréchet or more general locally convex model spaces the
-  statement is open.
+  A word of caution on the scope of this result. The proof uses that $x \mapsto \dd j(x)$ is
+  continuous in the operator norm, to keep the lower bound near a point. The Michal--Bastiani
+  definition only gives the joint continuity of $(x, v) \mapsto \dd j(x)(v)$; on normed spaces
+  the operator norm continuity is recovered through Theorem~\ref{thm:mb-to-frechet}. For
+  Fréchet or more general locally convex model spaces the statement is open.
 \end{remark}
