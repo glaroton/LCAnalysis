@@ -74,3 +74,27 @@
   G--N~1.6.1 and 1.6.14, where the formula is stated for the integrals in $F$; the weak form
   needs no completeness of $F$.
 \end{proof}
+
+\begin{theorem}[Second-order chain rule]
+  \label{thm:chain-second}
+  \lean{LCAnalysis.dMB_dMB_comp}
+  \leanok
+  \uses{thm:chain-rule}
+  Let $\tau \colon U \to V$ and $g \colon V \to F$ be $\Ck{2}$, with $U \subseteq E$ and
+  $V \subseteq E'$ open. For $y \in U$ and $a, b \in E$,
+  \[
+    \dd^{(2)} (g \circ \tau)(y; a, b)
+      = \dd^{(2)} g\bigl(\tau y; \dd\tau(y)(a), \dd\tau(y)(b)\bigr)
+        + \dd g(\tau y)\bigl(\dd^{(2)} \tau(y; a, b)\bigr).
+  \]
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  On $U \times E$, the first-order chain rule gives
+  $\dd(g \circ \tau) = \dd g \circ \Phi$ with $\Phi(y', b') = (\tau y', \dd\tau(y')(b'))$.
+  Differentiate this once more with the first-order chain rule. The derivative of $\Phi$ at
+  $(y, b)$ in the direction $(a, 0)$ is $(\dd\tau(y)(a), \dd^{(2)}\tau(y; a, b))$. Split it as
+  $(\dd\tau(y)(a), 0) + (0, \dd^{(2)}\tau(y; a, b))$: the first term gives
+  $\dd^{(2)} g$, and the second gives $\dd g$, because $\dd g(\tau y)$ is linear.
+\end{proof}

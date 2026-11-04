@@ -74,6 +74,7 @@ the form "G–N 1.2.13" point to the numbered results of Glöckner and Neeb [GN2
 |---|---|---|
 | Continuous bilinear maps are smooth; product rule | `contDiffMBOn_bilin`, `ContDiffMBOn.bilin`, `ContDiffMBOn.dMB_bilin` | G–N 1.2.3, 1.3.5 |
 | Taylor's formula with integral remainder (weak form) | `ContDiffMBOn.taylor` | cf. G–N 1.6.1, 1.6.14 |
+| Second-order chain rule: `d²(g ∘ τ)(a, b) = d²g(dτ a, dτ b) + dg(d²τ(a, b))` | `dMB_dMB_comp` | |
 
 ### Comparison with Fréchet calculus — [`MBFrechet.lean`](LCAnalysis/MBFrechet.lean)
 

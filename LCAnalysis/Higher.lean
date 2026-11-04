@@ -84,6 +84,13 @@ theorem dMB_slice {E' : Type*} [AddCommGroup E'] [Module ℝ E'] [TopologicalSpa
   simp only [dMB, Prod.smul_mk, smul_zero, Prod.mk_add_mk, add_zero]
 
 omit [TopologicalSpace E] [ContinuousSMul ℝ F] in
+/-- Derivatives in directions `(0, b)` are derivatives of the second slice. -/
+theorem dMB_slice₂ {E' : Type*} [AddCommGroup E'] [Module ℝ E'] [TopologicalSpace E']
+    (g : E × E' → F) (x : E) (a b : E') :
+    dMB g ((x, a), (0, b)) = dMB (fun w ↦ g (x, w)) (a, b) := by
+  simp only [dMB, Prod.smul_mk, smul_zero, Prod.mk_add_mk, add_zero]
+
+omit [TopologicalSpace E] [ContinuousSMul ℝ F] in
 theorem hasDirDerivAt_slice {E' : Type*} [AddCommGroup E'] [Module ℝ E'] [TopologicalSpace E']
     {g : E × E' → F} {x h : E} {a : E'} {y : F} :
     HasDirDerivAt g (x, a) (h, 0) y ↔ HasDirDerivAt (fun z ↦ g (z, a)) x h y := by

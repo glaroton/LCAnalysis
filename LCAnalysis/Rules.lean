@@ -17,6 +17,8 @@ Glöckner–Neeb, *Infinite-Dimensional Lie Groups* (arXiv:2602.12362), §1.3–
   for `f` of class `C^{k+1}` and every continuous linear functional `ψ`,
   `ψ (f (x + h)) = ∑_{j ≤ k} ψ (d^(j) f (x, h, …, h)) / j!
     + ∫₀¹ (1 - t)^k / k! · ψ (d^(k+1) f (x + t h, h, …, h)) dt`.
+* The second-order chain rule (`dMB_dMB_comp`):
+  `d²(g ∘ τ)_y(a, b) = d²g_{τ y}(dτ_y a, dτ_y b) + dg_{τ y}(d²τ_y(a, b))`.
 -/
 
 open Set Filter Function
@@ -181,6 +183,57 @@ theorem ContDiffMBOn.taylor {f : E → F} {U : Set E} {x h : E}
       zero_pow (Nat.succ_ne_zero k), zero_div, neg_zero, zero_mul, zero_sub, one_pow, zero_smul,
       add_zero, sub_zero, one_pow, one_div, neg_neg] at this
     linarith
+
+/-! ### The second-order chain rule -/
+
+section SecondOrder
+
+variable {E' : Type u} [AddCommGroup E'] [Module ℝ E'] [TopologicalSpace E']
+  [IsTopologicalAddGroup E'] [ContinuousSMul ℝ E'] [LocallyConvexSpace ℝ E'] [T2Space E']
+
+/-- **Second-order chain rule**:
+`d²(g ∘ τ)_y(a, b) = d²g_{τ y}(dτ_y a, dτ_y b) + dg_{τ y}(d²τ_y(a, b))`. -/
+theorem dMB_dMB_comp {g : E' → F} {τ : E → E'} {U : Set E} {V : Set E'} (hU : IsOpen U)
+    (hV : IsOpen V) (hg : ContDiffMBOn 2 g V) (hτ : ContDiffMBOn 2 τ U) (hUV : MapsTo τ U V)
+    {y : E} (hy : y ∈ U) (a b : E) :
+    dMB (dMB (g ∘ τ)) ((y, b), (a, 0)) =
+      dMB (dMB g) ((τ y, dMB τ (y, b)), (dMB τ (y, a), 0)) +
+        dMB g (τ y, dMB (dMB τ) ((y, b), (a, 0))) := by
+  have hU2 : IsOpen (U ×ˢ (univ : Set E)) := hU.prod isOpen_univ
+  have hV2 : IsOpen (V ×ˢ (univ : Set E')) := hV.prod isOpen_univ
+  have hτ1 : ContDiffMBOn 1 τ U := hτ.of_le (by norm_num)
+  have hg1 : ContDiffMBOn 1 g V := hg.of_le (by norm_num)
+  have hdg : ContDiffMBOn 1 (dMB g) (V ×ˢ univ) := hg.2.2
+  have hdτ : ContDiffMBOn 1 (dMB τ) (U ×ˢ univ) := hτ.2.2
+  have hfst : ContDiffMBOn 1 (τ ∘ ContinuousLinearMap.fst ℝ E E) (U ×ˢ univ) :=
+    hτ1.comp hU2 hU ((ContinuousLinearMap.fst ℝ E E).contDiffMBOn 1 _) fun p hp ↦ hp.1
+  -- `Φ (y', b') = (τ y', dτ_{y'} b')`
+  set Φ : E × E → E' × E' := fun p ↦ ((τ ∘ ContinuousLinearMap.fst ℝ E E) p, dMB τ p)
+  have hΦ : ContDiffMBOn 1 Φ (U ×ˢ univ) := ContDiffMBOn.prodMk hU2 hfst hdτ
+  have hΦmaps : MapsTo Φ (U ×ˢ univ) (V ×ˢ univ) := fun p hp ↦ ⟨hUV hp.1, mem_univ _⟩
+  have hp : (y, b) ∈ U ×ˢ (univ : Set E) := ⟨hy, mem_univ b⟩
+  -- first-order chain rule, near `(y, b)`
+  have hev : dMB (g ∘ τ) =ᶠ[𝓝 (y, b)] dMB g ∘ Φ :=
+    Filter.eventuallyEq_of_mem (hU2.mem_nhds hp) fun q hq ↦
+      ContDiffMBOn.dMB_comp hV hg1 hτ1 hUV hq.1 q.2
+  rw [dMB_congr_of_eventuallyEq hev, ContDiffMBOn.dMB_comp hV2 hdg hΦ hΦmaps hp]
+  -- the derivative of `Φ`
+  have hdfst : dMB (τ ∘ ContinuousLinearMap.fst ℝ E E) ((y, b), (a, 0)) = dMB τ (y, a) := by
+    rw [ContDiffMBOn.dMB_comp hU hτ1 ((ContinuousLinearMap.fst ℝ E E).contDiffMBOn 1
+      (U ×ˢ univ)) (fun p (hp : p ∈ U ×ˢ (univ : Set E)) ↦ hp.1) hp,
+      ((ContinuousLinearMap.fst ℝ E E).hasDirDerivAt _ _).dMB_eq]
+    rfl
+  have hdΦ : dMB Φ ((y, b), (a, 0)) = (dMB τ (y, a), dMB (dMB τ) ((y, b), (a, 0))) := by
+    rw [((hfst.hasDirDerivAt hp (a, 0)).prodMk (hdτ.hasDirDerivAt hp (a, 0))).dMB_eq, hdfst]
+  have hsplit : (dMB τ (y, a), dMB (dMB τ) ((y, b), (a, 0))) =
+      (dMB τ (y, a), (0 : E')) + (0, dMB (dMB τ) ((y, b), (a, 0))) := by simp
+  have hΦy : Φ (y, b) = (τ y, dMB τ (y, b)) := rfl
+  rw [hdΦ, hsplit, hdg.dMB_add hV2 (hΦmaps hp), hΦy, dMB_slice₂]
+  obtain ⟨L, hL⟩ := hg1.exists_clm hV (hUV hy)
+  have hfun : (fun w ↦ dMB g (τ y, w)) = ⇑L := funext fun w ↦ (hL w).symm
+  rw [hfun, (L.hasDirDerivAt _ _).dMB_eq, hL]
+
+end SecondOrder
 
 end LCAnalysis
 
