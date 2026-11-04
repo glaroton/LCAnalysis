@@ -58,3 +58,65 @@ and $F$ are real normed spaces.
   \leanok
   Theorem~\ref{thm:mb-to-frechet} and Proposition~\ref{prop:frechet-to-mb}.
 \end{proof}
+
+\section{Maps with bounded below derivative}
+
+Let $E, F$ be Banach spaces and $j \colon U \to F$ smooth on an open set $U \subseteq E$, with
+derivative bounded below on $U$: $m \|v\| \le \|\dd j(x)(v)\|$ for $x \in U$, $v \in E$, and some
+$m > 0$. No complement of the range of $\dd j(x)$ is assumed.
+
+\begin{lemma}[Linear bootstrap]
+  \label{lem:bootstrap-linear}
+  \lean{LCAnalysis.ContDiffMBOn.of_fderiv_eq_of_boundedBelow}
+  \leanok
+  \uses{thm:mb-to-frechet, cor:smooth-iff}
+  Let $W$ be an open subset of a locally convex space, $\gamma \colon W \to U$ and
+  $w \colon W \to F$ of class $\Ck{k}$, and $z \colon W \to E$ continuous with
+  $\dd j(\gamma q)(z q) = w(q)$ for $q \in W$. Then $z$ is of class $\Ck{k}$.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  By induction on $k$. For the inductive step, fix $q \in W$ and a direction $h$, and write
+  $A_t = \dd j(\gamma(q + th))$. From the equation,
+  \[
+    A_0\Bigl(\frac{z(q + th) - z(q)}{t}\Bigr)
+      = \frac{w(q + th) - w(q)}{t} - \frac{A_t - A_0}{t}\, z(q + th).
+  \]
+  Since $j$ is Fréchet $C^2$ (Theorem~\ref{thm:mb-to-frechet}), $t \mapsto A_t$ is
+  differentiable in the operator norm, so the right-hand side converges. As $A_0$ is bounded
+  below and $E$ is complete, the difference quotients of $z$ are Cauchy, hence converge to some
+  $D$ with $A_0 D = \dd w(q)(h) - \dd^2 j(\gamma q)(\dd\gamma(q)(h), z q)$. The derivative
+  $\dd z$ is continuous, because solutions of $A(p) x(p) = r(p)$ are continuous when $A$ is
+  continuous in the operator norm and uniformly bounded below. It satisfies an equation of the
+  same type on $W \times H$, with a right-hand side of class $\Ck{k}$ by the inductive
+  hypothesis applied to $z$. So $\dd z$ is $\Ck{k}$ by the inductive hypothesis again.
+\end{proof}
+
+\begin{theorem}[Bounded below derivatives reflect smoothness]
+  \label{thm:bounded-below}
+  \lean{LCAnalysis.ContDiffMBOn.of_comp_of_boundedBelow}
+  \leanok
+  \uses{lem:bootstrap-linear}
+  Let $W$ be an open subset of a locally convex space and $\gamma \colon W \to U$ continuous. If
+  $j \circ \gamma$ is of class $\Ck{k}$, then so is $\gamma$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  By induction on $k$. Fix $q \in W$, a direction $h$, and write $A = \dd j(\gamma q)$,
+  $d_t = \gamma(q + th) - \gamma(q)$. Since $j$ is strictly differentiable at $\gamma q$,
+  $\|j(\gamma(q + th)) - j(\gamma q) - A d_t\| \le c \|d_t\|$ for small $t$, for any $c > 0$.
+  With $c \le m/2$ the lower bound gives $\|d_t / t\| \le (2/m) \|(j(\gamma(q+th)) - j(\gamma q))/t\|$,
+  so $A(d_t/t) \to \dd(j\circ\gamma)(q)(h)$, and as in Lemma~\ref{lem:bootstrap-linear} the
+  quotients $d_t/t$ converge. The derivative $\dd\gamma$ then solves
+  $\dd j(\gamma q)(\dd\gamma(q)(h)) = \dd(j \circ \gamma)(q)(h)$, and
+  Lemma~\ref{lem:bootstrap-linear} applies.
+\end{proof}
+
+\begin{remark}
+  The proof uses that $x \mapsto \dd j(x)$ is continuous in the operator norm, to keep the lower
+  bound near a point. The Michal--Bastiani definition only gives the joint continuity of
+  $(x, v) \mapsto \dd j(x)(v)$. For Fréchet or more general locally convex model spaces the
+  statement is open.
+\end{remark}

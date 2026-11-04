@@ -83,6 +83,14 @@ the form "G–N 1.2.13" point to the numbered results of Glöckner and Neeb [GN2
 | Between normed spaces, Michal–Bastiani `C^{k+1}` implies Fréchet `C^k` | `ContDiffMBOn.contDiffOn` | G–N 2.3.17 |
 | Between normed spaces, the two notions of smoothness agree | `smoothMBOn_iff_contDiffOn` | G–N 2.3.17 |
 
+### Bounded below derivatives — [`BoundedBelow.lean`](LCAnalysis/BoundedBelow.lean)
+
+| Result | Lean | Source |
+|---|---|---|
+| If `dj` is bounded below (Banach spaces, no complement), `γ` continuous and `j ∘ γ` of class `C^k`, then `γ` is `C^k` | `ContDiffMBOn.of_comp_of_boundedBelow` | |
+| Linear bootstrap: solutions of `dj(γ q)(z q) = w q` are as regular as `γ` and `w` | `ContDiffMBOn.of_fderiv_eq_of_boundedBelow` | |
+| A linear embedding between normed spaces is bounded below; the bound propagates to a neighborhood | `exists_boundedBelow_of_isEmbedding`, `exists_nhds_boundedBelow` | |
+
 ### Weak integrals — [`Integral.lean`](LCAnalysis/Integral.lean), [`IntegralExistence.lean`](LCAnalysis/IntegralExistence.lean), [`MackeyLipschitz.lean`](LCAnalysis/MackeyLipschitz.lean), [`FundamentalTheorem.lean`](LCAnalysis/FundamentalTheorem.lean)
 
 | Result | Lean | Source |

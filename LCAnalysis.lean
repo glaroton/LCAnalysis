@@ -5,6 +5,7 @@ Authors: Gabriel Larotonda
 -/
 import LCAnalysis.MichalBastiani
 import LCAnalysis.MBFrechet
+import LCAnalysis.BoundedBelow
 import LCAnalysis.Higher
 import LCAnalysis.Rules
 import LCAnalysis.Integral
