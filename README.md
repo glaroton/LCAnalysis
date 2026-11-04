@@ -87,7 +87,7 @@ the form "G–N 1.2.13" point to the numbered results of Glöckner and Neeb [GN2
 
 | Result | Lean | Source |
 |---|---|---|
-| If `dj` is bounded below (Banach spaces, no complement), `γ` continuous and `j ∘ γ` of class `C^k`, then `γ` is `C^k` | `ContDiffMBOn.of_comp_of_boundedBelow` | |
+| If `dj` is bounded below (`E` Banach, `F` normed, no complement), `γ` continuous and `j ∘ γ` of class `C^k`, then `γ` is `C^k` | `ContDiffMBOn.of_comp_of_boundedBelow` | |
 | Linear bootstrap: solutions of `dj(γ q)(z q) = w q` are as regular as `γ` and `w` | `ContDiffMBOn.of_fderiv_eq_of_boundedBelow` | |
 | A linear embedding between normed spaces is bounded below; the bound propagates to a neighborhood | `exists_boundedBelow_of_isEmbedding`, `exists_nhds_boundedBelow` | |
 

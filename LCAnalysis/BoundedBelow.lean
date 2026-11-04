@@ -9,7 +9,8 @@ import LCAnalysis.Higher
 /-!
 # Maps with bounded below derivative reflect smoothness
 
-Let `j : E → F` be a smooth map between Banach spaces whose derivative is bounded below on an
+Let `j : E → F` be a smooth map from a Banach space `E` (complete) to a normed space `F`
+(complete or not) whose derivative is bounded below on an
 open set `U`: `m ‖v‖ ≤ ‖dj(x) v‖` for `x ∈ U`. No complement of the range of `dj(x)` is
 assumed. Then `j` reflects smoothness of continuous maps: if `γ : W → U` is continuous on an open
 subset `W` of a locally convex space and `j ∘ γ` is `C^k` in the sense of Michal–Bastiani, then so
@@ -24,7 +25,7 @@ derivative of `z` is obtained as a limit of difference quotients, which are Cauc
 
 * The Michal–Bastiani definition gives joint continuity of `(x, v) ↦ dj(x) v`, not continuity
   of `x ↦ dj(x)` in the operator norm. The proof needs the latter, to keep the lower bound near a
-  point. For Banach spaces it follows from Michal–Bastiani `C^{k+1}` ⇒ Fréchet `C^k`
+  point. For normed spaces it follows from Michal–Bastiani `C^{k+1}` ⇒ Fréchet `C^k`
   (`ContDiffMBOn.contDiffOn`). For Fréchet or more general locally convex models the result is
   open.
 * The test domain `W` may be any open subset of a locally convex space: only lines through its
