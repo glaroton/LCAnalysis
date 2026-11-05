@@ -51,3 +51,5 @@ open LCAnalysis
 #print axioms LCAnalysis.isContHomPoly_iff_continuous
 #print axioms LCAnalysis.cAnalyticOn_iff_smoothMBOn
 #print axioms LCAnalysis.CAnalyticOn.hasPowerSeriesOnDisc
+#print axioms LCAnalysis.tfae_complexAnalyticOn
+#print axioms LCAnalysis.ComplexAnalyticOn.smoothMBOn

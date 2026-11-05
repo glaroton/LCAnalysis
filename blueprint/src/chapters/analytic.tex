@@ -101,6 +101,8 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 
 \begin{definition}[Complex analytic maps {\cite[Def.~2.1.2]{GN26}, \cite[Def.~5.6]{BS71b}}]
   \label{def:complex-analytic}
+  \lean{LCAnalysis.ComplexAnalyticOn}
+  \leanok
   Let $E$, $F$ be complex locally convex spaces and $U \subseteq E$ open. A map
   $f \colon U \to F$ is \emph{complex analytic} if it is continuous and for every $x \in U$ there
   are continuous homogeneous polynomials $p_k$ of degree $k$ such that
@@ -110,6 +112,8 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 
 \begin{definition}[Gâteaux analytic maps {\cite[Def.~2.1.11]{GN26}}]
   \label{def:gateaux-analytic}
+  \lean{LCAnalysis.GateauxAnalyticOn}
+  \leanok
   $f$ is \emph{Gâteaux analytic} if $z \mapsto f(x + z y)$ is complex analytic (locally a power
   series with coefficients in $F$) on $\{z \in \mathbb{C} : x + zy \in U\}$, for all $x \in U$,
   $y \in E$.
@@ -117,6 +121,10 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 
 \begin{theorem}[Characterizations of complex analyticity {\cite[Thm.~2.1.12]{GN26}}]
   \label{thm:complex-analytic-iff}
+  \lean{LCAnalysis.tfae_complexAnalyticOn, LCAnalysis.ComplexAnalyticOn.smoothMBOn,
+    LCAnalysis.ComplexAnalyticOn.dMB}
+  \leanok
+  \uses{thm:one-var-iff, thm:polarization}
   For $f \colon U \to F$ the following are equivalent:
   \begin{enumerate}
     \item $f$ is $C^\infty$ (in the real Michal--Bastiani sense) and $\dd f(x) \colon E \to F$ is
@@ -127,6 +135,21 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
   If $F$ is Mackey complete, they are also equivalent to: $f$ is $C^1$ and $\dd f(x)$ is complex
   linear for each $x \in U$.
 \end{theorem}
+
+\begin{proof}
+  \leanok
+  The equivalence of (1)--(3) is formalized without any completeness of $F$ and without the
+  completion; the Mackey complete $C^1$ case is not formalized yet. (3) $\Rightarrow$ (2) restricts
+  the expansion to lines. (1) $\Rightarrow$ (3): the Taylor polynomials
+  $\frac{1}{n!}\dd^{(n)} f(x)(y, \dots, y)$ are continuous homogeneous polynomials over
+  $\mathbb{C}$ (complex multilinearity of the higher differentials from homogeneity and symmetry),
+  and the one variable Taylor expansion along $z \mapsto f(x + zy)$ gives the series on a balanced
+  $Y$ with $x + 2Y \subseteq U$. (2) $\Rightarrow$ (1): $\dd f$ is a locally uniform limit of
+  difference quotients, by seminorm estimates of Taylor remainders along lines; it is Gâteaux
+  analytic on $U \times E$ by a two variable Osgood lemma, and a discrete polarization over roots of
+  unity writes its Taylor coefficients as finite combinations of coefficients of $f$ along lines,
+  so they lie in $F$. Induction on $k$ gives smoothness.
+\end{proof}
 
 \begin{remark}
   A word of caution on the hypotheses. No completeness is needed for the equivalence of (1)--(3):
