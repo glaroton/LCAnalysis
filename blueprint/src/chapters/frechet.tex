@@ -165,3 +165,48 @@ as it is $\Ck{k}$ when regarded, through $j$, as a map into the larger space $F$
   the operator norm continuity is recovered through Theorem~\ref{thm:mb-to-frechet}. For
   Fréchet or more general locally convex model spaces the statement is open.
 \end{remark}
+
+\section{Quadratic second order equations}
+
+On a Banach space $E$ we consider the equation of the geodesics of a spray,
+\[
+  c'' = \Gamma(c)(c', c'),
+\]
+where $\Gamma \colon U \times E \times E \to E$ is $\Ck{2}$ in the sense of Michal--Bastiani on
+an open set $U \subseteq E$ and bilinear in the last two variables. It is equivalent to the first
+order system $(c, v)' = (v, \Gamma(c)(v, v))$, whose right hand side is Fr\'echet $\Ck{1}$
+(Theorem~\ref{thm:mb-to-frechet}), hence locally Lipschitz.
+
+\begin{theorem}[Local existence, uniform for bounded velocities]
+  \label{thm:quadratic-ode-existence}
+  \lean{LCAnalysis.exists_uniform_isSprayCurveOn_of_norm_le}
+  \leanok
+  \uses{thm:mb-to-frechet}
+  Let $E$ be a Banach space and $x_0 \in U$. There is $r > 0$ such that for every $K \ge 0$ there
+  is $\varepsilon > 0$ for which every initial condition $c(0) = y$, $c'(0) = w$ with
+  $\|y - x_0\| \le r$ and $\|w\| \le K$ has a solution on $[-\varepsilon, \varepsilon]$ staying in
+  $U$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  The Picard--Lindel\"of theorem, keeping track of the fact that the solution stays in the ball
+  where the vector field is Lipschitz, gives a uniform time for $\|w\| \le \delta$. If $c$ is a
+  solution, so is $t \mapsto c(st)$, with initial velocity $s\, c'(0)$; rescaling by
+  $s = (K + \delta)/\delta$ gives the statement.
+\end{proof}
+
+\begin{theorem}[Uniqueness]
+  \label{thm:quadratic-ode-uniqueness}
+  \lean{LCAnalysis.IsSprayCurveOn.eqOn_Ioo}
+  \leanok
+  \uses{thm:mb-to-frechet}
+  Two solutions on $(a, b)$, staying in $U$, with the same position and velocity at some
+  $t_0 \in (a, b)$, agree on $(a, b)$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Integral curves of a locally Lipschitz autonomous field agree near every point where they meet
+  (Gr\"onwall); the set where they agree near $t$ is open and closed in $(a, b)$.
+\end{proof}
