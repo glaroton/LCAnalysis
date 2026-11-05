@@ -13,6 +13,8 @@ $\widetilde F$ and coming back to $F$ through the derivatives, which lie in $F$
 
 \begin{definition}[Continuous homogeneous polynomials]
   \label{def:hom-poly}
+  \lean{LCAnalysis.IsContHomPoly}
+  \leanok
   Let $E$, $F$ be topological vector spaces over $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$ and
   $k \in \mathbb{N}_0$. A map $p \colon E \to F$ is a \emph{continuous homogeneous polynomial of
   degree $k$} if $p(x) = A(x, \dots, x)$ for some continuous $k$-linear map
@@ -23,6 +25,9 @@ Replacing $A$ by its symmetrization we may take $A$ symmetric, and then $A$ is d
 
 \begin{theorem}[Polarization; Mazur--Orlicz {\cite[Theorem~A]{BS71a}}]
   \label{thm:polarization}
+  \lean{MultilinearMap.polarization, MultilinearMap.continuous_of_isSymm_of_continuous_diag,
+    LCAnalysis.isContHomPoly_iff_continuous}
+  \leanok
   If $A$ is symmetric and $k$-linear, then for $x_1, \dots, x_k \in E$
   \[
     \sum_{\varepsilon \in \{\pm 1\}^k} \varepsilon_1 \cdots \varepsilon_k \,
@@ -31,6 +36,17 @@ Replacing $A$ by its symmetrization we may take $A$ symmetric, and then $A$ is d
   \]
   In particular, if $x \mapsto A(x, \dots, x)$ is continuous, then $A$ is continuous.
 \end{theorem}
+
+\begin{proof}
+  \leanok
+  Expand $A(\sum_j \varepsilon_j x_j, \dots)$ by multilinearity over all maps
+  $r \colon \{1, \dots, k\} \to \{1, \dots, k\}$. The sign sum
+  $\sum_\varepsilon \prod_j \varepsilon_j^{1 + |r^{-1}(j)|}$ is $2^k$ if $r$ is a bijection and
+  $0$ otherwise, and $A(x_{r(1)}, \dots, x_{r(k)}) = A(x_1, \dots, x_k)$ for bijective $r$ by
+  symmetry. The continuity statement follows because the left hand side is a finite combination of
+  values of $x \mapsto A(x, \dots, x)$. No completeness, local convexity or Hausdorff property is
+  used.
+\end{proof}
 
 \section{Complex analytic maps}
 

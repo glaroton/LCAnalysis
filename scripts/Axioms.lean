@@ -47,3 +47,5 @@ open LCAnalysis
 #print axioms mackeyComplete_iff_integratesLipschitzCurves
 #print axioms LCAnalysis.exists_uniform_isSprayCurveOn_of_norm_le
 #print axioms LCAnalysis.IsSprayCurveOn.eqOn_Ioo
+#print axioms MultilinearMap.polarization
+#print axioms LCAnalysis.isContHomPoly_iff_continuous
