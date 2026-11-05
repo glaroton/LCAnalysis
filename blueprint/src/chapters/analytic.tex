@@ -166,6 +166,8 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 
 \begin{definition}[Complexification {\cite[Def.~2.2.1]{GN26}}]
   \label{def:complexification}
+  \lean{LCAnalysis.Complexification}
+  \leanok
   For a real topological vector space $E$, $E_{\mathbb{C}} := E \times E$ with the product
   topology and $(x + iy)(u, v) := (xu - yv, xv + yu)$. It is locally convex if $E$ is, and
   $E = E \times \{0\}$.
@@ -174,25 +176,109 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 \begin{definition}[Real analytic maps; Milnor {\cite{Mil84}}, {\cite[Def.~2.3]{Glo02}},
   {\cite[Def.~2.2.2]{GN26}}]
   \label{def:real-analytic}
+  \lean{LCAnalysis.RealAnalyticOn}
+  \leanok
+  \uses{def:complexification, def:complex-analytic}
   Let $E$, $F$ be real locally convex spaces and $U \subseteq E$ open. A map $f \colon U \to F$ is
   \emph{real analytic} if it extends to a complex analytic map $V \to F_{\mathbb{C}}$ on an open
   neighborhood $V$ of $U$ in $E_{\mathbb{C}}$.
 \end{definition}
 
-\begin{theorem}[Basic properties {\cite[Lemmas~2.2.3, 2.2.5, 2.2.6, Prop.~2.2.4]{GN26}}]
+\begin{definition}[Analytic maps in the sense of Bochnak and Siciak {\cite[Def.~5.6]{BS71b}}]
+  \label{def:bs-analytic}
+  \lean{LCAnalysis.BSAnalyticOn}
+  \leanok
+  \uses{def:hom-poly}
+  $f \colon U \to F$ is \emph{BS analytic} if it is continuous and for every $x \in U$ there are
+  continuous homogeneous polynomials $p_k$ of degree $k$ such that
+  $f(x + y) = \sum_{k \ge 0} p_k(y)$, as a pointwise limit, for all $y$ in a $0$-neighborhood.
+  Over $\mathbb{C}$ this is Definition~\ref{def:complex-analytic}.
+\end{definition}
+
+Compositions of complex analytic maps are complex analytic: by
+Theorem~\ref{thm:complex-analytic-iff} this is the chain rule of the real Michal--Bastiani
+calculus, and no completeness is involved. In the same way complex analyticity is a local
+property.
+
+\begin{lemma}[Locality {\cite[Lemma~2.2.3]{GN26}}]
+  \label{lem:real-analytic-local}
+  \lean{LCAnalysis.RealAnalyticOn.of_local, LCAnalysis.Complexification.eqOn_box_inter}
+  \leanok
+  \uses{def:real-analytic}
+  If every point of $U$ has a neighborhood $W$ such that $f|_{U \cap W}$ is real analytic, then
+  $f$ is real analytic.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  Each $x \in U$ has a convex open $0$-neighborhood $C_x$ with $x + C_x \subseteq U$ and a
+  complex analytic extension $g_x$ of $f$ on the convex set $B_x := (x + C_x) + i C_x$. Two such
+  extensions agree on $B_x \cap B_y$. Glöckner and Neeb deduce this from the identity theorem in
+  $E_{\mathbb{C}}$ \cite[Thm.~2.1.16(c)]{GN26}. We use one variable instead: for $a + ib \in B_x
+  \cap B_y$, the set $D$ of $z \in \mathbb{C}$ with $a + zb \in B_x \cap B_y$ is convex and
+  contains $0$, $i$ and a real interval around $0$, on which $g_x(a + zb) = f(a + zb) =
+  g_y(a + zb)$. For each continuous complex linear functional $\lambda$, the holomorphic
+  functions $\lambda \circ g_x(a + zb)$ and $\lambda \circ g_y(a + zb)$ on $D$ then agree, by the
+  one variable identity theorem, in particular at $z = i$; and functionals separate points.
+  The extensions glue to a complex analytic map on $\bigcup_x B_x$.
+\end{proof}
+
+\begin{theorem}[Basic properties {\cite[Prop.~2.2.4, Lemmas~2.2.5, 2.2.6]{GN26}}]
   \label{thm:real-analytic-basic}
-  Real analyticity is a local property; compositions of real analytic maps are real analytic; real
-  analytic maps are smooth; and a real analytic map is locally the sum of its Taylor series
-  $\sum_k \frac{1}{k!} \dd^{(k)} f(x)(y, \dots, y)$.
+  \lean{LCAnalysis.RealAnalyticOn.comp, LCAnalysis.RealAnalyticOn.smoothMBOn,
+    LCAnalysis.RealAnalyticOn.iteratedDMB_ext, LCAnalysis.RealAnalyticOn.exists_taylor,
+    LCAnalysis.RealAnalyticOn.bsAnalyticOn}
+  \leanok
+  \uses{def:real-analytic, def:bs-analytic, thm:complex-analytic-iff}
+  Compositions of real analytic maps are real analytic. Real analytic maps are smooth, and
+  $\dd^{(k)} f(x, y_1, \dots, y_k) = \dd^{(k)} g(x, y_1, \dots, y_k)$ for any complex analytic
+  extension $g$, $x \in U$ and $y_i \in E$. A real analytic map is locally the sum of its Taylor
+  series $\sum_k \frac{1}{k!} \dd^{(k)} f(x)(y, \dots, y)$; in particular it is BS analytic.
 \end{theorem}
 
+\begin{proof}
+  \leanok
+  Composition: compose the extensions, after shrinking the domain of the inner one. Smoothness:
+  $f = \mathrm{Re} \circ g \circ \iota$ on $U$, with $\iota \colon E \to E_{\mathbb{C}}$ and
+  $\mathrm{Re} \colon F_{\mathbb{C}} \to F$ continuous and real linear (Glöckner and Neeb argue
+  instead that $F$ is closed in $F_{\mathbb{C}}$). The derivatives of $g \circ \iota$ at $x$ are
+  those of $g$ in real directions, by an identity between difference quotients. The Taylor
+  expansion is that of $g$ (Theorem~\ref{thm:complex-analytic-iff}), restricted to real points.
+\end{proof}
+
+\begin{proposition}[Complex analytic maps are real analytic {\cite[Prop.~2.2.11]{GN26}}]
+  \label{prop:complex-real-analytic}
+  \lean{LCAnalysis.ComplexAnalyticOn.realAnalyticOn}
+  \leanok
+  \uses{def:real-analytic, thm:complex-analytic-iff}
+  Let $E$, $F$ be complex locally convex spaces. Every complex analytic map $f \colon U \to F$
+  is real analytic, as a map between the underlying real spaces.
+\end{proposition}
+
+\begin{proof}
+  \leanok
+  Let $\pi_\pm(u + iv) := u \pm J v$ on $E_{\mathbb{C}} = E \oplus iE$, where $J$ is
+  multiplication by $i$ in $E$, and $\alpha(y) := \frac12 (y - i J y)$,
+  $\beta(y) := \frac12 (y + i J y)$ from $F$ to $F_{\mathbb{C}}$. Then $\pi_+$ and $\alpha$ are
+  complex linear, $\pi_-$ and $\beta$ conjugate linear, and
+  $g := \alpha \circ f \circ \pi_+ + \beta \circ f \circ \pi_-$ is smooth on
+  $\pi_+^{-1}(U) \cap \pi_-^{-1}(U)$ with complex linear differentials, hence complex analytic
+  by Theorem~\ref{thm:complex-analytic-iff}. Since $\pi_\pm(x) = x$ and
+  $\alpha(y) + \beta(y) = y$ for real points, $g$ extends $f$. This is the extension of Glöckner
+  and Neeb, $\psi^{-1} \circ (f \times \bar f) \circ \varphi$, written without the conjugate
+  spaces $\bar E$, $\bar F$.
+\end{proof}
+
+Continuous linear maps and constants are real analytic. The identity theorems
+\cite[Thms.~2.1.16, 2.2.8]{GN26} and the analyticity of inversion in continuous inverse algebras
+\cite[Prop.~2.2.13]{GN26} are not formalized yet.
+
 \begin{remark}[Two notions of real analyticity]
-  Bochnak and Siciak call a real map analytic when it is continuous and locally a pointwise sum of
-  continuous homogeneous polynomials \cite[Def.~5.6]{BS71b}. Milnor's definition above is
-  stronger. The two agree when $E_{\mathbb{C}}$ is a Baire space, e.g.\ for Fréchet spaces
-  \cite[Thm.~7.1]{BS71b}, \cite[2.9]{Glo02}. For the weaker notion, closedness under composition
-  is only known when the spaces are Baire \cite[Thm.~7.3]{BS71b}; this is why the theory of
-  analytic manifolds and Lie groups uses Milnor's definition.
+  Real analytic maps are BS analytic (Theorem~\ref{thm:real-analytic-basic}). The converse holds
+  when $E$ is a Fréchet space \cite[Rem.~2.2.7]{GN26}, and more generally when $E_{\mathbb{C}}$ is
+  a Baire space \cite[Thm.~7.1]{BS71b}, \cite[2.9]{Glo02}. For BS analyticity, closedness under
+  composition is only known when the spaces are Baire \cite[Thm.~7.3]{BS71b}; this is why the
+  theory of analytic manifolds and Lie groups uses Milnor's definition.
 \end{remark}
 
 \section{Comparison with Mathlib on Banach spaces}

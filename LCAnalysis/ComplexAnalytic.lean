@@ -33,8 +33,8 @@ is checked seminorm by seminorm, and scalar estimates are transported through Ha
   implications `HolomorphicOn.gateauxAnalyticOn` ((b) ⇒ (c)),
   `GateauxAnalyticOn.holomorphicOn` ((c) ⇒ (b)), `HolomorphicOn.complexAnalyticOn` ((b) ⇒ (d))
   and `ComplexAnalyticOn.gateauxAnalyticOn` ((d) ⇒ (c)).
-* `HolomorphicOn.complexAnalyticOn` also gives the Taylor expansion
-  `f (x + y) = ∑ₙ d⁽ⁿ⁾f(x, y, …, y)/n!` on balanced `0`-neighbourhoods `Y` with `x + 2Y ⊆ U`,
+* `HolomorphicOn.exists_taylor`: the Taylor expansion
+  `f (x + y) = ∑ₙ d⁽ⁿ⁾f(x, y, …, y)/n!` on a `0`-neighbourhood (GN Corollary 2.1.14),
   and `HolomorphicOn.isContHomPoly`: the Taylor polynomials are continuous complex homogeneous
   polynomials.
 * `ComplexAnalyticOn.smoothMBOn`: complex analytic maps are smooth (Glöckner, *Infinite-dimensional
@@ -186,16 +186,18 @@ theorem iteratedDMB_congr_of_eventuallyEq : ∀ (j : ℕ) {g₁ g₂ : E → F} 
 omit [TopologicalSpace E] [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [IsTopologicalAddGroup F]
   [ContinuousSMul ℝ F] in
 /-- Composition of a directional derivative with a continuous real linear map. -/
-theorem HasDirDerivAt.clm_comp_real {g : E → F} {x w : E} {y : F} (h : HasDirDerivAt g x w y)
-    (L : F →L[ℝ] F) : HasDirDerivAt (fun z ↦ L (g z)) x w (L y) :=
+theorem HasDirDerivAt.clm_comp_real {G : Type*} [AddCommGroup G] [Module ℝ G] [TopologicalSpace G]
+    {g : E → F} {x w : E} {y : F} (h : HasDirDerivAt g x w y) (L : F →L[ℝ] G) :
+    HasDirDerivAt (fun z ↦ L (g z)) x w (L y) :=
   ((L.continuous.tendsto y).comp h).congr fun t ↦ by
     simp only [Function.comp_apply, map_sub, map_smul]
 
 omit [IsTopologicalAddGroup F] [ContinuousSMul ℝ F] in
 /-- The iterated differentials of `L ∘ g`, for `L` continuous and real linear and `g` of class
 `Cᵏ`, are `L` applied to those of `g`. -/
-theorem iteratedDMB_clm_comp [T2Space F] {k : ℕ} {g : E → F} (hU : IsOpen U)
-    (hg : ContDiffMBOn k g U) (L : F →L[ℝ] F) : ∀ j ≤ k, ∀ x ∈ U, ∀ v : Fin j → E,
+theorem iteratedDMB_clm_comp {G : Type*} [AddCommGroup G] [Module ℝ G] [TopologicalSpace G]
+    [T2Space G] {k : ℕ} {g : E → F} (hU : IsOpen U) (hg : ContDiffMBOn k g U) (L : F →L[ℝ] G) :
+    ∀ j ≤ k, ∀ x ∈ U, ∀ v : Fin j → E,
       iteratedDMB j (fun z ↦ L (g z)) (x, v) = L (iteratedDMB j g (x, v))
   | 0, _, _, _, _ => rfl
   | j + 1, hj, x, hx, v => by
@@ -206,7 +208,6 @@ theorem iteratedDMB_clm_comp [T2Space F] {k : ℕ} {g : E → F} (hU : IsOpen U)
         iteratedDMB_clm_comp hU hg L j (by omega) z hz _
     rw [dMB_congr_of_eventuallyEq hev]
     exact ((hg.hasContIterDerivOn.1 j (by omega) x hx v).clm_comp_real L).dMB_eq
-
 
 end RealAux
 
@@ -323,15 +324,15 @@ theorem HolomorphicOn.isContHomPoly (hf : HolomorphicOn f U) (hU : IsOpen U) {x 
     exact hc.const_smul _
   · simp [MultilinearMap.diag, hA]
 
-/-- **(b) ⇒ (d)** in Glöckner–Neeb, Theorem 2.1.12, without completeness: a real smooth map with
-complex linear differentials is complex analytic, with Taylor expansion
-`f (x + y) = ∑ₙ d⁽ⁿ⁾f(x, y, …, y)/n!` on every balanced `0`-neighbourhood `Y` with
-`x + 2 Y ⊆ U`. Along the line `z ↦ x + z y` this is the one-variable Taylor expansion
-(`CAnalyticOn.hasPowerSeriesOnDisc`, GN Corollary 2.1.8 (b)), whose coefficients are
-`d⁽ⁿ⁾f(x, y, …, y)/n! ∈ F`. -/
-theorem HolomorphicOn.complexAnalyticOn (hf : HolomorphicOn f U) (hU : IsOpen U) :
-    ComplexAnalyticOn f U := by
-  refine ⟨hf.1 0, fun x hx ↦ ?_⟩
+/-- **Taylor expansion** (Glöckner–Neeb, Corollary 2.1.14, for some `0`-neighbourhood), without
+completeness: under (b), `f (x + y) = ∑ₙ d⁽ⁿ⁾f(x, y, …, y)/n!` on a `0`-neighbourhood `Y` with
+`x + Y ⊆ U` (any balanced `Y` with `x + 2 Y ⊆ U` will do). Along the line `z ↦ x + z y` this is
+the one-variable Taylor expansion (`CAnalyticOn.hasPowerSeriesOnDisc`, GN Corollary 2.1.8 (b)),
+whose coefficients are `d⁽ⁿ⁾f(x, y, …, y)/n! ∈ F`. -/
+theorem HolomorphicOn.exists_taylor (hf : HolomorphicOn f U) (hU : IsOpen U) {x : E}
+    (hx : x ∈ U) : ∃ Y ∈ 𝓝 (0 : E), (∀ y ∈ Y, x + y ∈ U) ∧ ∀ y ∈ Y,
+      Tendsto (fun N ↦ ∑ n ∈ Finset.range N,
+        (n.factorial : ℂ)⁻¹ • iteratedDMB n f (x, fun _ ↦ y)) atTop (𝓝 (f (x + y))) := by
   have hN : (fun y ↦ x + y) ⁻¹' U ∈ 𝓝 (0 : E) :=
     (continuous_const.add continuous_id).continuousAt.preimage_mem_nhds
       (by simpa using hU.mem_nhds hx)
@@ -351,9 +352,7 @@ theorem HolomorphicOn.complexAnalyticOn (hf : HolomorphicOn f U) (hU : IsOpen U)
     have h2 : z • y ∈ (fun y ↦ x + y) ⁻¹' U := balancedCore_subset _ h
     exact h2
   have h1 : (1 : ℂ) ∈ closedBall (0 : ℂ) 2 := by norm_num
-  refine ⟨fun n y ↦ (n.factorial : ℂ)⁻¹ • iteratedDMB n f (x, fun _ ↦ y),
-    fun n ↦ hf.isContHomPoly hU hx n, Y, hY, fun y hy ↦ by simpa using hline y hy h1,
-    fun y hy ↦ ?_⟩
+  refine ⟨Y, hY, fun y hy ↦ by simpa using hline y hy h1, fun y hy ↦ ?_⟩
   have hA := hf.gateauxAnalyticOn hU x hx y
   have hcoef : ∀ n, (n.factorial : ℂ)⁻¹ • cDeriv^[n] (fun z : ℂ ↦ f (x + z • y)) 0 =
       (n.factorial : ℂ)⁻¹ • iteratedDMB n f (x, fun _ ↦ y) := by
@@ -365,6 +364,16 @@ theorem HolomorphicOn.complexAnalyticOn (hf : HolomorphicOn f U) (hU : IsOpen U)
   have hs := hA.hasPowerSeriesOnDisc (x := 0) two_pos (hline y hy) 1 (by norm_num)
   simp only [one_pow, one_smul, zero_add, hcoef] at hs
   exact hs.tendsto_sum_nat
+
+/-- **(b) ⇒ (d)** in Glöckner–Neeb, Theorem 2.1.12, without completeness: a real smooth map with
+complex linear differentials is complex analytic, the polynomials being the Taylor polynomials
+(`HolomorphicOn.exists_taylor`, `HolomorphicOn.isContHomPoly`). -/
+theorem HolomorphicOn.complexAnalyticOn (hf : HolomorphicOn f U) (hU : IsOpen U) :
+    ComplexAnalyticOn f U := by
+  refine ⟨hf.1 0, fun x hx ↦ ?_⟩
+  obtain ⟨Y, hY, hYU, hsum⟩ := hf.exists_taylor hU hx
+  exact ⟨fun n y ↦ (n.factorial : ℂ)⁻¹ • iteratedDMB n f (x, fun _ ↦ y),
+    fun n ↦ hf.isContHomPoly hU hx n, Y, hY, hYU, hsum⟩
 
 /-! ### (c) ⇒ `C¹`: the first differential -/
 
