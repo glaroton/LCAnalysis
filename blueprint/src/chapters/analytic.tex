@@ -1,0 +1,114 @@
+\chapter{Analytic maps}
+\label{chap:analytic}
+
+This chapter is a plan, and its statements become formal one by one. We follow the treatment of
+Glöckner and Neeb \cite[Ch.~2]{GN26}, which builds on Bochnak and Siciak \cite{BS71a, BS71b} and
+on Glöckner \cite[§2]{Glo02}. The point of this approach is that \emph{no completeness of the
+target space is needed} for the basic theory. Bochnak and Siciak assume throughout that the target
+space $F$ is sequentially complete; Glöckner removes this hypothesis by working in the completion
+$\widetilde F$ and coming back to $F$ through the derivatives, which lie in $F$
+\cite[Prop.~2.4, Lemma~2.5]{Glo02}.
+
+\section{Continuous homogeneous polynomials}
+
+\begin{definition}[Continuous homogeneous polynomials]
+  \label{def:hom-poly}
+  Let $E$, $F$ be topological vector spaces over $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$ and
+  $k \in \mathbb{N}_0$. A map $p \colon E \to F$ is a \emph{continuous homogeneous polynomial of
+  degree $k$} if $p(x) = A(x, \dots, x)$ for some continuous $k$-linear map
+  $A \colon E^k \to F$.
+\end{definition}
+
+Replacing $A$ by its symmetrization we may take $A$ symmetric, and then $A$ is determined by $p$:
+
+\begin{theorem}[Polarization; Mazur--Orlicz {\cite[Theorem~A]{BS71a}}]
+  \label{thm:polarization}
+  If $A$ is symmetric and $k$-linear, then for $x_1, \dots, x_k \in E$
+  \[
+    \sum_{\varepsilon \in \{\pm 1\}^k} \varepsilon_1 \cdots \varepsilon_k \,
+    A\Bigl(\sum_j \varepsilon_j x_j, \dots, \sum_j \varepsilon_j x_j\Bigr)
+    = 2^k k! \, A(x_1, \dots, x_k).
+  \]
+  In particular, if $x \mapsto A(x, \dots, x)$ is continuous, then $A$ is continuous.
+\end{theorem}
+
+\section{Complex analytic maps}
+
+\begin{definition}[Complex analytic maps {\cite[Def.~2.1.2]{GN26}, \cite[Def.~5.6]{BS71b}}]
+  \label{def:complex-analytic}
+  Let $E$, $F$ be complex locally convex spaces and $U \subseteq E$ open. A map
+  $f \colon U \to F$ is \emph{complex analytic} if it is continuous and for every $x \in U$ there
+  are continuous homogeneous polynomials $p_k$ of degree $k$ such that
+  $f(x + y) = \sum_{k \ge 0} p_k(y)$, as a pointwise limit, for all $y$ in a $0$-neighborhood $Y$
+  with $x + Y \subseteq U$.
+\end{definition}
+
+\begin{definition}[Gâteaux analytic maps {\cite[Def.~2.1.11]{GN26}}]
+  \label{def:gateaux-analytic}
+  $f$ is \emph{Gâteaux analytic} if $z \mapsto f(x + z y)$ is complex analytic (locally a power
+  series with coefficients in $F$) on $\{z \in \mathbb{C} : x + zy \in U\}$, for all $x \in U$,
+  $y \in E$.
+\end{definition}
+
+\begin{theorem}[Characterizations of complex analyticity {\cite[Thm.~2.1.12]{GN26}}]
+  \label{thm:complex-analytic-iff}
+  For $f \colon U \to F$ the following are equivalent:
+  \begin{enumerate}
+    \item $f$ is $C^\infty$ (in the real Michal--Bastiani sense) and $\dd f(x) \colon E \to F$ is
+      complex linear for each $x \in U$;
+    \item $f$ is continuous and Gâteaux analytic;
+    \item $f$ is complex analytic.
+  \end{enumerate}
+  If $F$ is Mackey complete, they are also equivalent to: $f$ is $C^1$ and $\dd f(x)$ is complex
+  linear for each $x \in U$.
+\end{theorem}
+
+\begin{remark}
+  A word of caution on the hypotheses. No completeness is needed for the equivalence of (1)--(3):
+  in the proof of (2) $\Rightarrow$ (1), the Cauchy integral
+  $\dd f(x, y) = \frac{1}{2\pi i} \oint_{|\zeta| = 1} f(x + \zeta y)\, \zeta^{-2}\, d\zeta$ is a
+  weak integral which exists in $F$, because along the line it is a coefficient of a power series
+  with coefficients in $F$. Completeness only enters when one starts from a $C^1$ map, whose
+  higher derivatives are a priori only in the completion. Since (1) is stated with the real
+  calculus, we do not need a separate complex Michal--Bastiani calculus: a complex $C^k$ map is
+  the same as a real $C^k$ map with complex linear differentials.
+\end{remark}
+
+\section{Real analytic maps}
+
+\begin{definition}[Complexification {\cite[Def.~2.2.1]{GN26}}]
+  \label{def:complexification}
+  For a real topological vector space $E$, $E_{\mathbb{C}} := E \times E$ with the product
+  topology and $(x + iy)(u, v) := (xu - yv, xv + yu)$. It is locally convex if $E$ is, and
+  $E = E \times \{0\}$.
+\end{definition}
+
+\begin{definition}[Real analytic maps; Milnor {\cite{Mil84}}, {\cite[Def.~2.3]{Glo02}},
+  {\cite[Def.~2.2.2]{GN26}}]
+  \label{def:real-analytic}
+  Let $E$, $F$ be real locally convex spaces and $U \subseteq E$ open. A map $f \colon U \to F$ is
+  \emph{real analytic} if it extends to a complex analytic map $V \to F_{\mathbb{C}}$ on an open
+  neighborhood $V$ of $U$ in $E_{\mathbb{C}}$.
+\end{definition}
+
+\begin{theorem}[Basic properties {\cite[Lemmas~2.2.3, 2.2.5, 2.2.6, Prop.~2.2.4]{GN26}}]
+  \label{thm:real-analytic-basic}
+  Real analyticity is a local property; compositions of real analytic maps are real analytic; real
+  analytic maps are smooth; and a real analytic map is locally the sum of its Taylor series
+  $\sum_k \frac{1}{k!} \dd^{(k)} f(x)(y, \dots, y)$.
+\end{theorem}
+
+\begin{remark}[Two notions of real analyticity]
+  Bochnak and Siciak call a real map analytic when it is continuous and locally a pointwise sum of
+  continuous homogeneous polynomials \cite[Def.~5.6]{BS71b}. Milnor's definition above is
+  stronger. The two agree when $E_{\mathbb{C}}$ is a Baire space, e.g.\ for Fréchet spaces
+  \cite[Thm.~7.1]{BS71b}, \cite[2.9]{Glo02}. For the weaker notion, closedness under composition
+  is only known when the spaces are Baire \cite[Thm.~7.3]{BS71b}; this is why the theory of
+  analytic manifolds and Lie groups uses Milnor's definition.
+\end{remark}
+
+\section{Comparison with Mathlib on Banach spaces}
+
+On Banach spaces, Mathlib's \texttt{AnalyticOnNhd} (convergent power series in norm) should be
+compared with the definitions above, as Theorem~\ref{thm:mb-to-frechet} compares the Michal--Bastiani and
+Fréchet calculi. This is planned once the locally convex theory is in place.
