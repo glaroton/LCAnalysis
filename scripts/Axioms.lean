@@ -45,3 +45,5 @@ open LCAnalysis
 #print axioms MackeyComplete.exists_hasWeakIntegral_of_isLipschitzCurve
 #print axioms MackeyComplete.of_integratesLipschitzCurves
 #print axioms mackeyComplete_iff_integratesLipschitzCurves
+#print axioms LCAnalysis.exists_uniform_isSprayCurveOn_of_norm_le
+#print axioms LCAnalysis.IsSprayCurveOn.eqOn_Ioo
