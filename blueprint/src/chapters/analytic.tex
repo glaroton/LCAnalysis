@@ -48,6 +48,55 @@ Replacing $A$ by its symmetrization we may take $A$ symmetric, and then $A$ is d
   used.
 \end{proof}
 
+\section{One complex variable}
+
+Let $F$ be a complex locally convex space, not necessarily complete, and $U \subseteq \mathbb{C}$
+open. A map $f \colon U \to F$ is \emph{complex analytic} if around every point it is a power
+series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a disc
+\cite[Rem.~2.1.3]{GN26}.
+
+\begin{theorem}[Power series in incomplete spaces]
+  \label{thm:one-var-power-series}
+  \lean{LCAnalysis.HasPowerSeriesOnDisc.continuousOn, LCAnalysis.CAnalyticOn.cAnalyticOn_cDeriv,
+    LCAnalysis.HasPowerSeriesOnDisc.hasWeakIntegral, LCAnalysis.HasPowerSeriesOnDisc.seminorm_coeff_le,
+    LCAnalysis.CAnalyticOn.hasPowerSeriesOnDisc}
+  \leanok
+  A complex analytic $f \colon U \to F$ is continuous, its complex derivative exists and is
+  complex analytic. The Cauchy integrals
+  $\int_0^{2\pi} e^{-int} f(z_0 + \rho e^{it})\, dt = 2\pi \rho^n a_n$ exist as weak integrals in
+  $F$, the Cauchy estimates $q(a_n) \le \rho^{-n} \sup_{|\zeta| = \rho} q(f(z_0 + \zeta))$ hold
+  for every continuous seminorm $q$, and the Taylor series of $f$ at $z_0$ converges to $f$ in $F$
+  on every disc whose closure lies in $U$ (\cite[Cor.~2.1.8, Lemma~2.1.10]{GN26}).
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  No completion is used. Every sum and integral that appears has its value already in $F$ (a value
+  of $f$, a coefficient, a derivative), and convergence is checked seminorm by seminorm against a
+  geometric majorant. Scalar estimates are transferred to $F$ by the Hahn--Banach theorem: if
+  $|\ell(v)| \le B$ for every continuous linear $\ell$ with $|\ell| \le q$, then $q(v) \le B$.
+\end{proof}
+
+\begin{theorem}[Complex analytic $=$ real smooth with complex linear differential]
+  \label{thm:one-var-iff}
+  \lean{LCAnalysis.cAnalyticOn_iff_smoothMBOn}
+  \leanok
+  \uses{thm:one-var-power-series}
+  $f \colon U \to F$ is complex analytic if and only if it is $C^\infty$ in the real
+  Michal--Bastiani sense and $\dd f(z)(w) = w\, \dd f(z)(1)$ for all $z \in U$, $w \in \mathbb{C}$
+  \cite[Cor.~2.1.9]{GN26}.
+\end{theorem}
+
+\begin{remark}
+  Glöckner and Neeb prove the one variable characterizations with $C^1$ in place of $C^\infty$
+  under Mackey completeness \cite[Prop.~2.1.6]{GN26}, and Corollary~2.1.9 without completeness
+  through the completion $\widetilde F$. Here the smooth version is proved without completeness
+  and without the completion: smoothness provides all the Taylor coefficients
+  $\frac{1}{n!}\dd^{(n)} f(z)(1, \dots, 1)$ in $F$. For a single power series on a disc, the
+  derivative at a point other than the center is only known to exist when the differentiated
+  series converges in $F$; whether this can fail in an incomplete space we have not settled.
+\end{remark}
+
 \section{Complex analytic maps}
 
 \begin{definition}[Complex analytic maps {\cite[Def.~2.1.2]{GN26}, \cite[Def.~5.6]{BS71b}}]
