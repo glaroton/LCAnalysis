@@ -4,16 +4,34 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
 import LCAnalysis.ComplexAnalytic
+import LCAnalysis.HartogsLemma
 
 /-! # Series of homogeneous polynomials
 
 Pointwise convergence of a series `∑ pₙ` of continuous homogeneous polynomials between complex
 topological vector spaces, after Bochnak and Siciak, *Analytic functions in topological vector
-spaces*, Studia Math. 39 (1971), 77–112 (part II, §5). Bochnak and Siciak assume throughout
-that `F` is locally convex and sequentially complete; the results below need neither
-completeness nor, for the Baire lemma, local convexity of `F`.
+spaces*, Studia Math. 39 (1971), 77–112 (part II, §§4–5). Bochnak and Siciak assume
+throughout that `F` is locally convex and sequentially complete. Here completeness of `F` is
+used only through `SeriesComplete F` (absolutely summable series converge), and only for the
+analyticity of the sum; the Baire lemma needs neither completeness nor local convexity of `F`.
 
 ## Main results
+
+* `complexAnalyticOn_of_tendsto_sum` (**Bochnak–Siciak II, Theorem 5.2**, complex case): over a
+  complex locally convex Baire space `E`, with `F` series complete, the sum of a series of
+  continuous homogeneous polynomials converging pointwise on an open set `H` is complex analytic
+  on `H`. Its ingredients:
+  * `exists_line_geometric_bound`, `exists_compact_geometric_bound`: locally uniform geometric
+    bounds along complex lines (the case needed of Bochnak–Siciak II, Proposition 4.1), from
+    Baire's theorem in `ℂ`, the Bernstein–Walsh inequality and Hartogs' lemma
+    (`LCAnalysis.hartogs_lemma`);
+  * `gateauxAnalyticOn_of_tendsto` (Theorem 5.1): the sum is Gâteaux analytic, with Taylor
+    coefficients along lines given by `hasPowerSeriesOnDisc_of_closedBall`;
+  * `isContHomPoly_of_tendsto` (compare Bochnak–Siciak I, Theorem 2): over a Baire space,
+    pointwise limits of continuous homogeneous polynomials are continuous homogeneous
+    polynomials;
+  * `continuousOn_of_tendsto`: the sum is continuous;
+  * `seriesComplete_of_completeSpace`: complete locally convex spaces are series complete.
 
 * `IsContHomPoly.seminorm_le_of_shift`: a bound `q (p (c + w)) ≤ M` on a balanced set `W`
   gives `q (p w) ≤ M` on `W`. This is a sharp complex form of Bochnak–Siciak, *Polynomials and
@@ -42,14 +60,18 @@ completeness nor, for the Baire lemma, local convexity of `F`.
   off the centre exists exactly when the derived series converges in `F`, and here it does
   not.
 
-## Not formalized
+## Implementation notes
 
-Bochnak–Siciak II, Theorem 5.2 (over a Baire space, the sum of a series converging on an open
-set `H` is analytic on `H`) needs, beyond Proposition 5.2, the propagation of the bounds from
-`0` to the other points of `H`. Bochnak and Siciak obtain it from Siciak's polynomial lemma
-(§4, Proposition 4.1), which rests on potential theory in `ℂ` (Siciak's extremal function,
-Fekete points, regularity for the Dirichlet problem). It is not formalized here. The real
-counterpart (Proposition 5.4) uses the same lemma.
+* Bochnak and Siciak propagate the bounds of Proposition 5.2 through Siciak's polynomial lemma
+  (§4), which rests on potential theory in `ℂ` (Siciak's extremal function, Fekete points,
+  regularity for the Dirichlet problem). Here only lines are needed: on a line through a point
+  of `H`, a dilation by `λ > 1` makes the terms pointwise bounded, Baire's theorem in `ℂ` and the
+  Bernstein–Walsh inequality give a uniform exponential bound, and Hartogs' lemma brings the
+  growth rate below `λ`.
+* Coefficient estimates for polynomials use discrete Fourier inversion over roots of unity
+  (`seminorm_coeff_le_of_circle`), so no vector-valued integration is needed.
+* The real case (Bochnak–Siciak II, Proposition 5.4 and Theorem 5.2 for `K = ℝ`) is not
+  formalized.
 -/
 
 open Set Filter Function Metric Finset
@@ -591,5 +613,882 @@ theorem not_cAnalyticOn_geomFun : ¬ CAnalyticOn geomFun (ball 0 1) := fun h ↦
   not_hasCDerivAt_geomFun _ (h.hasCDerivAt (by norm_num : (1 / 2 : ℂ) ∈ ball (0 : ℂ) 1))
 
 end Counterexamples
+
+/-! ### Homogeneous polynomials along lines -/
+
+section Lines
+
+variable {E : Type*} [AddCommGroup E] [Module ℂ E] {F : Type*} [AddCommGroup F] [Module ℂ F]
+
+/-- `p : E → F` is an (algebraic) homogeneous polynomial of degree `k`: the diagonal of a
+`k`-linear map, without any continuity. -/
+def IsHomPoly (k : ℕ) (p : E → F) : Prop :=
+  ∃ A : MultilinearMap ℂ (fun _ : Fin k ↦ E) F, ∀ x, p x = A fun _ ↦ x
+
+theorem IsHomPoly.add {k : ℕ} {p q : E → F} (hp : IsHomPoly k p) (hq : IsHomPoly k q) :
+    IsHomPoly k (p + q) := by
+  obtain ⟨A, hA⟩ := hp
+  obtain ⟨B, hB⟩ := hq
+  exact ⟨A + B, fun x ↦ by simp [hA, hB]⟩
+
+theorem IsHomPoly.zero {k : ℕ} : IsHomPoly k (0 : E → F) := ⟨0, fun _ ↦ rfl⟩
+
+theorem IsHomPoly.sum {ι : Type*} (s : Finset ι) {k : ℕ} {p : ι → E → F}
+    (hp : ∀ i ∈ s, IsHomPoly k (p i)) : IsHomPoly k (∑ i ∈ s, p i) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simpa using IsHomPoly.zero
+  | insert a s ha ih =>
+    rw [Finset.sum_insert ha]
+    exact (hp a (Finset.mem_insert_self a s)).add
+      (ih fun i hi ↦ hp i (Finset.mem_insert_of_mem hi))
+
+theorem IsHomPoly.map_smul {k : ℕ} {p : E → F} (hp : IsHomPoly k p) (c : ℂ) (x : E) :
+    p (c • x) = c ^ k • p x := by
+  obtain ⟨A, hA⟩ := hp
+  rw [hA, hA, show (fun _ : Fin k ↦ c • x) = fun i ↦ c • (fun _ : Fin k ↦ x) i from rfl,
+    A.map_smul_univ]
+  simp
+
+theorem IsContHomPoly.isHomPoly [TopologicalSpace E] [TopologicalSpace F] {k : ℕ} {p : E → F}
+    (hp : IsContHomPoly ℂ k p) : IsHomPoly k p := by
+  obtain ⟨A, hA⟩ := hp
+  exact ⟨A.toMultilinearMap, hA⟩
+
+/-- The coefficient of `tᵏ` in `A (u + t v, …, u + t v)`. -/
+def dirCoeff {n : ℕ} (A : MultilinearMap ℂ (fun _ : Fin n ↦ E) F) (u : E) (k : ℕ) (v : E) : F :=
+  ∑ S ∈ Finset.univ.filter (fun S : Finset (Fin n) ↦ S.card = k),
+    A (S.piecewise (fun _ ↦ v) (fun _ ↦ u))
+
+/-- **Expansion along a line**: `A (u + t v, …) = ∑_{k ≤ n} tᵏ dirCoeff A u k v`. -/
+theorem apply_add_smul_eq_sum {n : ℕ} (A : MultilinearMap ℂ (fun _ : Fin n ↦ E) F) (u v : E)
+    (t : ℂ) : A (fun _ ↦ u + t • v) =
+      ∑ k ∈ range (n + 1), t ^ k • dirCoeff A u k v := by
+  classical
+  have e1 : (fun _ : Fin n ↦ u + t • v) = (fun _ ↦ t • v) + (fun _ ↦ u) := by
+    ext; simp [add_comm]
+  rw [e1, A.map_add_univ]
+  have e2 : ∀ S : Finset (Fin n), A (S.piecewise (fun _ ↦ t • v) (fun _ ↦ u)) =
+      t ^ S.card • A (S.piecewise (fun _ ↦ v) (fun _ ↦ u)) := by
+    intro S
+    have : S.piecewise (fun _ : Fin n ↦ t • v) (fun _ ↦ u) =
+        S.piecewise (fun i ↦ (fun _ ↦ t) i • (S.piecewise (fun _ ↦ v) (fun _ ↦ u)) i)
+          (S.piecewise (fun _ ↦ v) (fun _ ↦ u)) := by
+      ext i; by_cases hi : i ∈ S <;> simp [hi]
+    rw [this, A.map_piecewise_smul, Finset.prod_const]
+  simp only [e2, dirCoeff, Finset.smul_sum]
+  rw [← Finset.sum_fiberwise_of_maps_to (g := Finset.card) (t := range (n + 1))
+    (fun S _ ↦ Finset.mem_range.2 (Nat.lt_succ_of_le ((Finset.card_le_univ S).trans
+      (by simp))))]
+  refine Finset.sum_congr rfl fun k _ ↦ Finset.sum_congr rfl fun S hS ↦ ?_
+  rw [(Finset.mem_filter.1 hS).2]
+
+theorem dirCoeff_eq_zero {n : ℕ} (A : MultilinearMap ℂ (fun _ : Fin n ↦ E) F) (u : E) {k : ℕ}
+    (hk : n < k) (v : E) : dirCoeff A u k v = 0 := by
+  refine Finset.sum_eq_zero fun S hS ↦ ?_
+  have := (Finset.mem_filter.1 hS).2
+  have := (Finset.card_le_univ S).trans (by simp : Fintype.card (Fin n) ≤ n)
+  omega
+
+/-- The coefficients along lines are homogeneous polynomials in the direction. -/
+theorem isHomPoly_dirCoeff {n : ℕ} (A : MultilinearMap ℂ (fun _ : Fin n ↦ E) F) (u : E)
+    (k : ℕ) : IsHomPoly k (dirCoeff A u k) := by
+  classical
+  have h : dirCoeff A u k = ∑ S ∈ Finset.univ.filter (fun S : Finset (Fin n) ↦ S.card = k),
+      fun v ↦ A (S.piecewise (fun _ ↦ v) (fun _ ↦ u)) := by
+    ext v; simp [dirCoeff]
+  rw [h]
+  refine IsHomPoly.sum _ fun S hS ↦ ?_
+  have hk : S.card = k := (Finset.mem_filter.1 hS).2
+  have hl : Sᶜ.card = n - k := by rw [Finset.card_compl, Fintype.card_fin, hk]
+  let C := MultilinearMap.curryFinFinset ℂ F E hk hl A
+  refine ⟨{ toFun := fun w ↦ C w (fun _ ↦ u)
+            map_update_add' := fun w i x y ↦ by simp [C.map_update_add]
+            map_update_smul' := fun w i c x ↦ by simp [C.map_update_smul] }, fun v ↦ ?_⟩
+  exact (MultilinearMap.curryFinFinset_apply_const hk hl A v u).symm
+
+/-- The coefficients along lines of a continuous multilinear map are continuous. -/
+theorem continuous_dirCoeff [TopologicalSpace E] [TopologicalSpace F] [IsTopologicalAddGroup F]
+    {n : ℕ} (A : ContinuousMultilinearMap ℂ (fun _ : Fin n ↦ E) F) (u : E) (k : ℕ) :
+    Continuous (dirCoeff A.toMultilinearMap u k) := by
+  classical
+  refine continuous_finsetSum _ fun S _ ↦ A.cont.comp (continuous_pi fun i ↦ ?_)
+  by_cases hi : i ∈ S
+  · simp only [Finset.piecewise, hi, ite_true]; exact continuous_id
+  · simp only [Finset.piecewise, hi, ite_false]; exact continuous_const
+
+end Lines
+
+/-! ### Coefficient bounds from roots of unity -/
+
+section Coeff
+
+variable {F : Type*} [AddCommGroup F] [Module ℂ F]
+
+/-- **Cauchy estimates for polynomials** without integrals: if `q (∑_{k ≤ N} tᵏ aₖ) ≤ M` on the
+circle `|t| = r`, then `q (aₖ) ≤ M / rᵏ` (discrete Fourier inversion over the `(N+1)`-st roots of
+unity). -/
+theorem seminorm_coeff_le_of_circle (q : Seminorm ℂ F) {N : ℕ} (a : ℕ → F) {r M : ℝ}
+    (hr : 0 < r) (h : ∀ t : ℂ, ‖t‖ = r → q (∑ k ∈ range (N + 1), t ^ k • a k) ≤ M) {k : ℕ}
+    (hk : k ≤ N) : q (a k) ≤ M / r ^ k := by
+  set m := N + 1
+  set ω := Complex.exp (2 * π * Complex.I / (m : ℕ))
+  have hω : IsPrimitiveRoot ω m := Complex.isPrimitiveRoot_exp m (by omega)
+  have hω1 : ‖ω‖ = 1 := hω.norm'_eq_one (by omega)
+  have hgeom : ∀ i ∈ range m, ∑ j ∈ range m, (ω ^ (m - k + i)) ^ j =
+      if i = k then (m : ℂ) else 0 := by
+    intro i hi
+    rw [Finset.mem_range] at hi
+    split_ifs with hik
+    · subst hik
+      rw [show m - i + i = m by omega, hω.pow_eq_one]; simp
+    · have hne : ω ^ (m - k + i) ≠ 1 := by
+        rw [Ne, hω.pow_eq_one_iff_dvd]
+        rintro ⟨c, hc⟩
+        rcases c with _ | _ | c
+        · omega
+        · omega
+        · have h2 : 2 * m ≤ m * (c + 1 + 1) := by nlinarith
+          omega
+      rw [geom_sum_eq hne, ← pow_mul, mul_comm, pow_mul, hω.pow_eq_one, one_pow, sub_self,
+        zero_div]
+  have key : ∑ j ∈ range m, (ω ^ (m - k)) ^ j •
+      (∑ i ∈ range m, ((r : ℂ) * ω ^ j) ^ i • a i) = ((m : ℂ) * (r : ℂ) ^ k) • a k := by
+    simp only [Finset.smul_sum, smul_smul]
+    rw [Finset.sum_comm]
+    have : ∀ i ∈ range m, ∑ j ∈ range m, ((ω ^ (m - k)) ^ j * ((r : ℂ) * ω ^ j) ^ i) • a i =
+        ((r : ℂ) ^ i * if i = k then (m : ℂ) else 0) • a i := by
+      intro i hi
+      rw [← Finset.sum_smul, ← hgeom i hi, Finset.mul_sum]
+      congr 1
+      refine Finset.sum_congr rfl fun j _ ↦ ?_
+      rw [mul_pow, ← pow_mul, ← pow_mul, ← pow_mul, add_mul, pow_add, mul_comm j i]
+      ring
+    rw [Finset.sum_congr rfl this, Finset.sum_eq_single k]
+    · simp [mul_comm]
+    · intro i _ hik; simp [hik]
+    · intro hk'; exact absurd (Finset.mem_range.2 (by omega)) hk'
+  have hm0 : (0 : ℝ) < m := by positivity
+  have hbound : q (((m : ℂ) * (r : ℂ) ^ k) • a k) ≤ m * M := by
+    rw [← key]
+    calc q (∑ j ∈ range m, (ω ^ (m - k)) ^ j • ∑ i ∈ range m, ((r : ℂ) * ω ^ j) ^ i • a i)
+        ≤ ∑ j ∈ range m, q ((ω ^ (m - k)) ^ j • ∑ i ∈ range m, ((r : ℂ) * ω ^ j) ^ i • a i) :=
+          Finset.le_sum_of_subadditive q (map_zero q).le (map_add_le_add q) _ _
+      _ ≤ ∑ _j ∈ range m, M := by
+          refine Finset.sum_le_sum fun j _ ↦ ?_
+          rw [map_smul_eq_mul, norm_pow, norm_pow, hω1, one_pow, one_pow, one_mul]
+          exact h _ (by rw [norm_mul, norm_pow, hω1, one_pow, mul_one, Complex.norm_real,
+            Real.norm_of_nonneg hr.le])
+      _ = m * M := by simp
+  rw [map_smul_eq_mul, norm_mul, Complex.norm_natCast, norm_pow, Complex.norm_real,
+    Real.norm_of_nonneg hr.le] at hbound
+  rw [le_div_iff₀ (by positivity)]
+  nlinarith [apply_nonneg q (a k), pow_pos hr k]
+
+end Coeff
+
+/-! ### Propagation of bounds along complex lines (Bochnak–Siciak, Proposition 4.1) -/
+
+section Propagation
+
+variable {E : Type*} [AddCommGroup E] [Module ℂ E] [TopologicalSpace E] [IsTopologicalAddGroup E]
+  [ContinuousSMul ℂ E] {F : Type*} [AddCommGroup F] [Module ℂ F] [TopologicalSpace F]
+  [IsTopologicalAddGroup F] [ContinuousSMul ℂ F] {p : ℕ → E → F}
+
+omit [IsTopologicalAddGroup F] [ContinuousSMul ℂ F] in
+/-- A continuous homogeneous polynomial restricted to an affine complex line is continuous and
+weakly entire. -/
+theorem IsContHomPoly.line {n : ℕ} {P : E → F} (hP : IsContHomPoly ℂ n P) (u v : E) :
+    Continuous (fun z : ℂ ↦ P (u + z • v)) ∧
+      ∀ ℓ : F →L[ℂ] ℂ, AnalyticOnNhd ℂ (ℓ ∘ fun z : ℂ ↦ P (u + z • v)) univ := by
+  refine ⟨hP.continuous.comp (continuous_const.add (continuous_id.smul continuous_const)),
+    fun ℓ ↦ ?_⟩
+  obtain ⟨A, hA⟩ := hP
+  have e : (ℓ ∘ fun z : ℂ ↦ P (u + z • v)) =
+      fun z ↦ ∑ k ∈ range (n + 1), z ^ k * ℓ (dirCoeff A.toMultilinearMap u k v) := by
+    funext z
+    simp only [Function.comp, hA]
+    rw [show (A fun _ ↦ u + z • v) = A.toMultilinearMap (fun _ ↦ u + z • v) from rfl,
+      apply_add_smul_eq_sum, map_sum]
+    simp
+  rw [e]
+  exact (Differentiable.differentiableOn (by fun_prop)).analyticOnNhd isOpen_univ
+
+variable [PolynormableSpace ℂ F]
+
+omit [ContinuousSMul ℂ F] in
+/-- **Bounds along a complex line** (the case needed of Bochnak–Siciak II, Proposition 4.1):
+if `∑ pₙ` converges pointwise on an open set `H` and `x + z₀ y ∈ H`, then for every continuous
+seminorm `q` there are `r > 0`, `θ < 1` and `C` with `q (pₙ (x + z y)) ≤ C θⁿ` for
+`|z - z₀| ≤ r`. Bochnak and Siciak use Siciak's polynomial lemma; here Baire's theorem in `ℂ`,
+the Bernstein–Walsh inequality and Hartogs' lemma (`hartogs_lemma`) are used. -/
+theorem exists_line_geometric_bound (hp : ∀ n, IsContHomPoly ℂ n (p n)) {H : Set E}
+    (hH : IsOpen H) (hconv : ∀ a ∈ H, ∃ y, Tendsto (fun N ↦ ∑ n ∈ range N, p n a) atTop (𝓝 y))
+    {q : Seminorm ℂ F} (hq : Continuous q) {x y : E} {z₀ : ℂ} (hz₀ : x + z₀ • y ∈ H) :
+    ∃ r > 0, ∃ θ : ℝ, 0 ≤ θ ∧ θ < 1 ∧ ∃ C, 0 ≤ C ∧
+      ∀ n, ∀ z ∈ closedBall z₀ r, q (p n (x + z • y)) ≤ C * θ ^ n := by
+  -- Step 1: a dilation `λ > 1` keeping a disc about `z₀` inside `H`
+  have hΦ : Continuous fun w : ℂ × ℂ ↦ w.1 • (x + w.2 • y) := by fun_prop
+  have hmem : (fun w : ℂ × ℂ ↦ w.1 • (x + w.2 • y)) ⁻¹' H ∈ 𝓝 ((1 : ℂ), z₀) :=
+    hΦ.continuousAt.preimage_mem_nhds (hH.mem_nhds (by simpa using hz₀))
+  obtain ⟨δ, hδ, hδH⟩ := Metric.mem_nhds_iff.1 hmem
+  set lam : ℝ := 1 + δ / 2
+  have hlam : 1 < lam := by simp only [lam]; linarith
+  have hlam0 : 0 < lam := by linarith
+  set R₀ : ℝ := δ / 2
+  have hR₀ : 0 < R₀ := by positivity
+  have hinH : ∀ z ∈ closedBall z₀ R₀, (lam : ℂ) • (x + z • y) ∈ H := by
+    intro z hz
+    have : ((lam : ℂ), z) ∈ ball ((1 : ℂ), z₀) δ := by
+      rw [mem_ball, Prod.dist_eq, max_lt_iff]
+      refine ⟨?_, (mem_closedBall.1 hz).trans_lt (by simp only [R₀]; linarith)⟩
+      rw [dist_eq_norm, show (lam : ℂ) - 1 = ((δ / 2 : ℝ) : ℂ) by simp [lam],
+        Complex.norm_real, Real.norm_of_nonneg (by positivity)]
+      linarith
+    exact hδH this
+  set g : ℕ → ℂ → F := fun n z ↦ p n ((lam : ℂ) • (x + z • y))
+  have hgline : ∀ n, g n = fun z ↦ p n ((lam : ℂ) • x + z • ((lam : ℂ) • y)) := fun n ↦ by
+    funext z; simp only [g, smul_add, smul_comm (lam : ℂ) z y]
+  have hpt : ∀ z ∈ closedBall z₀ R₀, ∃ C, ∀ n, q (g n z) ≤ C := by
+    intro z hz
+    obtain ⟨yy, hyy⟩ := hconv _ (hinH z hz)
+    obtain ⟨C, -, hC⟩ := exists_bound_of_tendsto_sum hq hyy
+    exact ⟨C, hC⟩
+  -- Step 2: Baire's theorem in `ℂ` gives a small disc with a uniform bound
+  set T : Option ℕ → Set ℂ := fun i ↦ match i with
+    | none => (ball z₀ R₀)ᶜ
+    | some M => closedBall z₀ R₀ ∩ {z | ∀ n, q (g n z) ≤ M}
+  have hTc : ∀ i, IsClosed (T i) := by
+    rintro (_ | M)
+    · exact isOpen_ball.isClosed_compl
+    · simp only [T, Set.ofPred_forall]
+      refine isClosed_closedBall.inter (isClosed_iInter fun n ↦ isClosed_le ?_ continuous_const)
+      rw [hgline n]
+      exact hq.comp ((hp n).line _ _).1
+  have hTU : ⋃ i, T i = Set.univ := by
+    refine eq_univ_of_forall fun z ↦ ?_
+    by_cases hz : z ∈ ball z₀ R₀
+    · obtain ⟨C, hC⟩ := hpt z (ball_subset_closedBall hz)
+      exact mem_iUnion.2 ⟨some ⌈C⌉₊, ball_subset_closedBall hz,
+        fun n ↦ (hC n).trans (Nat.le_ceil C)⟩
+    · exact mem_iUnion.2 ⟨none, hz⟩
+  obtain ⟨z₁, hz₁b, hz₁i⟩ := (dense_iUnion_interior_of_closed hTc hTU).inter_open_nonempty _
+    isOpen_ball ⟨z₀, mem_ball_self hR₀⟩
+  obtain ⟨i, hi⟩ := mem_iUnion.1 hz₁i
+  obtain ⟨M, rfl⟩ : ∃ M, i = some M := by
+    cases i with
+    | none => exact absurd (interior_subset hi) (by simpa [T] using hz₁b)
+    | some M => exact ⟨M, rfl⟩
+  obtain ⟨s₀, hs₀, hs₀T⟩ := Metric.mem_nhds_iff.1 (mem_interior_iff_mem_nhds.1 hi)
+  set s : ℝ := s₀ / 2
+  have hs : 0 < s := by positivity
+  have hMdisc : ∀ z ∈ closedBall z₁ s, ∀ n, q (g n z) ≤ M := fun z hz ↦
+    (hs₀T (closedBall_subset_ball (by simp only [s]; linarith) hz)).2
+  clear_value s
+  -- Step 3: Bernstein–Walsh on `closedBall z₀ R₀`
+  set K : ℝ := max 1 (2 * R₀ / s)
+  set M' : ℝ := max (M : ℝ) 1
+  set B : ℝ := Real.log (2 * M' * K)
+  have hK1 : 1 ≤ K := le_max_left _ _
+  have hM'1 : 1 ≤ M' := le_max_right _ _
+  have hBW : ∀ n ≥ 1, ∀ z ∈ closedBall z₀ R₀, q (g n z) ≤ Real.exp (n * B) := by
+    intro n hn z hz
+    obtain ⟨A, hA⟩ := hp n
+    set u : E := (lam : ℂ) • (x + z₁ • y)
+    set v : E := (lam : ℂ) • y
+    have hexp : ∀ w : ℂ, g n (z₁ + w) =
+        ∑ k ∈ range (n + 1), w ^ k • dirCoeff A.toMultilinearMap u k v := by
+      intro w
+      have : (lam : ℂ) • (x + (z₁ + w) • y) = u + w • v := by
+        simp only [u, v, add_smul, smul_add, smul_comm (lam : ℂ) w y]; abel
+      simp only [g, this, hA]
+      exact apply_add_smul_eq_sum A.toMultilinearMap u v w
+    have hcoef : ∀ k ≤ n, q (dirCoeff A.toMultilinearMap u k v) ≤ M / s ^ k := by
+      intro k hk
+      refine seminorm_coeff_le_of_circle q (N := n) (fun k ↦ dirCoeff A.toMultilinearMap u k v)
+        (M := M) hs (fun t ht ↦ ?_) hk
+      rw [← hexp]
+      exact hMdisc _ (by rw [mem_closedBall, dist_eq_norm, add_sub_cancel_left, ht]) n
+    have hw : ‖z - z₁‖ ≤ 2 * R₀ := by
+      calc ‖z - z₁‖ ≤ ‖z - z₀‖ + ‖z₀ - z₁‖ := norm_sub_le_norm_sub_add_norm_sub _ _ _
+        _ ≤ R₀ + R₀ := by
+            gcongr
+            · exact mem_closedBall_iff_norm.1 hz
+            · rw [← dist_eq_norm, dist_comm]; exact (mem_ball.1 hz₁b).le
+        _ = 2 * R₀ := by ring
+    have hM0 : (0 : ℝ) ≤ M := Nat.cast_nonneg M
+    have hsum : q (g n z) ≤ (n + 1) * (M * K ^ n) := by
+      have hz' := hexp (z - z₁)
+      rw [add_sub_cancel] at hz'
+      rw [hz']
+      calc q (∑ k ∈ range (n + 1), (z - z₁) ^ k • dirCoeff A.toMultilinearMap u k v)
+          ≤ ∑ k ∈ range (n + 1), q ((z - z₁) ^ k • dirCoeff A.toMultilinearMap u k v) :=
+            Finset.le_sum_of_subadditive q (map_zero q).le (map_add_le_add q) _ _
+        _ ≤ ∑ _k ∈ range (n + 1), M * K ^ n := by
+            refine Finset.sum_le_sum fun k hk ↦ ?_
+            have hk' : k ≤ n := Nat.lt_succ_iff.1 (Finset.mem_range.1 hk)
+            rw [map_smul_eq_mul, norm_pow]
+            calc ‖z - z₁‖ ^ k * q (dirCoeff A.toMultilinearMap u k v)
+                ≤ (2 * R₀) ^ k * (M / s ^ k) :=
+                  mul_le_mul (pow_le_pow_left₀ (norm_nonneg _) hw k) (hcoef k hk')
+                    (apply_nonneg q _) (by positivity)
+              _ = M * (2 * R₀ / s) ^ k := by rw [div_pow]; ring
+              _ ≤ M * K ^ k := by gcongr; exact le_max_right _ _
+              _ ≤ M * K ^ n := by gcongr
+        _ = (n + 1) * (M * K ^ n) := by simp
+    calc q (g n z) ≤ (n + 1) * (M * K ^ n) := hsum
+      _ ≤ 2 ^ n * (M' ^ n * K ^ n) := by
+          gcongr
+          · exact_mod_cast Nat.lt_two_pow_self
+          · exact (le_max_left _ _).trans (le_self_pow₀ hM'1 (by omega))
+      _ = (2 * M' * K) ^ n := by ring
+      _ = Real.exp (n * B) := by
+          rw [Real.exp_nat_mul, Real.exp_log (by positivity)]
+  -- Step 4: Hartogs' lemma
+  set ε : ℝ := Real.log lam / 2
+  have hε : 0 < ε := by simp only [ε]; exact half_pos (Real.log_pos hlam)
+  obtain ⟨N, hN⟩ := hartogs_lemma (g := g)
+    (fun n ↦ by rw [hgline n]; exact ((hp n).line _ _).1)
+    (fun n ℓ ↦ by rw [hgline n]; exact ((hp n).line _ _).2 ℓ) hq hR₀ hBW hpt hε
+  -- Step 5: undo the dilation
+  set θ : ℝ := Real.exp (-ε)
+  have hθpos : 0 < θ := Real.exp_pos _
+  have hθ1 : θ < 1 := Real.exp_lt_one_iff.2 (by linarith)
+  have hθlam : ∀ n : ℕ, Real.exp (n * ε) / lam ^ n = θ ^ n := by
+    intro n
+    have hl : lam ^ n = Real.exp (n * (2 * ε)) := by
+      rw [Real.exp_nat_mul, show 2 * ε = Real.log lam by simp only [ε]; ring,
+        Real.exp_log hlam0]
+    rw [hl, ← Real.exp_sub, ← Real.exp_nat_mul]
+    congr 1
+    ring
+  have hpn : ∀ n z, q (p n (x + z • y)) = q (g n z) / lam ^ n := by
+    intro n z
+    simp only [g]
+    rw [(hp n).map_smul, map_smul_eq_mul, norm_pow, Complex.norm_real,
+      Real.norm_of_nonneg hlam0.le]
+    field_simp
+  have hcomp : ∀ n, ∃ D, ∀ z ∈ closedBall z₀ (R₀ / 2), q (p n (x + z • y)) ≤ D := fun n ↦ by
+    obtain ⟨D, hD⟩ := (isCompact_closedBall z₀ (R₀ / 2)).exists_bound_of_continuousOn
+      (f := fun z ↦ q (p n (x + z • y))) (hq.comp ((hp n).line x y).1).continuousOn
+    exact ⟨D, fun z hz ↦ (le_abs_self _).trans (by simpa [Real.norm_eq_abs] using hD z hz)⟩
+  choose D hD using hcomp
+  set C : ℝ := 1 + ∑ n ∈ range N, |D n| / θ ^ n
+  have hS0 : 0 ≤ ∑ n ∈ range N, |D n| / θ ^ n :=
+    Finset.sum_nonneg fun i _ ↦ by positivity
+  have hC1 : 1 ≤ C := by simp only [C]; linarith
+  refine ⟨R₀ / 2, by positivity, θ, hθpos.le, hθ1, C, by linarith, fun n z hz ↦ ?_⟩
+  by_cases hn : n < N
+  · have hle : |D n| / θ ^ n ≤ C := by
+      have := Finset.single_le_sum (f := fun n ↦ |D n| / θ ^ n) (fun i _ ↦ by positivity)
+        (Finset.mem_range.2 hn)
+      simp only [C]; linarith
+    calc q (p n (x + z • y)) ≤ |D n| := (hD n z hz).trans (le_abs_self _)
+      _ = |D n| / θ ^ n * θ ^ n := by field_simp
+      _ ≤ C * θ ^ n := by gcongr
+  · rw [not_lt] at hn
+    calc q (p n (x + z • y)) = q (g n z) / lam ^ n := hpn n z
+      _ ≤ Real.exp (n * ε) / lam ^ n := by gcongr; exact hN n hn z hz
+      _ = θ ^ n := hθlam n
+      _ ≤ C * θ ^ n := le_mul_of_one_le_left (by positivity) hC1
+
+omit [ContinuousSMul ℂ F] in
+/-- The bounds of `exists_line_geometric_bound` are uniform on compact subsets of the line. -/
+theorem exists_compact_geometric_bound (hp : ∀ n, IsContHomPoly ℂ n (p n)) {H : Set E}
+    (hH : IsOpen H) (hconv : ∀ a ∈ H, ∃ y, Tendsto (fun N ↦ ∑ n ∈ range N, p n a) atTop (𝓝 y))
+    {q : Seminorm ℂ F} (hq : Continuous q) {x y : E} {K : Set ℂ} (hK : IsCompact K)
+    (hKH : ∀ z ∈ K, x + z • y ∈ H) :
+    ∃ θ : ℝ, 0 ≤ θ ∧ θ < 1 ∧ ∃ C, 0 ≤ C ∧ ∀ n, ∀ z ∈ K, q (p n (x + z • y)) ≤ C * θ ^ n := by
+  classical
+  have hloc : ∀ z ∈ K, ∃ r > 0, ∃ θ : ℝ, 0 ≤ θ ∧ θ < 1 ∧ ∃ C, 0 ≤ C ∧
+      ∀ n, ∀ w ∈ closedBall z r, q (p n (x + w • y)) ≤ C * θ ^ n := fun z hz ↦
+    exists_line_geometric_bound hp hH hconv hq (hKH z hz)
+  choose! r hr θ hθ0 hθ1 C hC0 hC using hloc
+  obtain ⟨t, htK, hcover⟩ := hK.elim_nhds_subcover (fun z ↦ closedBall z (r z))
+    (fun z hz ↦ closedBall_mem_nhds z (hr z hz))
+  set Θ : NNReal := t.sup fun z ↦ (θ z).toNNReal
+  have hΘ1 : (Θ : ℝ) < 1 := by
+    have : Θ < 1 := (Finset.sup_lt_iff (by simp)).2 fun z hz ↦
+      Real.toNNReal_lt_one.2 (hθ1 z (htK z hz))
+    exact_mod_cast this
+  have hθΘ : ∀ z ∈ t, θ z ≤ Θ := fun z hz ↦
+    (Real.le_coe_toNNReal _).trans
+      (by exact_mod_cast Finset.le_sup (f := fun z ↦ (θ z).toNNReal) hz)
+  refine ⟨Θ, Θ.2, hΘ1, ∑ z ∈ t, C z, Finset.sum_nonneg fun z hz ↦ hC0 z (htK z hz),
+    fun n w hw ↦ ?_⟩
+  obtain ⟨z, hzt, hwz⟩ := mem_iUnion₂.1 (hcover hw)
+  calc q (p n (x + w • y)) ≤ C z * θ z ^ n := hC z (htK z hzt) n w hwz
+    _ ≤ (∑ z ∈ t, C z) * Θ ^ n := by
+        have h0 := hθ0 z (htK z hzt)
+        exact mul_le_mul (Finset.single_le_sum (fun z hz ↦ hC0 z (htK z hz)) hzt)
+          (pow_le_pow_left₀ h0 (hθΘ z hzt) n) (by positivity)
+          (Finset.sum_nonneg fun z hz ↦ hC0 z (htK z hz))
+
+end Propagation
+
+/-! ### Gâteaux analyticity of the sum -/
+
+section Gateaux
+
+/-- `F` is **series complete** if every series which is absolutely summable for each continuous
+seminorm converges. Sequentially complete locally convex spaces, which Bochnak and Siciak assume
+throughout, are series complete. Some such hypothesis is needed: see
+`not_cAnalyticOn_geomFun`. -/
+def SeriesComplete (F : Type*) [AddCommGroup F] [Module ℂ F] [TopologicalSpace F] : Prop :=
+  ∀ v : ℕ → F, (∀ q : Seminorm ℂ F, Continuous q → Summable fun n ↦ q (v n)) → ∃ s, HasSum v s
+
+variable {E : Type*} [AddCommGroup E] [Module ℂ E] [TopologicalSpace E] [IsTopologicalAddGroup E]
+  [ContinuousSMul ℂ E] {F : Type*} [AddCommGroup F] [Module ℂ F] [TopologicalSpace F]
+  [IsTopologicalAddGroup F] [ContinuousSMul ℂ F] [PolynormableSpace ℂ F]
+  (A : ∀ n, ContinuousMultilinearMap ℂ (fun _ : Fin n ↦ E) F) {H : Set E}
+
+omit [ContinuousSMul ℂ F] in
+/-- Geometric bounds for the coefficients of the series along a line. -/
+theorem exists_dirCoeff_bound (hH : IsOpen H)
+    (hconv : ∀ a ∈ H, ∃ y, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 y))
+    {x y : E} {R : ℝ} (hR : 0 < R) (hsub : ∀ z ∈ closedBall (0 : ℂ) R, x + z • y ∈ H)
+    {q : Seminorm ℂ F} (hq : Continuous q) :
+    ∃ θ : ℝ, 0 ≤ θ ∧ θ < 1 ∧ ∃ C, 0 ≤ C ∧
+      ∀ n k, q (dirCoeff (A n).toMultilinearMap x k y) ≤ C * θ ^ n / R ^ k := by
+  obtain ⟨θ, hθ0, hθ1, C, hC0, hC⟩ := exists_compact_geometric_bound
+    (p := fun n a ↦ A n fun _ ↦ a) (fun n ↦ ⟨A n, fun _ ↦ rfl⟩) hH hconv hq
+    (isCompact_closedBall 0 R) hsub
+  refine ⟨θ, hθ0, hθ1, C, hC0, fun n k ↦ ?_⟩
+  by_cases hk : k ≤ n
+  · refine seminorm_coeff_le_of_circle q (N := n) (fun k ↦ dirCoeff (A n).toMultilinearMap x k y)
+      hR (fun t ht ↦ ?_) hk
+    rw [← apply_add_smul_eq_sum]
+    exact hC n t (by rw [mem_closedBall, dist_zero_right, ht])
+  · rw [dirCoeff_eq_zero _ _ (by omega), map_zero]
+    positivity
+
+variable [T2Space F]
+
+/-- **Expansion along lines** (Bochnak–Siciak II, Theorem 5.1, complex case): if `∑ pₙ`
+converges to `f` on an open set `H` and `F` is series complete, then on each complex line
+`z ↦ x + z y` the sum is a power series on every disc whose closure lies in `H`. -/
+theorem hasPowerSeriesOnDisc_of_closedBall (hF : SeriesComplete F) (hH : IsOpen H) {f : E → F}
+    (hf : ∀ a ∈ H, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 (f a)))
+    {x y : E} {R : ℝ} (hR : 0 < R) (hsub : ∀ z ∈ closedBall (0 : ℂ) R, x + z • y ∈ H) :
+    HasPowerSeriesOnDisc (fun z ↦ f (x + z • y))
+      (fun k ↦ ∑' n, dirCoeff (A n).toMultilinearMap x k y) 0 R := by
+  have hconv : ∀ a ∈ H, ∃ y, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 y) :=
+    fun a ha ↦ ⟨f a, hf a ha⟩
+  set c : ℕ → ℕ → F := fun n k ↦ dirCoeff (A n).toMultilinearMap x k y
+  have hb : ∀ k, HasSum (fun n ↦ c n k) (∑' n, c n k) := by
+    intro k
+    obtain ⟨s, hs⟩ := hF (fun n ↦ c n k) fun q hq ↦ by
+      obtain ⟨θ, hθ0, hθ1, C, hC0, hC⟩ := exists_dirCoeff_bound A hH hconv hR hsub hq
+      refine Summable.of_nonneg_of_le (fun n ↦ apply_nonneg q _) (fun n ↦ hC n k) ?_
+      simp_rw [mul_div_right_comm]
+      exact (summable_geometric_of_lt_one hθ0 hθ1).mul_left _
+    rwa [hs.tsum_eq]
+  intro w hw
+  rw [zero_add]
+  set ρ : ℝ := ‖w‖ / R
+  have hρ0 : 0 ≤ ρ := by positivity
+  have hρ1 : ρ < 1 := (div_lt_one hR).2 hw
+  -- the expansion of the partial sums
+  have hS : ∀ N, ∑ n ∈ range N, (A n fun _ ↦ x + w • y) =
+      ∑ n ∈ range N, ∑ k ∈ range N, w ^ k • c n k := by
+    intro N
+    refine Finset.sum_congr rfl fun n hn ↦ ?_
+    rw [show (A n fun _ ↦ x + w • y) = (A n).toMultilinearMap (fun _ ↦ x + w • y) from rfl,
+      apply_add_smul_eq_sum]
+    refine Finset.sum_subset (Finset.range_subset_range.2 (Finset.mem_range.1 hn)) fun k _ hk ↦ ?_
+    rw [Finset.mem_range, not_lt] at hk
+    simp only [dirCoeff_eq_zero _ _ hk, smul_zero]
+  refine hasSum_of_tendsto_of_dominated ?_ fun q hq ↦ ?_
+  · refine tendsto_nhds_iff_seminorm.2 fun q hq ε hε ↦ ?_
+    obtain ⟨θ, hθ0, hθ1, C, hC0, hC⟩ := exists_dirCoeff_bound A hH hconv hR hsub hq
+    set β : ℕ → ℝ := fun K ↦ C / (1 - θ) * (ρ ^ K / (1 - ρ))
+    have hβ : Tendsto β atTop (𝓝 0) := by
+      have := ((tendsto_pow_atTop_nhds_zero_of_lt_one hρ0 hρ1).div_const (1 - ρ)).const_mul
+        (C / (1 - θ))
+      simpa [β] using this
+    have key : ∀ K, q (∑ k ∈ range K, w ^ k • ∑' n, c n k - f (x + w • y)) ≤ β K := by
+      intro K
+      have hlim : Tendsto (fun N ↦ ∑ k ∈ range K, w ^ k • ∑ n ∈ range N, c n k -
+          ∑ n ∈ range N, (A n fun _ ↦ x + w • y)) atTop
+          (𝓝 (∑ k ∈ range K, w ^ k • ∑' n, c n k - f (x + w • y))) := by
+        refine Tendsto.sub (tendsto_finsetSum _ fun k _ ↦ ?_) (hf _ (hsub w ?_))
+        · exact ((hb k).tendsto_sum_nat).const_smul _
+        · rw [mem_closedBall, dist_zero_right]; exact hw.le
+      refine le_of_tendsto ((hq.tendsto _).comp hlim) (eventually_atTop.2 ⟨K, fun N hN ↦ ?_⟩)
+      simp only [Function.comp]
+      set D : F := ∑ n ∈ range N, ∑ k ∈ Ico K N, w ^ k • c n k
+      have e : ∑ k ∈ range K, w ^ k • ∑ n ∈ range N, c n k -
+          ∑ n ∈ range N, (A n fun _ ↦ x + w • y) = -D := by
+        rw [hS N]
+        simp only [Finset.smul_sum]
+        rw [Finset.sum_comm]
+        simp only [D, ← Finset.sum_range_add_sum_Ico _ hN, Finset.sum_add_distrib]
+        abel
+      rw [e, map_neg_eq_map]
+      have hθs : ∑ n ∈ range N, θ ^ n ≤ 1 / (1 - θ) := by
+        have := geom_sum_Ico_le_of_lt_one (m := 0) (n := N) hθ0 hθ1
+        rwa [← Finset.range_eq_Ico, pow_zero] at this
+      have hρs : ∑ k ∈ Ico K N, ρ ^ k ≤ ρ ^ K / (1 - ρ) := geom_sum_Ico_le_of_lt_one hρ0 hρ1
+      calc q D ≤ ∑ n ∈ range N, ∑ k ∈ Ico K N, q (w ^ k • c n k) := by
+            refine (Finset.le_sum_of_subadditive q (map_zero q).le (map_add_le_add q) _ _).trans
+              (Finset.sum_le_sum fun n _ ↦ ?_)
+            exact Finset.le_sum_of_subadditive q (map_zero q).le (map_add_le_add q) _ _
+        _ ≤ ∑ n ∈ range N, ∑ k ∈ Ico K N, C * θ ^ n * ρ ^ k := by
+            refine Finset.sum_le_sum fun n _ ↦ Finset.sum_le_sum fun k _ ↦ ?_
+            rw [map_smul_eq_mul, norm_pow]
+            calc ‖w‖ ^ k * q (c n k) ≤ ‖w‖ ^ k * (C * θ ^ n / R ^ k) := by
+                  gcongr; exact hC n k
+              _ = C * θ ^ n * ρ ^ k := by simp only [ρ, div_pow]; field_simp
+        _ = C * (∑ n ∈ range N, θ ^ n) * (∑ k ∈ Ico K N, ρ ^ k) := by
+            rw [mul_assoc, Finset.sum_mul_sum, Finset.mul_sum]
+            refine Finset.sum_congr rfl fun n _ ↦ ?_
+            rw [Finset.mul_sum]
+            exact Finset.sum_congr rfl fun k _ ↦ by ring
+        _ ≤ C * (1 / (1 - θ)) * (ρ ^ K / (1 - ρ)) := by
+            gcongr
+        _ = β K := by simp only [β]; ring
+    filter_upwards [hβ.eventually (gt_mem_nhds hε)] with K hK
+    exact (key K).trans_lt hK
+  · obtain ⟨θ, hθ0, hθ1, C, hC0, hC⟩ := exists_dirCoeff_bound A hH hconv hR hsub hq
+    refine ⟨fun k ↦ C / (1 - θ) * ρ ^ k,
+      (summable_geometric_of_lt_one hρ0 hρ1).mul_left _, fun k ↦ ?_⟩
+    have hsumm : Summable fun n ↦ C / R ^ k * θ ^ n :=
+      (summable_geometric_of_lt_one hθ0 hθ1).mul_left _
+    have hqb : q (∑' n, c n k) ≤ ∑' n, C / R ^ k * θ ^ n :=
+      seminorm_le_of_hasSum hq (hb k) hsumm fun n ↦ by
+        rw [mul_comm (C / R ^ k), mul_div_assoc', mul_comm (θ ^ n)]; exact hC n k
+    rw [tsum_mul_left, tsum_geometric_of_lt_one hθ0 hθ1] at hqb
+    rw [map_smul_eq_mul, norm_pow]
+    calc ‖w‖ ^ k * q (∑' n, c n k) ≤ ‖w‖ ^ k * (C / R ^ k * (1 - θ)⁻¹) := by gcongr
+      _ = C / (1 - θ) * ρ ^ k := by simp only [ρ, div_pow]; field_simp
+
+/-- **Gâteaux analyticity of the sum** (Bochnak–Siciak II, Theorem 5.1, complex case, with a
+series complete target): the sum of a series of continuous homogeneous polynomials converging
+on an open set `H` is Gâteaux analytic on `H`. No Baire hypothesis is needed. -/
+theorem gateauxAnalyticOn_of_tendsto (hF : SeriesComplete F) (hH : IsOpen H) {f : E → F}
+    (hf : ∀ a ∈ H, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 (f a))) :
+    GateauxAnalyticOn f H := by
+  intro x _ y z₀ hz₀
+  have hΩ : IsOpen {z : ℂ | x + z • y ∈ H} :=
+    hH.preimage (continuous_const.add (continuous_id.smul continuous_const))
+  obtain ⟨ε, hε, hball⟩ := Metric.isOpen_iff.1 hΩ z₀ hz₀
+  refine ⟨ε / 2, by positivity, (ball_subset_ball (by linarith)).trans hball,
+    fun k ↦ ∑' n, dirCoeff (A n).toMultilinearMap (x + z₀ • y) k y, ?_⟩
+  have hsub : ∀ z ∈ closedBall (0 : ℂ) (ε / 2), (x + z₀ • y) + z • y ∈ H := by
+    intro z hz
+    have : z₀ + z ∈ ball z₀ ε := by
+      rw [mem_ball, dist_eq_norm, add_sub_cancel_left]
+      rw [mem_closedBall, dist_zero_right] at hz
+      linarith
+    have h := hball this
+    simp only [Set.mem_ofPred_eq, add_smul] at h
+    rwa [add_assoc]
+  have hps := hasPowerSeriesOnDisc_of_closedBall A hF hH hf (by positivity) hsub
+  intro w hw
+  have := hps w hw
+  simp only [zero_add] at this
+  simpa only [add_smul, add_assoc] using this
+
+end Gateaux
+
+/-! ### Pointwise limits of homogeneous polynomials (Bochnak–Siciak I, Theorem 2) -/
+
+section Limits
+
+variable {E : Type*} [AddCommGroup E] [Module ℂ E] [TopologicalSpace E] [IsTopologicalAddGroup E]
+  [ContinuousSMul ℂ E] {F : Type*} [AddCommGroup F] [Module ℂ F] [TopologicalSpace F]
+  [IsTopologicalAddGroup F] [ContinuousSMul ℂ F] [PolynormableSpace ℂ F] [T2Space F]
+
+/-- **Pointwise limits of continuous homogeneous polynomials** over a Baire space (compare
+Bochnak–Siciak I, Theorem 2): if continuous homogeneous polynomials `Q_N` of degree `k`
+converge pointwise to `P`, then `P` is a continuous homogeneous polynomial of degree `k`.
+The multilinear map of `P` is the pointwise limit of the polarizations; continuity of `P`
+follows from a uniform bound on a `0`-neighbourhood (Baire and
+`IsContHomPoly.seminorm_le_of_shift`) and the Cauchy estimates along lines
+(`seminorm_coeff_le_of_circle`). No completeness of `F` is needed. -/
+theorem isContHomPoly_of_tendsto [BaireSpace E] {k : ℕ} {Q : ℕ → E → F}
+    (hQ : ∀ N, IsContHomPoly ℂ k (Q N)) {P : E → F}
+    (hP : ∀ v, Tendsto (fun N ↦ Q N v) atTop (𝓝 (P v))) : IsContHomPoly ℂ k P := by
+  classical
+  -- the algebraic multilinear map
+  choose B hBsym hB using fun N ↦ (hQ N).exists_symm
+  set c : ℂ := ((2 ^ Fintype.card (Fin k) * (Fintype.card (Fin k)).factorial : ℕ) : ℂ)⁻¹
+  set Pol : (Fin k → E) → F := fun x ↦
+    c • ∑ ε : Fin k → ℤˣ, (∏ j, ε j) • P (∑ j, ε j • x j)
+  have hconvB : ∀ x, Tendsto (fun N ↦ B N x) atTop (𝓝 (Pol x)) := by
+    intro x
+    have e : ∀ N, B N x = c • ∑ ε : Fin k → ℤˣ, (∏ j, ε j) • Q N (∑ j, ε j • x j) := by
+      intro N
+      rw [← ContinuousMultilinearMap.coe_coe, MultilinearMap.eq_polarization (hBsym N) x]
+      congr 1
+      refine Finset.sum_congr rfl fun ε _ ↦ ?_
+      rw [hB N]
+      rfl
+    simp only [e, Pol]
+    exact (tendsto_finsetSum _ fun ε _ ↦ (hP _).const_smul _).const_smul _
+  let Atil : MultilinearMap ℂ (fun _ : Fin k ↦ E) F :=
+    { toFun := Pol
+      map_update_add' := fun m i x y ↦ by
+        refine tendsto_nhds_unique (hconvB _) ?_
+        refine ((hconvB (Function.update m i x)).add (hconvB (Function.update m i y))).congr
+          fun N ↦ ?_
+        exact ((B N).map_update_add m i x y).symm
+      map_update_smul' := fun m i a x ↦ by
+        refine tendsto_nhds_unique (hconvB _) ?_
+        refine ((hconvB (Function.update m i x)).const_smul a).congr fun N ↦ ?_
+        exact ((B N).map_update_smul m i a x).symm }
+  have hdiag : ∀ v, P v = Atil fun _ ↦ v := fun v ↦
+    tendsto_nhds_unique (hP v) ((hconvB fun _ ↦ v).congr fun N ↦ (hB N v).symm)
+  have hPhom : IsHomPoly k P := ⟨Atil, hdiag⟩
+  refine isContHomPoly_iff_continuous.2 ⟨?_, Atil, funext fun v ↦ hdiag v⟩
+  refine continuous_iff_continuousAt.2 fun x₀ ↦ tendsto_nhds_iff_seminorm.2 fun q hq ε hε ↦ ?_
+  -- Step 1: a uniform bound on a balanced `0`-neighbourhood
+  obtain ⟨W₀, hW₀, hW₀b, M, hM0, hM⟩ : ∃ W₀ ∈ 𝓝 (0 : E), Balanced ℂ W₀ ∧ ∃ M : ℝ, 0 ≤ M ∧
+      ∀ w ∈ W₀, q (P w) ≤ M := by
+    set S : ℕ → Set E := fun M ↦ {v | ∀ N, q (Q N v) ≤ M}
+    have hSc : ∀ M, IsClosed (S M) := fun M ↦ by
+      simp only [S, Set.ofPred_forall]
+      exact isClosed_iInter fun N ↦ isClosed_le (hq.comp (hQ N).continuous) continuous_const
+    have hSU : ⋃ M, S M = Set.univ := eq_univ_of_forall fun v ↦ by
+      obtain ⟨C, hC⟩ := ((hq.tendsto _).comp (hP v)).bddAbove_range
+      exact mem_iUnion.2 ⟨⌈C⌉₊, fun N ↦ (hC ⟨N, rfl⟩).trans (Nat.le_ceil C)⟩
+    obtain ⟨M, x₁, hx₁⟩ := nonempty_interior_of_iUnion_of_closed hSc hSU
+    have hV : {w : E | x₁ + w ∈ S M} ∈ 𝓝 (0 : E) := by
+      have h1 : Tendsto (fun w : E ↦ x₁ + w) (𝓝 0) (𝓝 x₁) := by
+        simpa using (tendsto_const_nhds (x := x₁)).add (tendsto_id (x := 𝓝 (0 : E)))
+      exact h1 (mem_interior_iff_mem_nhds.1 hx₁)
+    refine ⟨balancedCore ℂ _, balancedCore_mem_nhds_zero hV, balancedCore.balanced _, M,
+      Nat.cast_nonneg M, fun w hw ↦ ?_⟩
+    refine le_of_tendsto ((hq.tendsto _).comp (hP w)) (Eventually.of_forall fun N ↦ ?_)
+    exact (hQ N).seminorm_le_of_shift q (balancedCore.balanced _)
+      (fun v hv ↦ (balancedCore_subset _ hv : v ∈ {w : E | x₁ + w ∈ S M}) N) hw
+  -- Step 2: a smaller balanced neighbourhood and the size of `x₀`
+  obtain ⟨V, hV, hVV⟩ := exists_nhds_zero_half hW₀
+  set W₁ := balancedCore ℂ V
+  have hW₁ : W₁ ∈ 𝓝 (0 : E) := balancedCore_mem_nhds_zero hV
+  have hW₁b : Balanced ℂ W₁ := balancedCore.balanced _
+  have hW₁W₀ : ∀ a ∈ W₁, ∀ b ∈ W₁, a + b ∈ W₀ := fun a ha b hb ↦
+    hVV a (balancedCore_subset _ ha) b (balancedCore_subset _ hb)
+  obtain ⟨r, hr, hrW⟩ := (absorbent_nhds_zero (𝕜 := ℂ) hW₁ x₀).exists_pos
+  set μ : ℝ := max r 1
+  have hμ1 : 1 ≤ μ := le_max_right _ _
+  have hμ0 : 0 < μ := by linarith
+  obtain ⟨w₀, hw₀, hx₀⟩ := hrW (μ : ℂ) (by
+    rw [Complex.norm_real, Real.norm_of_nonneg hμ0.le]; exact le_max_left _ _) (mem_singleton x₀)
+  -- Step 3: the size of the neighbourhood of `x₀`
+  set L : ℝ := μ ^ k * M
+  have hL0 : 0 ≤ L := by positivity
+  set δ : ℝ := min (μ / 2) (ε * μ / (4 * (L + 1)))
+  have hδ0 : 0 < δ := lt_min (by positivity) (by positivity)
+  have hδμ : δ ≤ μ / 2 := min_le_left _ _
+  have hnhds : {x : E | x - x₀ ∈ (δ : ℂ) • W₁} ∈ 𝓝 x₀ := by
+    have h1 : (δ : ℂ) • W₁ ∈ 𝓝 (0 : E) :=
+      (set_smul_mem_nhds_zero_iff (by exact_mod_cast hδ0.ne')).2 hW₁
+    exact (continuous_sub_right x₀).continuousAt.preimage_mem_nhds (by simpa using h1)
+  filter_upwards [hnhds] with x hx
+  obtain ⟨w₁, hw₁, hxw⟩ := hx
+  -- Step 4: Cauchy estimates along the line `t ↦ x₀ + t (x - x₀)`
+  set h : E := x - x₀
+  set a : ℕ → F := fun j ↦ dirCoeff Atil x₀ j h
+  have hline : ∀ t : ℂ, P (x₀ + t • h) = ∑ j ∈ range (k + 1), t ^ j • a j := fun t ↦ by
+    rw [hdiag]; exact apply_add_smul_eq_sum Atil x₀ h t
+  set ρ : ℝ := μ / δ
+  have hρ : 0 < ρ := by positivity
+  have hcircle : ∀ t : ℂ, ‖t‖ = ρ → q (∑ j ∈ range (k + 1), t ^ j • a j) ≤ L := by
+    intro t ht
+    rw [← hline]
+    have hs : ‖t * δ / μ‖ = 1 := by
+      rw [norm_div, norm_mul, ht, Complex.norm_real, Complex.norm_real,
+        Real.norm_of_nonneg hδ0.le, Real.norm_of_nonneg hμ0.le]
+      simp only [ρ]; field_simp
+    have hmem : w₀ + (t * δ / μ) • w₁ ∈ W₀ :=
+      hW₁W₀ _ hw₀ _ (hW₁b.smul_mem hs.le hw₁)
+    have e : x₀ + t • h = (μ : ℂ) • (w₀ + (t * δ / μ) • w₁) := by
+      have hμc : (μ : ℂ) ≠ 0 := by exact_mod_cast hμ0.ne'
+      rw [smul_add, smul_smul, ← hx₀, ← hxw, smul_smul]
+      congr 2
+      field_simp
+    rw [e, hPhom.map_smul, map_smul_eq_mul, norm_pow, Complex.norm_real,
+      Real.norm_of_nonneg hμ0.le]
+    exact mul_le_mul_of_nonneg_left (hM _ hmem) (by positivity)
+  have hcoef : ∀ j ≤ k, q (a j) ≤ L / ρ ^ j := fun j hj ↦
+    seminorm_coeff_le_of_circle q a hρ hcircle hj
+  -- Step 5: the estimate
+  have hdiff : P x - P x₀ = ∑ j ∈ range k, a (j + 1) := by
+    have h1 := hline 1
+    have h0 := hline 0
+    simp only [one_smul, one_pow, zero_smul, add_zero] at h1 h0
+    rw [show x₀ + h = x by simp [h], Finset.sum_range_succ'] at h1
+    rw [Finset.sum_range_succ', Finset.sum_eq_zero (fun j _ ↦ by simp)] at h0
+    rw [h1, h0]
+    simp
+  set σ : ℝ := δ / μ
+  have hσ0 : 0 ≤ σ := by positivity
+  have hσ : σ ≤ 1 / 2 := by
+    simp only [σ]; rw [div_le_iff₀ hμ0]; linarith
+  have hσρ : ∀ j, L / ρ ^ (j + 1) = L * σ * σ ^ j := fun j ↦ by
+    simp only [ρ, σ, div_pow, pow_succ]; field_simp
+  calc q (P x - P x₀) = q (∑ j ∈ range k, a (j + 1)) := by rw [hdiff]
+    _ ≤ ∑ j ∈ range k, q (a (j + 1)) :=
+        Finset.le_sum_of_subadditive q (map_zero q).le (map_add_le_add q) _ _
+    _ ≤ ∑ j ∈ range k, L * σ * σ ^ j := Finset.sum_le_sum fun j hj ↦ by
+        rw [← hσρ]; exact hcoef (j + 1) (by have := Finset.mem_range.1 hj; omega)
+    _ = L * σ * ∑ j ∈ range k, σ ^ j := by rw [Finset.mul_sum]
+    _ ≤ L * σ * 2 := by
+        gcongr
+        have := geom_sum_Ico_le_of_lt_one (m := 0) (n := k) hσ0 (by linarith)
+        rw [← Finset.range_eq_Ico, pow_zero] at this
+        calc ∑ j ∈ range k, σ ^ j ≤ 1 / (1 - σ) := this
+          _ ≤ 2 := by rw [div_le_iff₀ (by linarith)]; linarith
+    _ < ε := by
+        have h1 : σ ≤ ε / (4 * (L + 1)) := by
+          simp only [σ]
+          rw [div_le_iff₀ hμ0]
+          calc δ ≤ ε * μ / (4 * (L + 1)) := min_le_right _ _
+            _ = ε / (4 * (L + 1)) * μ := by ring
+        calc L * σ * 2 ≤ L * (ε / (4 * (L + 1))) * 2 := by gcongr
+          _ < ε := by
+              rw [mul_div_assoc', div_mul_eq_mul_div, div_lt_iff₀ (by positivity)]
+              nlinarith
+
+end Limits
+
+/-! ### Bochnak–Siciak, Theorem 5.2 -/
+
+section Theorem52
+
+variable {E : Type*} [AddCommGroup E] [Module ℂ E] [TopologicalSpace E] [IsTopologicalAddGroup E]
+  [ContinuousSMul ℂ E] {F : Type*} [AddCommGroup F] [Module ℂ F] [TopologicalSpace F]
+  [IsTopologicalAddGroup F] [ContinuousSMul ℂ F] [PolynormableSpace ℂ F] [T2Space F]
+  (A : ∀ n, ContinuousMultilinearMap ℂ (fun _ : Fin n ↦ E) F) {H : Set E}
+
+omit [ContinuousSMul ℂ F] in
+/-- The coefficients along a line through a point of `H` are summable. -/
+theorem hasSum_dirCoeff (hF : SeriesComplete F) (hH : IsOpen H)
+    (hconv : ∀ a ∈ H, ∃ y, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 y))
+    {x : E} (hx : x ∈ H) (y : E) (k : ℕ) :
+    HasSum (fun n ↦ dirCoeff (A n).toMultilinearMap x k y)
+      (∑' n, dirCoeff (A n).toMultilinearMap x k y) := by
+  have hΩ : IsOpen {z : ℂ | x + z • y ∈ H} :=
+    hH.preimage (continuous_const.add (continuous_id.smul continuous_const))
+  obtain ⟨ε, hε, hball⟩ := Metric.isOpen_iff.1 hΩ 0 (by simpa using hx)
+  have hsub : ∀ z ∈ closedBall (0 : ℂ) (ε / 2), x + z • y ∈ H := fun z hz ↦
+    hball (closedBall_subset_ball (by linarith) hz)
+  obtain ⟨s, hs⟩ := hF (fun n ↦ dirCoeff (A n).toMultilinearMap x k y) fun q hq ↦ by
+    obtain ⟨θ, hθ0, hθ1, C, hC0, hC⟩ :=
+      exists_dirCoeff_bound A hH hconv (half_pos hε) hsub hq
+    refine Summable.of_nonneg_of_le (fun n ↦ apply_nonneg q _) (fun n ↦ hC n k) ?_
+    simp_rw [mul_div_right_comm]
+    exact (summable_geometric_of_lt_one hθ0 hθ1).mul_left _
+  rwa [hs.tsum_eq]
+
+/-- **Continuity of the sum** (Bochnak–Siciak II, proof of Theorem 5.2): over a Baire space,
+the sum of a series of continuous homogeneous polynomials converging on an open set `H` is
+continuous on `H`, if `F` is series complete. At `x ∈ H`, the Taylor coefficients
+`h ↦ ∑ₙ dirCoeff (Aₙ) x k h` are continuous homogeneous polynomials
+(`isContHomPoly_of_tendsto`), their series converges to `f (x + h)` near `h = 0`
+(`hasPowerSeriesOnDisc_of_closedBall`), and `continuousAt_zero_of_tendsto_sum` applies. -/
+theorem continuousOn_of_tendsto [BaireSpace E] (hF : SeriesComplete F) (hH : IsOpen H)
+    {f : E → F} (hf : ∀ a ∈ H, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 (f a))) :
+    ContinuousOn f H := by
+  have hconv : ∀ a ∈ H, ∃ y, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 y) :=
+    fun a ha ↦ ⟨f a, hf a ha⟩
+  intro x hx
+  set T : ℕ → E → F := fun k h ↦ ∑' n, dirCoeff (A n).toMultilinearMap x k h
+  -- the Taylor coefficients at `x` are continuous homogeneous polynomials
+  have hT : ∀ k, IsContHomPoly ℂ k (T k) := by
+    intro k
+    refine isContHomPoly_of_tendsto (Q := fun N h ↦ ∑ n ∈ range N,
+      dirCoeff (A n).toMultilinearMap x k h) (fun N ↦ ?_)
+      fun h ↦ (hasSum_dirCoeff A hF hH hconv hx h k).tendsto_sum_nat
+    have e : (fun h ↦ ∑ n ∈ range N, dirCoeff (A n).toMultilinearMap x k h) =
+        ∑ n ∈ range N, dirCoeff (A n).toMultilinearMap x k := by
+      ext h; simp [Finset.sum_apply]
+    obtain ⟨B, hB⟩ := IsHomPoly.sum (range N) fun n _ ↦ isHomPoly_dirCoeff
+      (A n).toMultilinearMap x k
+    refine isContHomPoly_iff_continuous.2 ⟨continuous_finsetSum _ fun n _ ↦
+      continuous_dirCoeff (A n) x k, B, ?_⟩
+    rw [e]
+    exact funext hB
+  -- the Taylor series at `x` converges near `0`
+  have hV : {h : E | x + h ∈ H} ∈ 𝓝 (0 : E) :=
+    (continuous_const.add continuous_id).continuousAt.preimage_mem_nhds
+      (by simpa using hH.mem_nhds hx)
+  set W := balancedCore ℂ {h : E | x + h ∈ H}
+  have hW : W ∈ 𝓝 (0 : E) := balancedCore_mem_nhds_zero hV
+  have hU : (1 / 2 : ℂ) • W ∈ 𝓝 (0 : E) :=
+    (set_smul_mem_nhds_zero_iff (by norm_num)).2 hW
+  have hexp : ∀ h ∈ (1 / 2 : ℂ) • W,
+      Tendsto (fun K ↦ ∑ k ∈ range K, T k h) atTop (𝓝 (f (x + h))) := by
+    rintro _ ⟨w, hw, rfl⟩
+    have hsub : ∀ z ∈ closedBall (0 : ℂ) 2, x + z • ((1 / 2 : ℂ) • w) ∈ H := by
+      intro z hz
+      rw [mem_closedBall, dist_zero_right] at hz
+      have : (z * (1 / 2)) • w ∈ W := (balancedCore.balanced _).smul_mem
+        (by rw [norm_mul]; norm_num; linarith) hw
+      rw [smul_smul]
+      exact (balancedCore_subset _ this : (z * (1 / 2)) • w ∈ {h : E | x + h ∈ H})
+    have hps := hasPowerSeriesOnDisc_of_closedBall A hF hH hf (by norm_num) hsub 1 (by norm_num)
+    simp only [one_pow, one_smul, zero_add] at hps
+    exact hps.tendsto_sum_nat
+  have hc := continuousAt_zero_of_tendsto_sum hT hU (f := fun h ↦ f (x + h)) hexp
+  have := hc.comp_of_eq (continuous_sub_right x).continuousAt (sub_self x)
+  simpa [Function.comp_def] using this.continuousWithinAt
+
+/-- Complete locally convex spaces are series complete. -/
+theorem seriesComplete_of_completeSpace {G : Type*} [AddCommGroup G] [Module ℂ G]
+    [UniformSpace G] [IsUniformAddGroup G] [CompleteSpace G] [PolynormableSpace ℂ G] :
+    SeriesComplete G := by
+  intro v hv
+  refine ⟨_, (summable_iff_vanishing.2 fun e he ↦ ?_).hasSum⟩
+  obtain ⟨s, r, hr, hsub⟩ := ((PolynormableSpace.withSeminorms ℂ G).mem_nhds_iff 0 e).1 he
+  set p : {p : Seminorm ℂ G // Continuous p} → Seminorm ℂ G := fun p ↦ p.1
+  have hg : Summable fun k ↦ ∑ i ∈ s, p i (v k) := summable_sum fun i _ ↦ hv (p i) i.2
+  obtain ⟨u, hu⟩ := hg.vanishing (Iio_mem_nhds hr)
+  refine ⟨u, fun t ht ↦ hsub ?_⟩
+  rw [Seminorm.mem_ball, sub_zero]
+  have h1 : (s.sup p) (∑ k ∈ t, v k) ≤ ∑ i ∈ s, p i (∑ k ∈ t, v k) := by
+    have := Seminorm.finset_sup_le_sum p s (∑ k ∈ t, v k)
+    simpa using this
+  have h2 : ∑ i ∈ s, p i (∑ k ∈ t, v k) ≤ ∑ k ∈ t, ∑ i ∈ s, p i (v k) := by
+    rw [Finset.sum_comm]
+    exact Finset.sum_le_sum fun i _ ↦
+      Finset.le_sum_of_subadditive (p i) (map_zero _).le (map_add_le_add _) _ _
+  exact (h1.trans h2).trans_lt (hu t ht)
+
+end Theorem52
+
+/-! ### The main theorem -/
+
+section Main
+
+variable {E : Type*} [AddCommGroup E] [Module ℝ E] [Module ℂ E] [IsScalarTower ℝ ℂ E]
+  [TopologicalSpace E] [IsTopologicalAddGroup E] [ContinuousSMul ℂ E] [LocallyConvexSpace ℝ E]
+  [T2Space E] {F : Type*} [AddCommGroup F] [Module ℝ F] [Module ℂ F] [IsScalarTower ℝ ℂ F]
+  [TopologicalSpace F] [IsTopologicalAddGroup F] [ContinuousSMul ℂ F] [LocallyConvexSpace ℝ F]
+  [T2Space F]
+
+attribute [local instance] polynormableSpace_complex
+
+/-- **Bochnak–Siciak II, Theorem 5.2** (complex case). Let `E` be a complex locally convex
+**Baire** space and `F` a series complete complex locally convex space (e.g. a complete one,
+`seriesComplete_of_completeSpace`). If a series `∑ pₙ` of continuous homogeneous polynomials
+converges on an open set `H ⊆ E`, then its sum is complex analytic on `H`.
+
+Both hypotheses are needed: `not_continuousAt_bsSum` (with `E` not Baire) and
+`not_cAnalyticOn_geomFun` (with `F` incomplete, already for `E = ℂ`). Bochnak and Siciak assume
+`F` sequentially complete. The proof replaces their potential-theoretic polynomial lemma by
+Hartogs' lemma (`hartogs_lemma`), proved from Jensen's formula. -/
+theorem complexAnalyticOn_of_tendsto_sum [BaireSpace E] (hF : SeriesComplete F)
+    {p : ℕ → E → F} (hp : ∀ n, IsContHomPoly ℂ n (p n)) {H : Set E} (hH : IsOpen H)
+    {f : E → F} (hf : ∀ x ∈ H, Tendsto (fun N ↦ ∑ n ∈ range N, p n x) atTop (𝓝 (f x))) :
+    ComplexAnalyticOn f H := by
+  choose A hA using hp
+  have hf' : ∀ a ∈ H, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 (f a)) :=
+    fun a ha ↦ by simpa only [hA] using hf a ha
+  exact (complexAnalyticOn_iff_gateauxAnalyticOn hH).2
+    ⟨continuousOn_of_tendsto A hF hH hf', gateauxAnalyticOn_of_tendsto A hF hH hf'⟩
+
+end Main
 
 end LCAnalysis

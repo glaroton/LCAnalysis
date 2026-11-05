@@ -338,11 +338,91 @@ $F$ sequentially complete; the results below use no completeness of $F$.
   since $\sum_n n 2^{1-n} e_n \notin F$. A disc of convergence need not be a disc of analyticity.
 \end{remark}
 
-Bochnak and Siciak's Theorem~5.2 \cite{BS71b} states that over a Baire space the sum is analytic
-on the whole open set where the series converges. Its proof propagates the bounds of
-Proposition~\ref{prop:bs-baire} from $0$ to the other points through Siciak's polynomial lemma
-\cite[\S4, Prop.~4.1]{BS71b}, which uses potential theory in $\mathbb{C}$ (Siciak's extremal
-function, Fekete points); it is not formalized yet.
+\begin{lemma}[Hartogs' lemma]
+  \label{lem:hartogs}
+  \lean{LCAnalysis.posLog_le_circleAverage, LCAnalysis.ofReal_le_lintegral_ball,
+    LCAnalysis.hartogs_lemma}
+  \leanok
+  Let $g_n \colon \mathbb{C} \to F$ be continuous with $\ell \circ g_n$ entire for every
+  continuous functional $\ell$, and $q$ a continuous seminorm. If $q(g_n) \le e^{nB}$ on a closed
+  disc $\bar D(z_0, R)$ and $(q(g_n(z)))_n$ is bounded at every point of the disc, then for every
+  $\varepsilon > 0$ we have $q(g_n) \le e^{n\varepsilon}$ on $\bar D(z_0, R/2)$ for $n$ large.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  The functions $v_n = n^{-1} \log^+ q(g_n)$ satisfy the sub-mean value inequality on circles:
+  by Hahn--Banach $q(g_n(z)) = |\ell(g_n(z))|$ for a functional $\ell \le q$, and Jensen's formula
+  gives $\log |\ell g_n(z)| \le$ the circle average of $\log |\ell \circ g_n|$. Integrating in
+  polar coordinates, $\pi s^2 v_n(z) \le \int_{B(z,s)} v_n \le \int_{B(z_0,R)} v_n$ for
+  $|z - z_0| \le s = R/2$. Since $0 \le v_n \le B$ and $v_n \to 0$ pointwise, dominated
+  convergence makes the right-hand side small.
+\end{proof}
+
+Bochnak and Siciak use instead Siciak's polynomial lemma \cite[\S4]{BS71b}, which rests on
+potential theory (Siciak's extremal function, Fekete points); only lines are needed here.
+
+\begin{proposition}[Bounds along lines {\cite[Prop.~4.1]{BS71b}}]
+  \label{prop:bs-lines}
+  \lean{LCAnalysis.exists_line_geometric_bound, LCAnalysis.exists_compact_geometric_bound}
+  \leanok
+  \uses{lem:hartogs, lem:hom-poly-shift}
+  If $\sum_n p_n$ converges pointwise on an open set $H$, then for every continuous seminorm $q$
+  and every compact set $K \subseteq \mathbb{C}$ with $x + K y \subseteq H$ there are
+  $\theta < 1$ and $C$ with $q(p_n(x + z y)) \le C \theta^n$ for $z \in K$.
+\end{proposition}
+
+\begin{proof}
+  \leanok
+  Near $z_0$, choose $\lambda > 1$ with $\lambda(x + z y) \in H$ on a disc. Then
+  $g_n(z) = p_n(\lambda(x + zy))$ is pointwise bounded; Baire's theorem in $\mathbb{C}$ gives a
+  small disc where it is uniformly bounded, and the Cauchy estimates for polynomials (by discrete
+  Fourier inversion over roots of unity) give the Bernstein--Walsh bound
+  $q(g_n) \le e^{nB}$ on the whole disc. Hartogs' lemma with $\varepsilon < \log \lambda$ gives
+  $q(p_n(x + zy)) = \lambda^{-n} q(g_n(z)) \le (e^{\varepsilon}/\lambda)^n$. Cover $K$ by
+  finitely many discs.
+\end{proof}
+
+\begin{theorem}[Pointwise limits of polynomials {\cite[Thm.~2]{BS71a}}]
+  \label{thm:bs-limits}
+  \lean{LCAnalysis.isContHomPoly_of_tendsto}
+  \leanok
+  \uses{lem:hom-poly-shift}
+  Over a Baire space, a pointwise limit of continuous homogeneous polynomials of degree $k$ is a
+  continuous homogeneous polynomial of degree $k$. No completeness of $F$ is needed.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  The multilinear map is the limit of the polarizations. By Baire and
+  Lemma~\ref{lem:hom-poly-shift} the limit $P$ is bounded on a balanced $0$-neighbourhood; the
+  Cauchy estimates for $t \mapsto P(x_0 + t h)$ then give continuity at every $x_0$.
+\end{proof}
+
+\begin{theorem}[Bochnak--Siciak {\cite[Thms.~5.1, 5.2]{BS71b}}]
+  \label{thm:bs-52}
+  \lean{LCAnalysis.complexAnalyticOn_of_tendsto_sum, LCAnalysis.gateauxAnalyticOn_of_tendsto,
+    LCAnalysis.continuousOn_of_tendsto, LCAnalysis.seriesComplete_of_completeSpace}
+  \leanok
+  \uses{prop:bs-lines, thm:bs-limits, prop:bs-baire, thm:complex-analytic-iff}
+  Let $E$ be a complex locally convex Baire space and $F$ a complex locally convex space in which
+  every series that is absolutely summable for each continuous seminorm converges (for instance a
+  complete one). If a series $\sum_n p_n$ of continuous homogeneous polynomials converges on an
+  open set $H$, then its sum is complex analytic on $H$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  By Proposition~\ref{prop:bs-lines} the series converges locally uniformly with geometric rate
+  on every complex line, so the sum is Gâteaux analytic, with Taylor coefficients
+  $T_k(h) = \sum_n (\text{coefficient of } t^k \text{ in } p_n(x + th))$, which lie in $F$ by the
+  completeness hypothesis. By Theorem~\ref{thm:bs-limits} each $T_k$ is a continuous homogeneous
+  polynomial, and $f(x + h) = \sum_k T_k(h)$ near $h = 0$, so $f$ is continuous at $x$ by
+  Proposition~\ref{prop:bs-baire}. Theorem~\ref{thm:complex-analytic-iff} concludes.
+\end{proof}
+
+Both hypotheses are needed (Remark~\ref{rem:bs-counterexamples}). The real case
+\cite[Prop.~5.4, Thm.~5.2]{BS71b} is not formalized yet.
 
 \section{Comparison with Mathlib on Banach spaces}
 
