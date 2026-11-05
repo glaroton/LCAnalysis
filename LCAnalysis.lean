@@ -17,3 +17,4 @@ import LCAnalysis.Polynomial
 import LCAnalysis.ComplexOneVariable
 import LCAnalysis.ComplexAnalytic
 import LCAnalysis.RealAnalytic
+import LCAnalysis.HomogeneousSeries

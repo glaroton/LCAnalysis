@@ -281,6 +281,69 @@ Continuous linear maps and constants are real analytic. The identity theorems
   theory of analytic manifolds and Lie groups uses Milnor's definition.
 \end{remark}
 
+\section{Series of homogeneous polynomials}
+
+Where does the sum of a series $\sum_n p_n$ of continuous homogeneous polynomials, converging
+pointwise on an open set, define an analytic map? Bochnak and Siciak \cite[\S5]{BS71b} assume
+$F$ sequentially complete; the results below use no completeness of $F$.
+
+\begin{lemma}[Moving the centre of a bound]
+  \label{lem:hom-poly-shift}
+  \lean{LCAnalysis.IsContHomPoly.seminorm_le_of_shift}
+  \leanok
+  \uses{def:hom-poly}
+  Let $p$ be a continuous homogeneous polynomial of degree $n$ between complex vector spaces,
+  $q$ a seminorm on $F$ and $W \subseteq E$ balanced. If $q(p(c + w)) \le M$ for $w \in W$, then
+  $q(p(w)) \le M$ for $w \in W$.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  With $\omega = e^{2\pi i/(n+1)}$, expanding the symmetric $n$-linear map gives
+  $\sum_{j \le n} p(\omega^j c + w) = (n+1)\, p(w)$, and
+  $p(\omega^j c + w) = \omega^{jn} p(c + \omega^{-j} w)$ with $\omega^{-j} w \in W$. Over
+  $\mathbb{R}$ or $\mathbb{C}$, \cite[Lemma~2 (ii)]{BS71a} gives the bound on $(2e)^{-1} W$.
+\end{proof}
+
+\begin{proposition}[Normal convergence at zero {\cite[Prop.~5.2]{BS71b}}]
+  \label{prop:bs-baire}
+  \lean{LCAnalysis.exists_nhds_geometric_bound, LCAnalysis.continuousAt_zero_of_tendsto_sum}
+  \leanok
+  \uses{lem:hom-poly-shift}
+  Let $E$ be a complex Baire space and $p_n$ continuous homogeneous polynomials of degree $n$
+  such that $\sum_n p_n(a)$ converges for $a$ in an absorbing set. For every continuous
+  seminorm $q$ on $F$ and every $\theta > 0$ there are a $0$-neighbourhood $W$ and $C$ with
+  $q(p_n(w)) \le C \theta^n$ for all $n$ and $w \in W$. If the series converges on a
+  $0$-neighbourhood, its sum is continuous at $0$.
+\end{proposition}
+
+\begin{proof}
+  \leanok
+  The closed sets $\{x : q(p_n(x)) \le N k^n \text{ for all } n\}$ cover $E$, so one of them has
+  an interior point $x_0$; Lemma~\ref{lem:hom-poly-shift} moves the bound from $x_0 + B$ to
+  the balanced core $B$, and homogeneity rescales it. Continuity at $0$ follows from the
+  geometric tail estimate and the continuity of the partial sums.
+\end{proof}
+
+\begin{remark}[Counterexamples]
+  \label{rem:bs-counterexamples}
+  \lean{LCAnalysis.not_continuousAt_bsSum, LCAnalysis.not_baireSpace_finSeq,
+    LCAnalysis.hasPowerSeriesOnDisc_geomFun, LCAnalysis.not_cAnalyticOn_geomFun}
+  \leanok
+  \emph{$E$ not Baire} \cite[Counterexample~5.1]{BS71b}: on the finitely supported sequences
+  with the norm of $\ell^2$, $\sum_n (n x_n)^n$ converges everywhere, but its sum is not
+  continuous at $0$. \emph{$F$ not complete, one variable}: in
+  $F = \operatorname{span}\{e_n, (z^n)_n : |z| < 1\} \subseteq \ell^2$, the power series
+  $\sum_n z^n e_n$ converges on the unit disc, but its sum has no complex derivative at $1/2$,
+  since $\sum_n n 2^{1-n} e_n \notin F$. A disc of convergence need not be a disc of analyticity.
+\end{remark}
+
+Bochnak and Siciak's Theorem~5.2 \cite{BS71b} states that over a Baire space the sum is analytic
+on the whole open set where the series converges. Its proof propagates the bounds of
+Proposition~\ref{prop:bs-baire} from $0$ to the other points through Siciak's polynomial lemma
+\cite[\S4, Prop.~4.1]{BS71b}, which uses potential theory in $\mathbb{C}$ (Siciak's extremal
+function, Fekete points); it is not formalized yet.
+
 \section{Comparison with Mathlib on Banach spaces}
 
 On Banach spaces, Mathlib's \texttt{AnalyticOnNhd} (convergent power series in norm) should be
