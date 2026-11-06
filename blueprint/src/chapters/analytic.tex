@@ -269,8 +269,34 @@ property.
   spaces $\bar E$, $\bar F$.
 \end{proof}
 
-Continuous linear maps and constants are real analytic. The analyticity of inversion in
-continuous inverse algebras \cite[Prop.~2.2.13]{GN26} is not formalized yet.
+Continuous linear maps and constants are real analytic.
+
+\begin{theorem}[Inversion in continuous inverse algebras {\cite[Cor.~1.3.8, Ex.~2.1.15, Lemmas~2.2.14, 2.2.17, Prop.~2.2.13]{GN26}}]
+  \label{thm:cia-inversion}
+  \lean{LCAnalysis.ContinuousInverseAlgebra, LCAnalysis.NormedRing.continuousInverseAlgebra,
+    LCAnalysis.hasDirDerivAt_inverse, LCAnalysis.smoothMBOn_inverse,
+    LCAnalysis.complexAnalyticOn_inverse, LCAnalysis.isOpen_units_of_mem_nhds_one,
+    LCAnalysis.continuousOn_inverse_of_continuousAt_one,
+    LCAnalysis.Complexification.continuousInverseAlgebra, LCAnalysis.realAnalyticOn_inverse}
+  \leanok
+  \uses{def:real-analytic, thm:complex-analytic-iff}
+  Let $A$ be a continuous inverse algebra: a unital locally convex algebra whose unit group $A^\times$
+  is open, with inversion $\iota$ continuous on it (complete normed algebras are examples). Then
+  $\iota$ is smooth with $\dd\iota(x, h) = -x^{-1} h x^{-1}$; it is complex analytic if $A$ is
+  complex, and real analytic if $A$ is real. No completeness is assumed.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  From $\iota(x + th) - \iota(x) = -t\, \iota(x + th) h \iota(x)$ we get the derivative, and
+  $\dd\iota(x, h) = -\iota(x) h \iota(x)$ is $C^k$ when $\iota$ is (product rule), so $\iota$ is smooth.
+  In the complex case $\dd\iota(x, \cdot)$ is complex linear, hence $\iota$ is complex analytic by
+  Theorem~\ref{thm:complex-analytic-iff}. For real $A$, the complexification $A_{\mathbb{C}}$ with
+  $(x_1 + iy_1)(x_2 + iy_2) = (x_1x_2 - y_1y_2) + i(x_1y_2 + y_1x_2)$ is a complex continuous
+  inverse algebra: near $1$, $(a + ib)^{-1} = (1 + c^2)^{-1}(1 - ic)a^{-1}$ with $c = a^{-1}b$
+  depends continuously on $(a, b)$, and units forming a neighbourhood of $1$, with inversion
+  continuous at $1$, suffice by translation. Inversion in $A_{\mathbb{C}}$ extends $\iota$.
+\end{proof}
 
 \begin{theorem}[Identity theorems {\cite[Thms.~2.1.16, 2.2.8]{GN26}}]
   \label{thm:identity}

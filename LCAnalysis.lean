@@ -25,3 +25,4 @@ import LCAnalysis.Hartogs
 import LCAnalysis.SeparateAnalyticity
 import LCAnalysis.Zorn
 import LCAnalysis.Identity
+import LCAnalysis.InverseAlgebra
