@@ -269,9 +269,51 @@ property.
   spaces $\bar E$, $\bar F$.
 \end{proof}
 
-Continuous linear maps and constants are real analytic. The identity theorems
-\cite[Thms.~2.1.16, 2.2.8]{GN26} and the analyticity of inversion in continuous inverse algebras
-\cite[Prop.~2.2.13]{GN26} are not formalized yet.
+Continuous linear maps and constants are real analytic. The analyticity of inversion in
+continuous inverse algebras \cite[Prop.~2.2.13]{GN26} is not formalized yet.
+
+\begin{theorem}[Identity theorems {\cite[Thms.~2.1.16, 2.2.8]{GN26}}]
+  \label{thm:identity}
+  \lean{LCAnalysis.eqOn_of_hasLocalTaylor, LCAnalysis.ComplexAnalyticOn.eqOn_of_iteratedDMB,
+    LCAnalysis.ComplexAnalyticOn.eqOn_of_eqOn_open, LCAnalysis.ComplexAnalyticOn.eqOn_of_eqOn_real,
+    LCAnalysis.RealAnalyticOn.eqOn_of_iteratedDMB, LCAnalysis.RealAnalyticOn.eqOn_of_eqOn_open,
+    LCAnalysis.ComplexAnalyticOn.eqOn_of_eqOn_ofReal}
+  \leanok
+  \uses{thm:complex-analytic-iff, thm:real-analytic-basic}
+  Let $U$ be open and connected, and $f$, $g$ complex (resp.\ real) analytic on $U$. Then $f = g$
+  if (a) they agree on a nonempty open subset, or (b) $\dd^{(n)} f(x, y, \dots, y) =
+  \dd^{(n)} g(x, y, \dots, y)$ for all $n$, $y$ and some $x \in U$, or, in the complex case,
+  (c) they agree on $(x + H) \cap U$ for a real subspace $H$ with $H + iH = E$. In particular, two
+  complex analytic maps on a connected open subset of $E_{\mathbb{C}}$ which agree at its real
+  points agree. No completeness is needed.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  The set of points near which $f = g$ is open; it contains $x$ under (b), by the Taylor
+  expansions (Theorems~\ref{thm:complex-analytic-iff} and~\ref{thm:real-analytic-basic}); it is
+  relatively closed in $U$, since the differentials are continuous and vanish on it. Glöckner and
+  Neeb treat the real case through a complex extension; the real Taylor expansion suffices.
+  (a) implies (b). Under (c), for $y \in H$ the functions $z \mapsto \ell(f(x + zy))$ and
+  $\ell(g(x + zy))$ agree on a real interval, hence near $0$ by the one variable identity theorem,
+  so the differentials agree on the diagonal of $H^n$; real polarization and complex
+  multilinearity give (b).
+\end{proof}
+
+\begin{proposition}[Complex extensions with values in a complex space {\cite[Prop.~2.2.12]{GN26}}]
+  \label{prop:complex-target}
+  \lean{LCAnalysis.complexifyFold, LCAnalysis.RealAnalyticOn.exists_complexAnalytic_extension}
+  \leanok
+  \uses{def:real-analytic}
+  A real analytic map $f \colon U \to F$ into a complex locally convex space extends to a complex
+  analytic map $V \to F$ on an open set $V \subseteq E_{\mathbb{C}}$ containing $U$.
+\end{proposition}
+
+\begin{proof}
+  \leanok
+  Compose an extension $V \to F_{\mathbb{C}}$ with the complex linear map
+  $F_{\mathbb{C}} \to F$, $v + iw \mapsto v + iw$.
+\end{proof}
 
 \begin{remark}[Two notions of real analyticity]
   Real analytic maps are BS analytic (Theorem~\ref{thm:real-analytic-basic}). The converse holds

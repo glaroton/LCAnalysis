@@ -60,9 +60,9 @@ As in `LCAnalysis.ComplexAnalytic`, **no completeness** of the spaces is assumed
   is complex analyticity.
 * The converse of `RealAnalyticOn.bsAnalyticOn` (GN Remark 2.2.7, Bochnak–Siciak Theorem 7.1)
   is `realAnalyticOn_of_bsAnalyticOn` in `LCAnalysis.RealSeries`.
-* Not formalized yet: the identity theorems (GN Theorems 2.1.16 and 2.2.8), complex analytic
-  extensions with values in a complex space (GN Proposition 2.2.12), and inversion in continuous
-  inverse algebras (GN Proposition 2.2.13).
+* The identity theorems (GN Theorems 2.1.16 and 2.2.8) and complex analytic extensions with
+  values in a complex space (GN Proposition 2.2.12) are in `LCAnalysis.Identity`.
+* Not formalized yet: inversion in continuous inverse algebras (GN Proposition 2.2.13).
 -/
 
 open Set Filter Function
