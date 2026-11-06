@@ -27,9 +27,8 @@ North-Holland Math. Studies 120 (1986), Theorems 36.5 and 36.8, for Banach space
 * Mujica removes the local boundedness assumption for Banach spaces: Baire's theorem gives
   boundedness on a product of open sets (his Lemma 36.2), and his Theorem 36.5 propagates local
   boundedness of a Gâteaux holomorphic map over a connected domain, through Cauchy–Hadamard and
-  another use of Baire's theorem (his Proposition 36.7). In the locally convex setting this needs
-  a version of the Baire arguments of `LCAnalysis.HomogeneousSeries` for one seminorm at a time;
-  it is not formalized here.
+  another use of Baire's theorem (his Proposition 36.7). The locally convex version, one seminorm
+  at a time, is in `LCAnalysis.Zorn` (`complexAnalyticOn_of_separately_prod`).
 -/
 
 open Set Filter Function Metric

@@ -728,11 +728,57 @@ completeness is needed there; continuity needs none.
   Theorem~\ref{thm:hartogs-joint}, and $f(p + z(u, v))$ is its restriction to the diagonal.
 \end{proof}
 
-Mujica removes local boundedness for Banach spaces: Baire's theorem gives boundedness on a
-product of open sets \cite[Lemma~36.2]{Muj86}, and \cite[Thm.~36.5]{Muj86} propagates local
-boundedness of a Gâteaux holomorphic map over a connected domain, with another use of Baire's
-theorem \cite[Prop.~36.7]{Muj86}. In the locally convex setting this requires the Baire arguments
-of the previous sections for one seminorm at a time; it is not formalized yet.
+\begin{theorem}[Zorn's theorem for one seminorm {\cite[Lemma~36.6, Prop.~36.7, Thm.~36.5]{Muj86}}]
+  \label{thm:zorn}
+  \lean{LCAnalysis.taylorCoeff_smul, LCAnalysis.planeFun_line_identity,
+    LCAnalysis.planeFun_hasSum_shift, LCAnalysis.seminorm_taylorCoeff_sub_le,
+    LCAnalysis.qCont_taylorCoeff, LCAnalysis.seminorm_taylorCoeff_le_of_shift,
+    LCAnalysis.exists_nhds_seminorm_bound, LCAnalysis.exists_taylorCoeff_ball_bound,
+    LCAnalysis.exists_nhds_seminorm_bound_of_near}
+  \leanok
+  \uses{thm:hartogs-separate, lem:weak-seminorm}
+  Let $E$ be a Baire space, $f$ Gâteaux analytic on $U$, $q$ a continuous seminorm on $F$, and
+  let the $N$-ball of radius $8\rho$ about $c$ lie in $U$. If $q \circ f$ is bounded near $c - e$
+  with $N(e) < \rho/16$, then it is bounded near $c$. No completeness of $F$ is needed.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Let $T_y(k, h)$ be the coefficient of $\lambda^k$ in $f(y + \lambda h)$. On each complex plane,
+  $f$ is continuous (Theorem~\ref{thm:hartogs-separate}), so by Osgood's lemma
+  $\lambda \mapsto \ell(T_y(m, h + \lambda v))$ is a polynomial of degree $\le m$ whose coefficients
+  are the double Taylor coefficients $c_{ab}$ of $(\zeta, \sigma) \mapsto \ell f(y + \zeta h + \sigma v)$,
+  and $\ell(T_{y+h}(k, v)) = \sum_b c_{kb}$. Hence: if $T_y(m, \cdot)$ is $q$-bounded on a ball, it is
+  $q$-continuous (its coefficients along planes are bounded); and a bound on $t_0 + V$ passes to
+  $V$ by averaging over roots of unity (shift lemma). With $x = c - e$: the $T_x(m, \cdot)$ are
+  $q$-bounded on a ball by the Cauchy estimates, hence $q$-continuous. The maps
+  $Q_m(t) = (m+1)^{-1} \sum_j \omega^{j(m+1-k)} T_x(m, e + \omega^j t)$, $\omega = e^{2\pi i/(m+1)}$,
+  satisfy $\ell(Q_m(t)) = c_{k, m-k}$, so their partial sums are $q$-continuous, pointwise
+  bounded, and converge weakly to $T_c(k, t)$. Baire's theorem and the shift lemma bound each
+  $T_c(k, \cdot)$ on a ball, so they are $q$-continuous. A second application of Baire's
+  theorem to $(2^k T_c(k, \cdot))_k$ and the shift lemma give $q(T_c(k, v)) \le n 2^{-k}$ near $0$,
+  hence $q(f(c + v)) \le 2n$.
+\end{proof}
+
+\begin{theorem}[Hartogs' theorem on products {\cite[Lemma~36.2, Thm.~36.8]{Muj86}}]
+  \label{thm:hartogs-products}
+  \lean{LCAnalysis.exists_near_seminorm_bound, LCAnalysis.locallyBoundedOn_of_separately,
+    LCAnalysis.complexAnalyticOn_of_separately_prod}
+  \leanok
+  \uses{thm:zorn, thm:separate-products}
+  Let $E_1$ and $E_1 \times E_2$ be Baire spaces, $E_2$ first countable (e.g.\ Fréchet spaces), and
+  $F$ Mackey complete. A separately complex analytic map on an open subset of $E_1 \times E_2$ is
+  complex analytic.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Fix $(a, b)$ and $q$. With a countable decreasing basis $(V_n)$ at $b$, the closed sets
+  $\{x : q(f(x, y)) \le n \text{ for } y \in V_n\}$ cover a neighbourhood of $a$, so by Baire's
+  theorem $q \circ f$ is bounded near some $(x', b)$ with $x'$ as close to $a$ as needed.
+  Theorem~\ref{thm:zorn} gives a bound near $(a, b)$, and Theorem~\ref{thm:separate-products}
+  concludes.
+\end{proof}
 
 \section{Comparison with Mathlib on Banach spaces}
 
