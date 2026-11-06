@@ -702,9 +702,37 @@ continuity for every $q$.
 \end{proof}
 
 So Mackey completeness enters only through the Taylor coefficients along oblique lines, and some
-completeness is needed there; continuity needs none. Mujica's extension to
-products of Banach spaces \cite[Thm.~36.8]{Muj86} rests on \cite[Thm.~36.5]{Muj86}
-(Gâteaux holomorphic and locally bounded at one point implies holomorphic).
+completeness is needed there; continuity needs none.
+
+\begin{theorem}[Products {\cite[Thms.~36.5, 36.8]{Muj86}}]
+  \label{thm:separate-products}
+  \lean{LCAnalysis.GateauxAnalyticOn.continuousOn_of_locallyBoundedOn,
+    LCAnalysis.GateauxAnalyticOn.complexAnalyticOn_of_locallyBoundedOn,
+    LCAnalysis.GateauxAnalyticOn.cAnalyticOn_line, LCAnalysis.gateauxAnalyticOn_of_separately,
+    LCAnalysis.complexAnalyticOn_of_separately_of_locallyBoundedOn}
+  \leanok
+  \uses{thm:hartogs-joint, thm:complex-analytic-iff, lem:weak-seminorm}
+  A Gâteaux analytic map which is locally bounded for every continuous seminorm is continuous,
+  hence complex analytic; no completeness is needed. If $F$ is Mackey complete, a separately
+  complex analytic map on an open subset of $E_1 \times E_2$ is Gâteaux analytic; if it is also
+  locally bounded, it is complex analytic.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  If $q(f) \le M$ on $a + W$, take a balanced $V$ with $a + \lambda h \in W$ for $h \in V$,
+  $|\lambda| \le 3$; along $\lambda \mapsto f(a + \lambda h)$ the Cauchy estimates give
+  $q(f(a + t h) - f(a)) \le M |t|$ for $|t| \le 1$ (Lemma~\ref{lem:weak-seminorm}), so $f$ is
+  $q$-continuous at $a$. For the products, $(\zeta, \sigma) \mapsto f(p_1 + \zeta u, p_2 + \sigma v)$
+  is separately analytic on an open subset of $\mathbb{C}^2$, hence complex analytic by
+  Theorem~\ref{thm:hartogs-joint}, and $f(p + z(u, v))$ is its restriction to the diagonal.
+\end{proof}
+
+Mujica removes local boundedness for Banach spaces: Baire's theorem gives boundedness on a
+product of open sets \cite[Lemma~36.2]{Muj86}, and \cite[Thm.~36.5]{Muj86} propagates local
+boundedness of a Gâteaux holomorphic map over a connected domain, with another use of Baire's
+theorem \cite[Prop.~36.7]{Muj86}. In the locally convex setting this requires the Baire arguments
+of the previous sections for one seminorm at a time; it is not formalized yet.
 
 \section{Comparison with Mathlib on Banach spaces}
 
