@@ -3,7 +3,7 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.Higher
+import LocallyConvexAnalysis.Higher
 
 /-!
 # Weak integrals of curves and parameter-dependent integrals
@@ -19,7 +19,7 @@ It is unique when it exists (Hahn–Banach), but in general it need not exist in
   derivatives in `x` and the relevant weak integrals exist, then
   `d(∫_a^b f(·, t) dt)(x)(h) = ∫_a^b d₁f((x, t), h) dt`.
 
-Existence of weak integrals under completeness hypotheses is in `LCAnalysis.IntegralExistence`.
+Existence of weak integrals under completeness hypotheses is in `LocallyConvexAnalysis.IntegralExistence`.
 -/
 
 open Set Filter Function
@@ -27,7 +27,7 @@ open scoped Topology Pointwise
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u v
 
@@ -223,4 +223,4 @@ theorem ContDiffMBOn.contDiffMBOn_one_of_hasWeakIntegral {f : E × ℝ → F} {U
     fun x hx h ↦ by rw [heq x hx h]; exact hdir x hx h, ?_⟩, heq⟩
   exact hJc.congr fun q hq ↦ heq q.1 hq.1 q.2
 
-end LCAnalysis
+end LocallyConvex.Analysis

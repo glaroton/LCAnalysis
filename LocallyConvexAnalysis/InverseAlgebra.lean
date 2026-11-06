@@ -3,8 +3,8 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.Identity
-import LCAnalysis.Rules
+import LocallyConvexAnalysis.Identity
+import LocallyConvexAnalysis.Rules
 
 /-! # Inversion in continuous inverse algebras
 
@@ -39,7 +39,7 @@ open scoped Topology Ring
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u
 
@@ -405,4 +405,4 @@ theorem realAnalyticOn_inverse : RealAnalyticOn (Ring.inverse : A → A) {a : A 
 
 end RealAnalytic
 
-end LCAnalysis
+end LocallyConvex.Analysis

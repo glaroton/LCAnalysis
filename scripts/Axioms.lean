@@ -1,11 +1,11 @@
 /-
-Prints the axioms used by the main theorems of LCAnalysis.
+Prints the axioms used by the main theorems of LocallyConvex.Analysis.
 Run with `lake env lean scripts/Axioms.lean`; every line should read
 `[propext, Classical.choice, Quot.sound]` (the standard axioms of Lean and Mathlib).
 -/
-import LCAnalysis
+import LocallyConvexAnalysis
 
-open LCAnalysis
+open LocallyConvex.Analysis
 
 -- First-order calculus (`MichalBastiani.lean`)
 #print axioms ContDiffMBOn.exists_clm
@@ -45,11 +45,11 @@ open LCAnalysis
 #print axioms MackeyComplete.exists_hasWeakIntegral_of_isLipschitzCurve
 #print axioms MackeyComplete.of_integratesLipschitzCurves
 #print axioms mackeyComplete_iff_integratesLipschitzCurves
-#print axioms LCAnalysis.exists_uniform_isSprayCurveOn_of_norm_le
-#print axioms LCAnalysis.IsSprayCurveOn.eqOn_Ioo
+#print axioms LocallyConvex.Analysis.exists_uniform_isSprayCurveOn_of_norm_le
+#print axioms LocallyConvex.Analysis.IsSprayCurveOn.eqOn_Ioo
 #print axioms MultilinearMap.polarization
-#print axioms LCAnalysis.isContHomPoly_iff_continuous
-#print axioms LCAnalysis.cAnalyticOn_iff_smoothMBOn
-#print axioms LCAnalysis.CAnalyticOn.hasPowerSeriesOnDisc
-#print axioms LCAnalysis.tfae_complexAnalyticOn
-#print axioms LCAnalysis.ComplexAnalyticOn.smoothMBOn
+#print axioms LocallyConvex.Analysis.isContHomPoly_iff_continuous
+#print axioms LocallyConvex.Analysis.cAnalyticOn_iff_smoothMBOn
+#print axioms LocallyConvex.Analysis.CAnalyticOn.hasPowerSeriesOnDisc
+#print axioms LocallyConvex.Analysis.tfae_complexAnalyticOn
+#print axioms LocallyConvex.Analysis.ComplexAnalyticOn.smoothMBOn

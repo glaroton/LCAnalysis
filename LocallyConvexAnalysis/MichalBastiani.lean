@@ -18,7 +18,7 @@ For `E`, `F` real topological vector spaces, `U ⊆ E` open and `f : E → F`:
   `dMB f : E × E → F` is continuous on `U × E`.
 * `f` is `C^{k+1}` on `U` if it is `C^1` and `dMB f` is `C^k` on `U × E`. This recursive
   definition is equivalent to Neeb's (continuity of all the iterated derivatives `d^j f`, see
-  `contDiffMBOn_iff_hasContIterDerivOn` in `LCAnalysis.Higher`);
+  `contDiffMBOn_iff_hasContIterDerivOn` in `LocallyConvexAnalysis.Higher`);
   it is the one used by Glöckner, and it avoids `j`-linear maps.
 
 The directional derivative is defined literally as the limit of difference quotients, so no
@@ -35,7 +35,7 @@ open scoped Topology Pointwise
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u v
 
@@ -1129,4 +1129,4 @@ end CTwo
 
 end Normed
 
-end LCAnalysis
+end LocallyConvex.Analysis

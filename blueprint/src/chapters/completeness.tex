@@ -28,7 +28,7 @@ We state completeness through the topology of $F$, without fixing a uniform stru
 
 \begin{definition}[Sequential completeness]
   \label{def:seq-complete}
-  \lean{LCAnalysis.SeqComplete}
+  \lean{LocallyConvex.Analysis.SeqComplete}
   \leanok
   A sequence $(u_n)$ in $F$ is Cauchy if for every neighborhood $W$ of $0$ there is $N$ with
   $u_n - u_m \in W$ for all $m, n \geq N$. The space $F$ is sequentially complete if every
@@ -37,7 +37,7 @@ We state completeness through the topology of $F$, without fixing a uniform stru
 
 \begin{definition}[Mackey completeness]
   \label{def:mackey-complete}
-  \lean{LCAnalysis.MackeyComplete}
+  \lean{LocallyConvex.Analysis.MackeyComplete}
   \leanok
   A sequence $(u_n)$ in $F$ is Mackey--Cauchy if there are a bounded set $B \subseteq F$ and
   real numbers $r_k \to 0$ with $u_l - u_k \in r_k B$ for all $k \leq l$. The space $F$ is
@@ -59,7 +59,7 @@ $\|u_l - u_k\| \leq r_k$.
 
 \begin{proposition}[Comparison]
   \label{prop:completeness-chain}
-  \lean{LCAnalysis.SeqComplete.of_completeSpace, LCAnalysis.SeqComplete.mackeyComplete}
+  \lean{LocallyConvex.Analysis.SeqComplete.of_completeSpace, LocallyConvex.Analysis.SeqComplete.mackeyComplete}
   \leanok
   \uses{def:seq-complete, def:mackey-complete}
   Complete uniform additive groups are sequentially complete, and sequentially complete spaces
@@ -81,7 +81,7 @@ We will need the following elementary fact, which is where local convexity enter
 
 \begin{lemma}[Convex hulls of bounded sets]
   \label{lem:conv-bounded}
-  \lean{LCAnalysis.isVonNBounded_convexHull}
+  \lean{LocallyConvex.Analysis.isVonNBounded_convexHull}
   \leanok
   In a locally convex space, the convex hull of a bounded set is bounded.
 \end{lemma}
@@ -100,7 +100,7 @@ sums. We only need sums over uniform partitions.
 
 \begin{definition}[Riemann sums]
   \label{def:riemann}
-  \lean{LCAnalysis.riemannSum}
+  \lean{LocallyConvex.Analysis.riemannSum}
   \leanok
   For $\gamma \colon \R \to F$ and $N \geq 1$, the Riemann sum of $\gamma$ over $[a, b]$ with
   $N$ equal subintervals and left endpoints is
@@ -115,7 +115,7 @@ sequentially complete case) and for multiples of a bounded set (the Mackey compl
 
 \begin{lemma}[Refinements]
   \label{lem:riemann-refine}
-  \lean{LCAnalysis.riemannSum_mul_sub_mem, LCAnalysis.tendsto_riemannSum_real, LCAnalysis.map_riemannSum}
+  \lean{LocallyConvex.Analysis.riemannSum_mul_sub_mem, LocallyConvex.Analysis.tendsto_riemannSum_real, LocallyConvex.Analysis.map_riemannSum}
   \leanok
   \uses{def:riemann}
   Let $V \subseteq F$ be convex, and suppose that $\gamma(s) - \gamma(t) \in V$ whenever
@@ -133,7 +133,7 @@ sequentially complete case) and for multiples of a bounded set (the Mackey compl
 
 \begin{lemma}[Limits of Riemann sums]
   \label{lem:riemann-limit}
-  \lean{LCAnalysis.hasWeakIntegral_of_tendsto}
+  \lean{LocallyConvex.Analysis.hasWeakIntegral_of_tendsto}
   \leanok
   \uses{lem:riemann-refine, def:weak-integral}
   If $\gamma$ is continuous on $[a, b]$ and the dyadic Riemann sums $R_{2^n}(\gamma)$ converge to
@@ -161,7 +161,7 @@ Cauchy estimate for the dyadic sums changes.
 
 \begin{theorem}[Continuous curves, sequentially complete case]
   \label{thm:exists-seq}
-  \lean{LCAnalysis.exists_hasWeakIntegral, LCAnalysis.exists_hasWeakIntegral_of_le}
+  \lean{LocallyConvex.Analysis.exists_hasWeakIntegral, LocallyConvex.Analysis.exists_hasWeakIntegral_of_le}
   \leanok
   \uses{def:seq-complete, lem:riemann-limit}
   If $F$ is sequentially complete, every curve that is continuous on $[a, b]$ has a weak
@@ -178,7 +178,7 @@ Cauchy estimate for the dyadic sums changes.
 
 \begin{theorem}[$\Ck{1}$ curves, Mackey complete case]
   \label{thm:exists-mackey}
-  \lean{LCAnalysis.exists_hasWeakIntegral_of_hasDirDerivAt_of_le, LCAnalysis.ContDiffMBOn.exists_hasWeakIntegral, LCAnalysis.sub_mem_smul_closure_convexHull}
+  \lean{LocallyConvex.Analysis.exists_hasWeakIntegral_of_hasDirDerivAt_of_le, LocallyConvex.Analysis.ContDiffMBOn.exists_hasWeakIntegral, LocallyConvex.Analysis.sub_mem_smul_closure_convexHull}
   \leanok
   \uses{def:mackey-complete, lem:riemann-limit, lem:conv-bounded, lem:mean-value-inclusion}
   If $F$ is Mackey complete, every curve that is $\Ck{1}$ on a neighborhood of $[a, b]$ has a weak
@@ -216,7 +216,7 @@ integral with respect to its upper limit.
 
 \begin{theorem}[Fundamental theorem of calculus, II]
   \label{thm:ftc2}
-  \lean{LCAnalysis.hasDirDerivAt_weakIntegral_right_of_exists, LCAnalysis.hasDirDerivAt_weakIntegral_right}
+  \lean{LocallyConvex.Analysis.hasDirDerivAt_weakIntegral_right_of_exists, LocallyConvex.Analysis.hasDirDerivAt_weakIntegral_right}
   \leanok
   \uses{lem:weak-integral-small, lem:weak-integral-algebra, prop:change-of-variables}
   Let $I \subseteq \R$ be an open interval, $a \in I$ and $\gamma$ continuous on $I$. If the weak
@@ -253,7 +253,7 @@ existence of the integrals is isolated as a hypothesis.
 
 \begin{theorem}[The induction behind parameter-dependent integrals]
   \label{thm:param-induction}
-  \lean{LCAnalysis.contDiffMBOn_weakIntegral_of_exists}
+  \lean{LocallyConvex.Analysis.contDiffMBOn_weakIntegral_of_exists}
   \leanok
   \uses{thm:diff-under-integral, prop:param-continuity, thm:partials}
   Let $T \subseteq \R$ be open with $[a, b] \subseteq T$, and $m \in \N$. Suppose that, for
@@ -292,7 +292,7 @@ following statements, with no existence hypotheses left.
 
 \begin{corollary}[Parameter-dependent integrals]
   \label{cor:param}
-  \lean{LCAnalysis.ContDiffMBOn.contDiffMBOn_weakIntegral, LCAnalysis.ContDiffMBOn.contDiffMBOn_weakIntegral_of_mackey, LCAnalysis.SmoothMBOn.smoothMBOn_weakIntegral, LCAnalysis.ContDiffMBOn.dMB_weakIntegral}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.contDiffMBOn_weakIntegral, LocallyConvex.Analysis.ContDiffMBOn.contDiffMBOn_weakIntegral_of_mackey, LocallyConvex.Analysis.SmoothMBOn.smoothMBOn_weakIntegral, LocallyConvex.Analysis.ContDiffMBOn.dMB_weakIntegral}
   \leanok
   \uses{thm:param-induction, thm:exists-seq, thm:exists-mackey}
   Let $f$ be a map on $U \times T$ with $[a, b] \subseteq T$, and

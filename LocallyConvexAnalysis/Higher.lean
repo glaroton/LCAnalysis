@@ -3,7 +3,7 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.MichalBastiani
+import LocallyConvexAnalysis.MichalBastiani
 
 /-!
 # Higher differentials
@@ -27,7 +27,7 @@ open scoped Topology
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u v
 
@@ -622,4 +622,4 @@ theorem ContDiffMBOn.exists_iteratedDMB_multilinear {k : ℕ} {f : E → F} {U :
 
 end LocallyConvex
 
-end LCAnalysis
+end LocallyConvex.Analysis

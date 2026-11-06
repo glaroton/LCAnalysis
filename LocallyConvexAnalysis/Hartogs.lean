@@ -3,9 +3,9 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.HartogsLemma
-import LCAnalysis.ComplexAnalytic
-import LCAnalysis.WeakHolomorphic
+import LocallyConvexAnalysis.HartogsLemma
+import LocallyConvexAnalysis.ComplexAnalytic
+import LocallyConvexAnalysis.WeakHolomorphic
 
 /-! # Hartogs' theorem on separately holomorphic maps
 
@@ -52,7 +52,7 @@ open scoped Topology ENNReal
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 /-! ### A local Hartogs lemma for real functions -/
 
@@ -952,4 +952,4 @@ theorem not_mackeyComplete_sepSpan : ¬ MackeyComplete sepSpan := by
 
 end Counterexample
 
-end LCAnalysis
+end LocallyConvex.Analysis

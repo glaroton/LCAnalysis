@@ -3,8 +3,8 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.MBFrechet
-import LCAnalysis.Higher
+import LocallyConvexAnalysis.MBFrechet
+import LocallyConvexAnalysis.Higher
 
 /-!
 # Maps with bounded below derivative reflect smoothness
@@ -37,7 +37,7 @@ open scoped Topology NNReal ContDiff
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u v w
 
@@ -388,4 +388,4 @@ theorem ContDiffMBOn.of_comp_of_boundedBelow (hU : IsOpen U) (hj : SmoothMBOn j 
 
 end Bootstrap
 
-end LCAnalysis
+end LocallyConvex.Analysis

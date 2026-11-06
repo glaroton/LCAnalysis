@@ -20,7 +20,7 @@ symmetry. Our reference is G--N~\S1.3.
 
 \begin{definition}[Iterated differentials]
   \label{def:iterated}
-  \lean{LCAnalysis.iteratedDMB}
+  \lean{LocallyConvex.Analysis.iteratedDMB}
   \leanok
   \uses{def:dir-deriv}
   For $f \colon E \to F$, $x \in E$ and $y_1, \dots, y_k \in E$ we define
@@ -38,7 +38,7 @@ $\dd^{(1)} f(x; y) = \dd f(x)(y)$.
 
 \begin{definition}[Bastiani's $\Ck{k}$ maps]
   \label{def:bastiani}
-  \lean{LCAnalysis.HasContIterDerivOn}
+  \lean{LocallyConvex.Analysis.HasContIterDerivOn}
   \leanok
   \uses{def:iterated}
   A map $f$ has continuous iterated derivatives of order $k$ on $U$ if, for every $j \leq k$,
@@ -59,7 +59,7 @@ of $f$ through those of $\dd f$, in directions of the form $(y, 0)$.
 
 \begin{lemma}[Slices]
   \label{lem:slice}
-  \lean{LCAnalysis.iteratedDMB_slice, LCAnalysis.iteratedDMB_succ_eq_dMB}
+  \lean{LocallyConvex.Analysis.iteratedDMB_slice, LocallyConvex.Analysis.iteratedDMB_succ_eq_dMB}
   \leanok
   \uses{def:iterated}
   For $g \colon E \times E' \to F$ and $a \in E'$,
@@ -86,7 +86,7 @@ $a = y_0$.
 
 \begin{theorem}[The two definitions of $\Ck{k}$ agree]
   \label{thm:ck-iff-bastiani}
-  \lean{LCAnalysis.contDiffMBOn_iff_hasContIterDerivOn}
+  \lean{LocallyConvex.Analysis.contDiffMBOn_iff_hasContIterDerivOn}
   \leanok
   \uses{def:ck, def:bastiani, lem:slice, thm:linear, thm:partials}
   A map $f$ is $\Ck{k}$ on $U$ in the sense of Definition~\ref{def:ck} if and only if it has
@@ -110,7 +110,7 @@ From now on we use whichever of the two descriptions is more convenient.
 
 \begin{theorem}[Regularity of the differentials]
   \label{thm:iterated-regular}
-  \lean{LCAnalysis.ContDiffMBOn.contDiffMBOn_iteratedDMB}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.contDiffMBOn_iteratedDMB}
   \leanok
   \uses{thm:ck-iff-bastiani}
   If $f$ is $\Ck{k + r}$ on $U$, then $\dd^{(k)} f$ is $\Ck{r}$ on $U \times E^k$.
@@ -127,7 +127,7 @@ particular, the iterated differentials of a smooth map are smooth.
 
 \begin{theorem}[Schwarz]
   \label{thm:schwarz}
-  \lean{LCAnalysis.ContDiffMBOn.iteratedDMB_perm, LCAnalysis.ContDiffMBOn.exists_iteratedDMB_multilinear}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.iteratedDMB_perm, LocallyConvex.Analysis.ContDiffMBOn.exists_iteratedDMB_multilinear}
   \leanok
   \uses{thm:symm2, thm:linear, thm:iterated-regular}
   If $f$ is $\Ck{k}$ on $U$ and $x \in U$, then $\dd^{(k)} f(x; \cdot)$ is a continuous

@@ -3,8 +3,8 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.FundamentalTheorem
-import LCAnalysis.MBFrechet
+import LocallyConvexAnalysis.FundamentalTheorem
+import LocallyConvexAnalysis.MBFrechet
 
 /-!
 # Complex analytic maps of one variable with values in a locally convex space
@@ -62,7 +62,7 @@ replace it:
 * Complex local convexity is expressed by `PolynormableSpace ℂ F` (the topology is given by the
   continuous `ℂ`-seminorms). When `F` is a real locally convex space via `IsScalarTower ℝ ℂ F`,
   this is automatic (`polynormableSpace_complex`); the statements involving the real
-  Michal–Bastiani calculus and weak integrals of `LCAnalysis` use the latter setting.
+  Michal–Bastiani calculus and weak integrals of `LocallyConvex.Analysis` use the latter setting.
 * `HasPowerSeriesOnDisc` uses unconditional sums (`HasSum`); GN's pointwise limits of partial
   sums give the same notion on open discs (`hasPowerSeriesOnDisc_of_tendsto`).
 * For a single power series on a disc, the derivative at points other than the center is only
@@ -75,7 +75,7 @@ open scoped Topology Real
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe v
 
@@ -1094,4 +1094,4 @@ theorem HasPowerSeriesOnDisc.hasWeakIntegral {a : ℕ → F} {x : ℂ} {r ρ : �
 
 end MichalBastiani
 
-end LCAnalysis
+end LocallyConvex.Analysis

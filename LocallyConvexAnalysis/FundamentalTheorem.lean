@@ -3,7 +3,7 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.IntegralExistence
+import LocallyConvexAnalysis.IntegralExistence
 
 /-!
 # Calculus with weak integrals: algebra, change of variables, fundamental theorem
@@ -28,7 +28,7 @@ open scoped Topology Pointwise
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u v w
 
@@ -229,4 +229,4 @@ theorem hasDirDerivAt_weakIntegral_right [SeqComplete F] {I : Set ℝ} (hI : IsO
   hasDirDerivAt_weakIntegral_right_of_exists hI hIc hγ ha
     (fun _ hs ↦ exists_hasWeakIntegral (hγ.mono (hIc.uIcc_subset ha hs))) ht
 
-end LCAnalysis
+end LocallyConvex.Analysis

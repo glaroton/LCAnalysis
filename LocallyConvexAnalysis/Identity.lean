@@ -3,8 +3,8 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.RealAnalytic
-import LCAnalysis.HomogeneousSeries
+import LocallyConvexAnalysis.RealAnalytic
+import LocallyConvexAnalysis.HomogeneousSeries
 
 /-! # Identity theorems for analytic maps
 
@@ -39,7 +39,7 @@ open scoped Topology
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u v
 
@@ -342,4 +342,4 @@ theorem RealAnalyticOn.exists_complexAnalytic_extension {f : E → F} {U : Set E
 
 end ComplexTarget
 
-end LCAnalysis
+end LocallyConvex.Analysis

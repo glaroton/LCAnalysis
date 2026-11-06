@@ -3,7 +3,7 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.MBFrechet
+import LocallyConvexAnalysis.MBFrechet
 import Mathlib.Analysis.ODE.ExistUnique
 import Mathlib.Analysis.Calculus.ContDiff.RCLike
 
@@ -47,7 +47,7 @@ open scoped Topology NNReal
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u
 
@@ -327,4 +327,4 @@ theorem IsSprayCurveOn.eqOn_Ioo (hU : IsOpen U)
 
 end Uniqueness
 
-end LCAnalysis
+end LocallyConvex.Analysis

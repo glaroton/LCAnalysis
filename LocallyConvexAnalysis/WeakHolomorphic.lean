@@ -3,7 +3,7 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.HomogeneousSeries
+import LocallyConvexAnalysis.HomogeneousSeries
 
 /-! # Weakly holomorphic maps into Mackey complete spaces
 
@@ -29,7 +29,7 @@ open scoped Topology Real
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 /-! ### Discrete extraction of Taylor coefficients (scalar) -/
 
@@ -239,4 +239,4 @@ theorem CAnalyticOn.of_weak {f : ℂ → F} {U : Set ℂ} (hU : IsOpen U) (hc : 
 
 end Mackey
 
-end LCAnalysis
+end LocallyConvex.Analysis

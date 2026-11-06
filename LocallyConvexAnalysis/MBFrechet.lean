@@ -3,7 +3,7 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.MichalBastiani
+import LocallyConvexAnalysis.MichalBastiani
 
 /-!
 # Michal–Bastiani `C^{k+1}` maps between normed spaces are Fréchet `C^k`
@@ -27,7 +27,7 @@ open scoped Topology ContDiff
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u v
 
@@ -330,4 +330,4 @@ theorem smoothMBOn_iff_contDiffOn {f : E → F} {U : Set E} (hU : IsOpen U) :
   exact ⟨fun h k ↦ (h (k + 1)).contDiffOn hU,
     fun h k ↦ ContDiffOn.contDiffMBOn hU (h k)⟩
 
-end LCAnalysis
+end LocallyConvex.Analysis

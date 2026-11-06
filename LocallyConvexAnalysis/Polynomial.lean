@@ -22,7 +22,7 @@ Banach Center Publ. 55 (2002)).
 * `MultilinearMap.IsSymm A`: `A` is invariant under permutations of its arguments.
 * `MultilinearMap.symmetrize A = (1 / k!) ∑_σ A ∘ σ`, and its continuous counterpart
   `ContinuousMultilinearMap.symmetrize`.
-* `LCAnalysis.IsContHomPoly 𝕜 k p`: `p : E → F` is the diagonal of a *continuous* `k`-linear map.
+* `LocallyConvex.Analysis.IsContHomPoly 𝕜 k p`: `p : E → F` is the diagonal of a *continuous* `k`-linear map.
 
 ## Main results
 
@@ -35,14 +35,14 @@ Banach Center Publ. 55 (2002)).
   `MultilinearMap.diag_eq_diag_iff`: two multilinear maps have the same diagonal iff they have
   the same symmetrization.
 * `MultilinearMap.continuous_of_isSymm_of_continuous_diag` and
-  `LCAnalysis.isContHomPoly_iff_continuous`: an algebraic homogeneous polynomial is continuous
+  `LocallyConvex.Analysis.isContHomPoly_iff_continuous`: an algebraic homogeneous polynomial is continuous
   iff its symmetric multilinear map is (the remark after Theorem A in Bochnak–Siciak I, p. 61).
   Hence the continuous homogeneous polynomials are exactly the continuous maps that are
   algebraic homogeneous polynomials.
 * Closure properties of `IsContHomPoly`; degree `0` gives the constants
   (`isContHomPoly_zero_iff`) and degree `1` the continuous linear maps
   (`isContHomPoly_one_iff`).
-* `LCAnalysis.homogeneous_components_eq_zero`: if `∑_{n ≤ N} p_n (t x) = 0` for `N + 1` values
+* `LocallyConvex.Analysis.homogeneous_components_eq_zero`: if `∑_{n ≤ N} p_n (t x) = 0` for `N + 1` values
   of `t`, with each `p_n` homogeneous of degree `n`, then every `p_n x` vanishes (uniqueness of
   finite homogeneous expansions, by a Vandermonde argument).
 
@@ -63,7 +63,7 @@ field `𝕜` is required. The field `𝕜` is arbitrary of characteristic zero, 
   `ι → ℤˣ` is a sum over the `2^k` sign vectors.
 * The declarations about (continuous) multilinear maps live in the namespaces
   `MultilinearMap` and `ContinuousMultilinearMap`, so that dot notation (`A.diag`,
-  `A.symmetrize`) is available; the theory of homogeneous polynomials lives in `LCAnalysis`.
+  `A.symmetrize`) is available; the theory of homogeneous polynomials lives in `LocallyConvex.Analysis`.
 * Multilinear maps are indexed by an arbitrary finite type `ι`; homogeneous polynomials use
   `Fin k`, so that the degree is a natural number.
 -/
@@ -350,7 +350,7 @@ theorem continuous_of_isSymm_of_continuous_diag {A : MultilinearMap 𝕜 (fun _ 
 
 end MultilinearMap
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 section ContHomPoly
 
@@ -525,4 +525,4 @@ theorem homogeneous_components_eq_zero' [Infinite 𝕜] {N : ℕ} {p : ℕ → E
 
 end Uniqueness
 
-end LCAnalysis
+end LocallyConvex.Analysis

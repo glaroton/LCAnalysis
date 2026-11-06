@@ -22,7 +22,7 @@ Our reference is G--N~\S1.1.
 
 \begin{definition}[Weak integral]
   \label{def:weak-integral}
-  \lean{LCAnalysis.HasWeakIntegral}
+  \lean{LocallyConvex.Analysis.HasWeakIntegral}
   \leanok
   Let $\gamma \colon \R \to F$ and $a, b \in \R$. A vector $y \in F$ is a weak integral of
   $\gamma$ over $[a, b]$ if
@@ -34,7 +34,7 @@ Our reference is G--N~\S1.1.
 
 \begin{lemma}[Uniqueness]
   \label{lem:weak-integral-unique}
-  \lean{LCAnalysis.HasWeakIntegral.unique}
+  \lean{LocallyConvex.Analysis.HasWeakIntegral.unique}
   \leanok
   \uses{def:weak-integral}
   Weak integrals are unique.
@@ -55,7 +55,7 @@ We write $\int_a^b \gamma$ for the weak integral when it exists.
 
 \begin{lemma}[Algebraic rules]
   \label{lem:weak-integral-algebra}
-  \lean{LCAnalysis.HasWeakIntegral.add, LCAnalysis.HasWeakIntegral.sub, LCAnalysis.HasWeakIntegral.neg, LCAnalysis.HasWeakIntegral.const_smul, LCAnalysis.hasWeakIntegral_const, LCAnalysis.HasWeakIntegral.add_adjacent, LCAnalysis.HasWeakIntegral.map}
+  \lean{LocallyConvex.Analysis.HasWeakIntegral.add, LocallyConvex.Analysis.HasWeakIntegral.sub, LocallyConvex.Analysis.HasWeakIntegral.neg, LocallyConvex.Analysis.HasWeakIntegral.const_smul, LocallyConvex.Analysis.hasWeakIntegral_const, LocallyConvex.Analysis.HasWeakIntegral.add_adjacent, LocallyConvex.Analysis.HasWeakIntegral.map}
   \leanok
   \uses{def:weak-integral}
   For continuous curves, weak integrals are linear in the integrand and additive in the
@@ -77,7 +77,7 @@ neighborhoods of $0$ that contain it.
 
 \begin{lemma}[Integrals of small curves are small]
   \label{lem:weak-integral-small}
-  \lean{LCAnalysis.HasWeakIntegral.mem_smul}
+  \lean{LocallyConvex.Analysis.HasWeakIntegral.mem_smul}
   \leanok
   \uses{def:weak-integral}
   Let $a \leq b$ and let $\gamma$ be continuous on $[a, b]$ with weak integral $y$. If
@@ -105,7 +105,7 @@ neighborhoods of $0$ that contain it.
 
 \begin{proposition}[Change of variables]
   \label{prop:change-of-variables}
-  \lean{LCAnalysis.hasWeakIntegral_comp_smul_deriv_iff, LCAnalysis.hasWeakIntegral_affine_iff}
+  \lean{LocallyConvex.Analysis.hasWeakIntegral_comp_smul_deriv_iff, LocallyConvex.Analysis.hasWeakIntegral_affine_iff}
   \leanok
   \uses{def:weak-integral}
   Let $\phi$ be a real $\Ck{1}$ function on $[a, b]$ and $\gamma$ continuous on
@@ -127,7 +127,7 @@ $\int_0^1 (b - a)\, \gamma(a + t(b - a))\, dt$ does, and that both coincide.
 
 \begin{theorem}[Fundamental theorem of calculus, I]
   \label{thm:ftc1}
-  \lean{LCAnalysis.hasWeakIntegral_sub_of_hasDirDerivAt, LCAnalysis.weakIntegral_eq_sub_of_hasDirDerivAt}
+  \lean{LocallyConvex.Analysis.hasWeakIntegral_sub_of_hasDirDerivAt, LocallyConvex.Analysis.weakIntegral_eq_sub_of_hasDirDerivAt}
   \leanok
   \uses{def:weak-integral, def:dir-deriv}
   Let $\gamma$ be differentiable on $[a, b]$, with continuous derivative $\gamma'$. Then
@@ -148,7 +148,7 @@ to be derivatives.
 
 \begin{corollary}[Mean value theorem]
   \label{cor:ftc-segment}
-  \lean{LCAnalysis.ContDiffMBOn.hasWeakIntegral_dMB}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.hasWeakIntegral_dMB}
   \leanok
   \uses{thm:ftc1, prop:mean-value-weak}
   If $f$ is $\Ck{1}$ on a set containing the segment $[x, x + h]$, then
@@ -171,7 +171,7 @@ Lemma~\ref{lem:weak-integral-small}.
 
 \begin{proposition}[Continuity]
   \label{prop:param-continuity}
-  \lean{LCAnalysis.continuousOn_weakIntegral}
+  \lean{LocallyConvex.Analysis.continuousOn_weakIntegral}
   \leanok
   \uses{lem:weak-integral-small, lem:weak-integral-algebra}
   Let $X$ be a topological space, $U \subseteq X$ and $T \subseteq \R$ open with
@@ -190,7 +190,7 @@ Lemma~\ref{lem:weak-integral-small}.
 
 \begin{theorem}[Differentiation under the integral sign]
   \label{thm:diff-under-integral}
-  \lean{LCAnalysis.hasDirDerivAt_weakIntegral}
+  \lean{LocallyConvex.Analysis.hasDirDerivAt_weakIntegral}
   \leanok
   \uses{prop:param-continuity, lem:mean-value-inclusion}
   Let $f \colon U \times T \to F$ be continuous, with partial derivatives

@@ -3,8 +3,8 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.ComplexAnalytic
-import LCAnalysis.HartogsLemma
+import LocallyConvexAnalysis.ComplexAnalytic
+import LocallyConvexAnalysis.HartogsLemma
 
 /-! # Series of homogeneous polynomials
 
@@ -12,7 +12,7 @@ Pointwise convergence of a series `∑ pₙ` of continuous homogeneous polynomia
 topological vector spaces, after Bochnak and Siciak, *Analytic functions in topological vector
 spaces*, Studia Math. 39 (1971), 77–112 (part II, §§4–5). Bochnak and Siciak assume
 throughout that `F` is locally convex and sequentially complete. Here `F` is only assumed
-**Mackey complete** (`LCAnalysis.MackeyComplete`), which is strictly weaker, and only for the
+**Mackey complete** (`LocallyConvex.Analysis.MackeyComplete`), which is strictly weaker, and only for the
 analyticity of the sum; the Baire lemma needs neither completeness nor local convexity of `F`.
 Mackey completeness cannot be dropped (`not_mackeyComplete_geomSpan`).
 
@@ -25,7 +25,7 @@ Mackey completeness cannot be dropped (`not_mackeyComplete_geomSpan`).
   * `exists_line_geometric_bound`, `exists_compact_geometric_bound`: locally uniform geometric
     bounds along complex lines (the case needed of Bochnak–Siciak II, Proposition 4.1), from
     Baire's theorem in `ℂ`, the Bernstein–Walsh inequality and Hartogs' lemma
-    (`LCAnalysis.hartogs_lemma`);
+    (`LocallyConvex.Analysis.hartogs_lemma`);
   * `gateauxAnalyticOn_of_tendsto` (Theorem 5.1): the sum is Gâteaux analytic, with Taylor
     coefficients along lines given by `hasPowerSeriesOnDisc_of_closedBall`;
   * `isContHomPoly_of_tendsto` (compare Bochnak–Siciak I, Theorem 2): over a Baire space,
@@ -84,7 +84,7 @@ open scoped Topology Real Pointwise
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 /-! ### Moving the centre of a bound (Bochnak–Siciak) -/
 
@@ -1618,4 +1618,4 @@ theorem complexAnalyticOn_of_tendsto_sum [BaireSpace E] [MackeyComplete F]
 
 end Main
 
-end LCAnalysis
+end LocallyConvex.Analysis

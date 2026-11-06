@@ -3,7 +3,7 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.SeparateAnalyticity
+import LocallyConvexAnalysis.SeparateAnalyticity
 
 /-! # Zorn's theorem for one seminorm, and Hartogs' theorem on products
 
@@ -51,7 +51,7 @@ open scoped Topology Real
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u v
 
@@ -880,4 +880,4 @@ theorem complexAnalyticOn_of_separately_prod [BaireSpace E₁] [FirstCountableTo
 
 end Products
 
-end LCAnalysis
+end LocallyConvex.Analysis

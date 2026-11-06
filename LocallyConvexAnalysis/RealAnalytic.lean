@@ -3,14 +3,14 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.ComplexAnalytic
+import LocallyConvexAnalysis.ComplexAnalytic
 
 /-!
 # Real analytic maps between locally convex spaces
 
 Glöckner–Neeb, *Infinite-Dimensional Lie Groups* (arXiv:2602.12362), §2.2: real analytic maps
 in the sense of Milnor, defined through complex analytic extensions to the complexification.
-As in `LCAnalysis.ComplexAnalytic`, **no completeness** of the spaces is assumed.
+As in `LocallyConvexAnalysis.ComplexAnalytic`, **no completeness** of the spaces is assumed.
 
 ## Main definitions
 
@@ -43,7 +43,7 @@ As in `LCAnalysis.ComplexAnalytic`, **no completeness** of the spaces is assumed
 
 * `Complexification E` is a type synonym of `E × E`, so it carries the product topology and
   real structure; the complex structure is defined by hand, and `IsScalarTower ℝ ℂ` holds. The
-  complex analytic theory of `LCAnalysis.ComplexAnalytic` applies to it, with the real
+  complex analytic theory of `LocallyConvexAnalysis.ComplexAnalytic` applies to it, with the real
   Michal–Bastiani calculus of `E × E`.
 * **Locality without the identity theorem in `E_ℂ`.** GN prove Lemma 2.2.3 by gluing local
   extensions defined on convex sets `(x + W) + i W`, which agree on overlaps by the identity
@@ -59,11 +59,11 @@ As in `LCAnalysis.ComplexAnalytic`, **no completeness** of the spaces is assumed
   with complex linear differentials (`HolomorphicOn.clm_comp_comp`), which by Theorem 2.1.12
   is complex analyticity.
 * The converse of `RealAnalyticOn.bsAnalyticOn` (GN Remark 2.2.7, Bochnak–Siciak Theorem 7.1)
-  is `realAnalyticOn_of_bsAnalyticOn` in `LCAnalysis.RealSeries`.
+  is `realAnalyticOn_of_bsAnalyticOn` in `LocallyConvexAnalysis.RealSeries`.
 * The identity theorems (GN Theorems 2.1.16 and 2.2.8) and complex analytic extensions with
-  values in a complex space (GN Proposition 2.2.12) are in `LCAnalysis.Identity`.
+  values in a complex space (GN Proposition 2.2.12) are in `LocallyConvexAnalysis.Identity`.
 * Inversion in continuous inverse algebras (GN Proposition 2.2.13) is in
-  `LCAnalysis.InverseAlgebra`.
+  `LocallyConvexAnalysis.InverseAlgebra`.
 -/
 
 open Set Filter Function
@@ -71,7 +71,7 @@ open scoped Topology
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u v w
 
@@ -823,4 +823,4 @@ theorem ComplexAnalyticOn.realAnalyticOn (hf : ComplexAnalyticOn f U) (hU : IsOp
 
 end ComplexToReal
 
-end LCAnalysis
+end LocallyConvex.Analysis

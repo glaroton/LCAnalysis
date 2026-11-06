@@ -15,7 +15,7 @@ as a Lipschitz curve whose integral is the limit we are looking for.
 
 \begin{definition}[Lipschitz curves]
   \label{def:lipschitz}
-  \lean{LCAnalysis.diffQuot, LCAnalysis.IsLipschitzCurve}
+  \lean{LocallyConvex.Analysis.diffQuot, LocallyConvex.Analysis.IsLipschitzCurve}
   \leanok
   A curve $\gamma \colon [a, b] \to F$ is Lipschitz if the set of difference quotients
   \[
@@ -29,7 +29,7 @@ speak of, and its role is played by the bounded set of difference quotients.
 
 \begin{definition}[Mackey completeness after Glöckner--Neeb]
   \label{def:integrates-lipschitz}
-  \lean{LCAnalysis.IntegratesLipschitzCurves}
+  \lean{LocallyConvex.Analysis.IntegratesLipschitzCurves}
   \leanok
   \uses{def:lipschitz, def:weak-integral}
   We say that $F$ integrates Lipschitz curves if every Lipschitz curve $[a, b] \to F$, $a < b$,
@@ -41,7 +41,7 @@ for $\Ck{1}$ curves.
 
 \begin{lemma}[Lipschitz curves are continuous]
   \label{lem:lipschitz-continuous}
-  \lean{LCAnalysis.IsLipschitzCurve.continuousOn, LCAnalysis.sub_mem_smul_convexHull_diffQuot}
+  \lean{LocallyConvex.Analysis.IsLipschitzCurve.continuousOn, LocallyConvex.Analysis.sub_mem_smul_convexHull_diffQuot}
   \leanok
   \uses{def:lipschitz}
   Let $\gamma$ be a Lipschitz curve on $[a, b]$ and $K = \conv(\{0\} \cup Q)$, where $Q$ is the
@@ -60,7 +60,7 @@ for $\Ck{1}$ curves.
 
 \begin{theorem}
   \label{thm:mackey-to-lipschitz}
-  \lean{LCAnalysis.MackeyComplete.exists_hasWeakIntegral_of_isLipschitzCurve, LCAnalysis.MackeyComplete.integratesLipschitzCurves}
+  \lean{LocallyConvex.Analysis.MackeyComplete.exists_hasWeakIntegral_of_isLipschitzCurve, LocallyConvex.Analysis.MackeyComplete.integratesLipschitzCurves}
   \leanok
   \uses{def:mackey-complete, def:integrates-lipschitz, lem:lipschitz-continuous, lem:riemann-limit, lem:conv-bounded}
   If $F$ is Mackey complete, then $F$ integrates Lipschitz curves.
@@ -85,7 +85,7 @@ We start with an elementary observation, which allows us to work with a fast sub
 
 \begin{lemma}[Subsequences]
   \label{lem:mackey-subseq}
-  \lean{LCAnalysis.tendsto_of_mackeyCauchy_of_subseq}
+  \lean{LocallyConvex.Analysis.tendsto_of_mackeyCauchy_of_subseq}
   \leanok
   \uses{def:mackey-complete}
   A Mackey--Cauchy sequence with a convergent subsequence converges, to the same limit.
@@ -109,7 +109,7 @@ translation.
 
 \begin{definition}[Tents]
   \label{def:tents}
-  \lean{LCAnalysis.tentLeft, LCAnalysis.tentWidth, LCAnalysis.tent, LCAnalysis.tentSum, LCAnalysis.tentCurve}
+  \lean{LocallyConvex.Analysis.tentLeft, LocallyConvex.Analysis.tentWidth, LocallyConvex.Analysis.tent, LocallyConvex.Analysis.tentSum, LocallyConvex.Analysis.tentCurve}
   \leanok
   For $j \in \N$ let $l_j = 1 - 2^{-j}$ and $w_j = 2^{-(j+1)}$, so that the intervals
   $[l_j, l_j + w_j] = [l_j, l_{j+1}]$ tile $[0, 1)$. The $j$-th tent is the function
@@ -127,7 +127,7 @@ large multiples of the increments.
 
 \begin{lemma}[Properties of the tents]
   \label{lem:tents}
-  \lean{LCAnalysis.integral_tent, LCAnalysis.abs_tent_sub_le, LCAnalysis.tent_nonneg, LCAnalysis.tent_le_one, LCAnalysis.continuous_tent, LCAnalysis.eventually_tentCurve_eq}
+  \lean{LocallyConvex.Analysis.integral_tent, LocallyConvex.Analysis.abs_tent_sub_le, LocallyConvex.Analysis.tent_nonneg, LocallyConvex.Analysis.tent_le_one, LocallyConvex.Analysis.continuous_tent, LocallyConvex.Analysis.eventually_tentCurve_eq}
   \leanok
   \uses{def:tents}
   Each $\tau_j$ is continuous, takes values in $[0, 1]$, satisfies
@@ -143,7 +143,7 @@ large multiples of the increments.
 
 \begin{theorem}
   \label{thm:lipschitz-to-mackey}
-  \lean{LCAnalysis.MackeyComplete.of_integratesLipschitzCurves}
+  \lean{LocallyConvex.Analysis.MackeyComplete.of_integratesLipschitzCurves}
   \leanok
   \uses{def:integrates-lipschitz, def:mackey-complete, lem:tents, lem:mackey-subseq, lem:weak-integral-small, lem:weak-integral-algebra, lem:conv-bounded, lem:lipschitz-continuous}
   If $F$ integrates Lipschitz curves, then $F$ is Mackey complete.
@@ -181,7 +181,7 @@ large multiples of the increments.
 
 \begin{corollary}[The two definitions agree]
   \label{cor:mackey-iff}
-  \lean{LCAnalysis.mackeyComplete_iff_integratesLipschitzCurves}
+  \lean{LocallyConvex.Analysis.mackeyComplete_iff_integratesLipschitzCurves}
   \leanok
   \uses{thm:mackey-to-lipschitz, thm:lipschitz-to-mackey}
   A locally convex space is Mackey complete if and only if it integrates Lipschitz curves.

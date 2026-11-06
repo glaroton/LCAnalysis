@@ -13,7 +13,7 @@ $\widetilde F$ and coming back to $F$ through the derivatives, which lie in $F$
 
 \begin{definition}[Continuous homogeneous polynomials]
   \label{def:hom-poly}
-  \lean{LCAnalysis.IsContHomPoly}
+  \lean{LocallyConvex.Analysis.IsContHomPoly}
   \leanok
   Let $E$, $F$ be topological vector spaces over $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$ and
   $k \in \mathbb{N}_0$. A map $p \colon E \to F$ is a \emph{continuous homogeneous polynomial of
@@ -26,7 +26,7 @@ Replacing $A$ by its symmetrization we may take $A$ symmetric, and then $A$ is d
 \begin{theorem}[Polarization; Mazur--Orlicz {\cite[Theorem~A]{BS71a}}]
   \label{thm:polarization}
   \lean{MultilinearMap.polarization, MultilinearMap.continuous_of_isSymm_of_continuous_diag,
-    LCAnalysis.isContHomPoly_iff_continuous}
+    LocallyConvex.Analysis.isContHomPoly_iff_continuous}
   \leanok
   If $A$ is symmetric and $k$-linear, then for $x_1, \dots, x_k \in E$
   \[
@@ -57,9 +57,9 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 
 \begin{theorem}[Power series in incomplete spaces]
   \label{thm:one-var-power-series}
-  \lean{LCAnalysis.HasPowerSeriesOnDisc.continuousOn, LCAnalysis.CAnalyticOn.cAnalyticOn_cDeriv,
-    LCAnalysis.HasPowerSeriesOnDisc.hasWeakIntegral, LCAnalysis.HasPowerSeriesOnDisc.seminorm_coeff_le,
-    LCAnalysis.CAnalyticOn.hasPowerSeriesOnDisc}
+  \lean{LocallyConvex.Analysis.HasPowerSeriesOnDisc.continuousOn, LocallyConvex.Analysis.CAnalyticOn.cAnalyticOn_cDeriv,
+    LocallyConvex.Analysis.HasPowerSeriesOnDisc.hasWeakIntegral, LocallyConvex.Analysis.HasPowerSeriesOnDisc.seminorm_coeff_le,
+    LocallyConvex.Analysis.CAnalyticOn.hasPowerSeriesOnDisc}
   \leanok
   A complex analytic $f \colon U \to F$ is continuous, its complex derivative exists and is
   complex analytic. The Cauchy integrals
@@ -79,7 +79,7 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 
 \begin{theorem}[Complex analytic $=$ real smooth with complex linear differential]
   \label{thm:one-var-iff}
-  \lean{LCAnalysis.cAnalyticOn_iff_smoothMBOn}
+  \lean{LocallyConvex.Analysis.cAnalyticOn_iff_smoothMBOn}
   \leanok
   \uses{thm:one-var-power-series}
   $f \colon U \to F$ is complex analytic if and only if it is $C^\infty$ in the real
@@ -101,7 +101,7 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 
 \begin{definition}[Complex analytic maps {\cite[Def.~2.1.2]{GN26}, \cite[Def.~5.6]{BS71b}}]
   \label{def:complex-analytic}
-  \lean{LCAnalysis.ComplexAnalyticOn}
+  \lean{LocallyConvex.Analysis.ComplexAnalyticOn}
   \leanok
   Let $E$, $F$ be complex locally convex spaces and $U \subseteq E$ open. A map
   $f \colon U \to F$ is \emph{complex analytic} if it is continuous and for every $x \in U$ there
@@ -112,7 +112,7 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 
 \begin{definition}[Gâteaux analytic maps {\cite[Def.~2.1.11]{GN26}}]
   \label{def:gateaux-analytic}
-  \lean{LCAnalysis.GateauxAnalyticOn}
+  \lean{LocallyConvex.Analysis.GateauxAnalyticOn}
   \leanok
   $f$ is \emph{Gâteaux analytic} if $z \mapsto f(x + z y)$ is complex analytic (locally a power
   series with coefficients in $F$) on $\{z \in \mathbb{C} : x + zy \in U\}$, for all $x \in U$,
@@ -121,8 +121,8 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 
 \begin{theorem}[Characterizations of complex analyticity {\cite[Thm.~2.1.12]{GN26}}]
   \label{thm:complex-analytic-iff}
-  \lean{LCAnalysis.tfae_complexAnalyticOn, LCAnalysis.ComplexAnalyticOn.smoothMBOn,
-    LCAnalysis.ComplexAnalyticOn.dMB}
+  \lean{LocallyConvex.Analysis.tfae_complexAnalyticOn, LocallyConvex.Analysis.ComplexAnalyticOn.smoothMBOn,
+    LocallyConvex.Analysis.ComplexAnalyticOn.dMB}
   \leanok
   \uses{thm:one-var-iff, thm:polarization}
   For $f \colon U \to F$ the following are equivalent:
@@ -166,7 +166,7 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 
 \begin{definition}[Complexification {\cite[Def.~2.2.1]{GN26}}]
   \label{def:complexification}
-  \lean{LCAnalysis.Complexification}
+  \lean{LocallyConvex.Analysis.Complexification}
   \leanok
   For a real topological vector space $E$, $E_{\mathbb{C}} := E \times E$ with the product
   topology and $(x + iy)(u, v) := (xu - yv, xv + yu)$. It is locally convex if $E$ is, and
@@ -176,7 +176,7 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 \begin{definition}[Real analytic maps; Milnor {\cite{Mil84}}, {\cite[Def.~2.3]{Glo02}},
   {\cite[Def.~2.2.2]{GN26}}]
   \label{def:real-analytic}
-  \lean{LCAnalysis.RealAnalyticOn}
+  \lean{LocallyConvex.Analysis.RealAnalyticOn}
   \leanok
   \uses{def:complexification, def:complex-analytic}
   Let $E$, $F$ be real locally convex spaces and $U \subseteq E$ open. A map $f \colon U \to F$ is
@@ -186,7 +186,7 @@ series $f(z_0 + z) = \sum_n z^n a_n$ with $a_n \in F$, converging pointwise on a
 
 \begin{definition}[Analytic maps in the sense of Bochnak and Siciak {\cite[Def.~5.6]{BS71b}}]
   \label{def:bs-analytic}
-  \lean{LCAnalysis.BSAnalyticOn}
+  \lean{LocallyConvex.Analysis.BSAnalyticOn}
   \leanok
   \uses{def:hom-poly}
   $f \colon U \to F$ is \emph{BS analytic} if it is continuous and for every $x \in U$ there are
@@ -202,7 +202,7 @@ property.
 
 \begin{lemma}[Locality {\cite[Lemma~2.2.3]{GN26}}]
   \label{lem:real-analytic-local}
-  \lean{LCAnalysis.RealAnalyticOn.of_local, LCAnalysis.Complexification.eqOn_box_inter}
+  \lean{LocallyConvex.Analysis.RealAnalyticOn.of_local, LocallyConvex.Analysis.Complexification.eqOn_box_inter}
   \leanok
   \uses{def:real-analytic}
   If every point of $U$ has a neighborhood $W$ such that $f|_{U \cap W}$ is real analytic, then
@@ -225,9 +225,9 @@ property.
 
 \begin{theorem}[Basic properties {\cite[Prop.~2.2.4, Lemmas~2.2.5, 2.2.6]{GN26}}]
   \label{thm:real-analytic-basic}
-  \lean{LCAnalysis.RealAnalyticOn.comp, LCAnalysis.RealAnalyticOn.smoothMBOn,
-    LCAnalysis.RealAnalyticOn.iteratedDMB_ext, LCAnalysis.RealAnalyticOn.exists_taylor,
-    LCAnalysis.RealAnalyticOn.bsAnalyticOn}
+  \lean{LocallyConvex.Analysis.RealAnalyticOn.comp, LocallyConvex.Analysis.RealAnalyticOn.smoothMBOn,
+    LocallyConvex.Analysis.RealAnalyticOn.iteratedDMB_ext, LocallyConvex.Analysis.RealAnalyticOn.exists_taylor,
+    LocallyConvex.Analysis.RealAnalyticOn.bsAnalyticOn}
   \leanok
   \uses{def:real-analytic, def:bs-analytic, thm:complex-analytic-iff}
   Compositions of real analytic maps are real analytic. Real analytic maps are smooth, and
@@ -248,7 +248,7 @@ property.
 
 \begin{proposition}[Complex analytic maps are real analytic {\cite[Prop.~2.2.11]{GN26}}]
   \label{prop:complex-real-analytic}
-  \lean{LCAnalysis.ComplexAnalyticOn.realAnalyticOn}
+  \lean{LocallyConvex.Analysis.ComplexAnalyticOn.realAnalyticOn}
   \leanok
   \uses{def:real-analytic, thm:complex-analytic-iff}
   Let $E$, $F$ be complex locally convex spaces. Every complex analytic map $f \colon U \to F$
@@ -273,11 +273,11 @@ Continuous linear maps and constants are real analytic.
 
 \begin{theorem}[Inversion in continuous inverse algebras {\cite[Cor.~1.3.8, Ex.~2.1.15, Lemmas~2.2.14, 2.2.17, Prop.~2.2.13]{GN26}}]
   \label{thm:cia-inversion}
-  \lean{LCAnalysis.ContinuousInverseAlgebra, LCAnalysis.NormedRing.continuousInverseAlgebra,
-    LCAnalysis.hasDirDerivAt_inverse, LCAnalysis.smoothMBOn_inverse,
-    LCAnalysis.complexAnalyticOn_inverse, LCAnalysis.isOpen_units_of_mem_nhds_one,
-    LCAnalysis.continuousOn_inverse_of_continuousAt_one,
-    LCAnalysis.Complexification.continuousInverseAlgebra, LCAnalysis.realAnalyticOn_inverse}
+  \lean{LocallyConvex.Analysis.ContinuousInverseAlgebra, LocallyConvex.Analysis.NormedRing.continuousInverseAlgebra,
+    LocallyConvex.Analysis.hasDirDerivAt_inverse, LocallyConvex.Analysis.smoothMBOn_inverse,
+    LocallyConvex.Analysis.complexAnalyticOn_inverse, LocallyConvex.Analysis.isOpen_units_of_mem_nhds_one,
+    LocallyConvex.Analysis.continuousOn_inverse_of_continuousAt_one,
+    LocallyConvex.Analysis.Complexification.continuousInverseAlgebra, LocallyConvex.Analysis.realAnalyticOn_inverse}
   \leanok
   \uses{def:real-analytic, thm:complex-analytic-iff}
   Let $A$ be a continuous inverse algebra: a unital locally convex algebra whose unit group $A^\times$
@@ -300,10 +300,10 @@ Continuous linear maps and constants are real analytic.
 
 \begin{theorem}[Identity theorems {\cite[Thms.~2.1.16, 2.2.8]{GN26}}]
   \label{thm:identity}
-  \lean{LCAnalysis.eqOn_of_hasLocalTaylor, LCAnalysis.ComplexAnalyticOn.eqOn_of_iteratedDMB,
-    LCAnalysis.ComplexAnalyticOn.eqOn_of_eqOn_open, LCAnalysis.ComplexAnalyticOn.eqOn_of_eqOn_real,
-    LCAnalysis.RealAnalyticOn.eqOn_of_iteratedDMB, LCAnalysis.RealAnalyticOn.eqOn_of_eqOn_open,
-    LCAnalysis.ComplexAnalyticOn.eqOn_of_eqOn_ofReal}
+  \lean{LocallyConvex.Analysis.eqOn_of_hasLocalTaylor, LocallyConvex.Analysis.ComplexAnalyticOn.eqOn_of_iteratedDMB,
+    LocallyConvex.Analysis.ComplexAnalyticOn.eqOn_of_eqOn_open, LocallyConvex.Analysis.ComplexAnalyticOn.eqOn_of_eqOn_real,
+    LocallyConvex.Analysis.RealAnalyticOn.eqOn_of_iteratedDMB, LocallyConvex.Analysis.RealAnalyticOn.eqOn_of_eqOn_open,
+    LocallyConvex.Analysis.ComplexAnalyticOn.eqOn_of_eqOn_ofReal}
   \leanok
   \uses{thm:complex-analytic-iff, thm:real-analytic-basic}
   Let $U$ be open and connected, and $f$, $g$ complex (resp.\ real) analytic on $U$. Then $f = g$
@@ -328,7 +328,7 @@ Continuous linear maps and constants are real analytic.
 
 \begin{proposition}[Complex extensions with values in a complex space {\cite[Prop.~2.2.12]{GN26}}]
   \label{prop:complex-target}
-  \lean{LCAnalysis.complexifyFold, LCAnalysis.RealAnalyticOn.exists_complexAnalytic_extension}
+  \lean{LocallyConvex.Analysis.complexifyFold, LocallyConvex.Analysis.RealAnalyticOn.exists_complexAnalytic_extension}
   \leanok
   \uses{def:real-analytic}
   A real analytic map $f \colon U \to F$ into a complex locally convex space extends to a complex
@@ -357,7 +357,7 @@ $F$ sequentially complete; the results below use no completeness of $F$.
 
 \begin{lemma}[Moving the centre of a bound]
   \label{lem:hom-poly-shift}
-  \lean{LCAnalysis.IsContHomPoly.seminorm_le_of_shift}
+  \lean{LocallyConvex.Analysis.IsContHomPoly.seminorm_le_of_shift}
   \leanok
   \uses{def:hom-poly}
   Let $p$ be a continuous homogeneous polynomial of degree $n$ between complex vector spaces,
@@ -375,7 +375,7 @@ $F$ sequentially complete; the results below use no completeness of $F$.
 
 \begin{proposition}[Normal convergence at zero {\cite[Prop.~5.2]{BS71b}}]
   \label{prop:bs-baire}
-  \lean{LCAnalysis.exists_nhds_geometric_bound, LCAnalysis.continuousAt_zero_of_tendsto_sum}
+  \lean{LocallyConvex.Analysis.exists_nhds_geometric_bound, LocallyConvex.Analysis.continuousAt_zero_of_tendsto_sum}
   \leanok
   \uses{lem:hom-poly-shift}
   Let $E$ be a complex Baire space and $p_n$ continuous homogeneous polynomials of degree $n$
@@ -395,9 +395,9 @@ $F$ sequentially complete; the results below use no completeness of $F$.
 
 \begin{remark}[Counterexamples]
   \label{rem:bs-counterexamples}
-  \lean{LCAnalysis.not_continuousAt_bsSum, LCAnalysis.not_baireSpace_finSeq,
-    LCAnalysis.hasPowerSeriesOnDisc_geomFun, LCAnalysis.not_cAnalyticOn_geomFun,
-    LCAnalysis.not_mackeyComplete_geomSpan}
+  \lean{LocallyConvex.Analysis.not_continuousAt_bsSum, LocallyConvex.Analysis.not_baireSpace_finSeq,
+    LocallyConvex.Analysis.hasPowerSeriesOnDisc_geomFun, LocallyConvex.Analysis.not_cAnalyticOn_geomFun,
+    LocallyConvex.Analysis.not_mackeyComplete_geomSpan}
   \leanok
   \emph{$E$ not Baire} \cite[Counterexample~5.1]{BS71b}: on the finitely supported sequences
   with the norm of $\ell^2$, $\sum_n (n x_n)^n$ converges everywhere, but its sum is not
@@ -411,8 +411,8 @@ $F$ sequentially complete; the results below use no completeness of $F$.
 
 \begin{lemma}[Hartogs' lemma]
   \label{lem:hartogs}
-  \lean{LCAnalysis.posLog_le_circleAverage, LCAnalysis.ofReal_le_lintegral_ball,
-    LCAnalysis.hartogs_lemma}
+  \lean{LocallyConvex.Analysis.posLog_le_circleAverage, LocallyConvex.Analysis.ofReal_le_lintegral_ball,
+    LocallyConvex.Analysis.hartogs_lemma}
   \leanok
   Let $g_n \colon \mathbb{C} \to F$ be continuous with $\ell \circ g_n$ entire for every
   continuous functional $\ell$, and $q$ a continuous seminorm. If $q(g_n) \le e^{nB}$ on a closed
@@ -435,7 +435,7 @@ potential theory (Siciak's extremal function, Fekete points); only lines are nee
 
 \begin{proposition}[Bounds along lines {\cite[Prop.~4.1]{BS71b}}]
   \label{prop:bs-lines}
-  \lean{LCAnalysis.exists_line_geometric_bound, LCAnalysis.exists_compact_geometric_bound}
+  \lean{LocallyConvex.Analysis.exists_line_geometric_bound, LocallyConvex.Analysis.exists_compact_geometric_bound}
   \leanok
   \uses{lem:hartogs, lem:hom-poly-shift}
   If $\sum_n p_n$ converges pointwise on an open set $H$, then for every compact set
@@ -458,7 +458,7 @@ potential theory (Siciak's extremal function, Fekete points); only lines are nee
 
 \begin{theorem}[Pointwise limits of polynomials {\cite[Thm.~2]{BS71a}}]
   \label{thm:bs-limits}
-  \lean{LCAnalysis.isContHomPoly_of_tendsto}
+  \lean{LocallyConvex.Analysis.isContHomPoly_of_tendsto}
   \leanok
   \uses{lem:hom-poly-shift}
   Over a Baire space, a pointwise limit of continuous homogeneous polynomials of degree $k$ is a
@@ -474,8 +474,8 @@ potential theory (Siciak's extremal function, Fekete points); only lines are nee
 
 \begin{theorem}[Bochnak--Siciak {\cite[Thms.~5.1, 5.2]{BS71b}}]
   \label{thm:bs-52}
-  \lean{LCAnalysis.complexAnalyticOn_of_tendsto_sum, LCAnalysis.gateauxAnalyticOn_of_tendsto,
-    LCAnalysis.continuousOn_of_tendsto, LCAnalysis.MackeyComplete.exists_hasSum_of_geometric}
+  \lean{LocallyConvex.Analysis.complexAnalyticOn_of_tendsto_sum, LocallyConvex.Analysis.gateauxAnalyticOn_of_tendsto,
+    LocallyConvex.Analysis.continuousOn_of_tendsto, LocallyConvex.Analysis.MackeyComplete.exists_hasSum_of_geometric}
   \leanok
   \uses{prop:bs-lines, thm:bs-limits, prop:bs-baire, thm:complex-analytic-iff,
     def:mackey-complete}
@@ -510,8 +510,8 @@ polynomial $p$ of $A$.
 \begin{lemma}[Complexification of polynomials]
   \label{lem:complexify-poly}
   \lean{ContinuousMultilinearMap.complexify, ContinuousMultilinearMap.complexify_apply_ofReal,
-    LCAnalysis.IsContHomPoly.complexify, LCAnalysis.IsContHomPoly.isContHomPoly_complexify,
-    LCAnalysis.IsContHomPoly.complexify_ofReal}
+    LocallyConvex.Analysis.IsContHomPoly.complexify, LocallyConvex.Analysis.IsContHomPoly.isContHomPoly_complexify,
+    LocallyConvex.Analysis.IsContHomPoly.complexify_ofReal}
   \leanok
   \uses{def:hom-poly, def:complexification}
   $A_{\mathbb{C}}$ is complex multilinear and continuous, and extends $A$. Hence $p_{\mathbb{C}}$
@@ -528,8 +528,8 @@ polynomial $p$ of $A$.
 
 \begin{lemma}[Forward differences]
   \label{lem:fwd-diff}
-  \lean{LCAnalysis.IsContHomPoly.sum_fwdDiff, LCAnalysis.IsContHomPoly.factorial_mul_seminorm_le,
-    LCAnalysis.exists_plane_bound}
+  \lean{LocallyConvex.Analysis.IsContHomPoly.sum_fwdDiff, LocallyConvex.Analysis.IsContHomPoly.factorial_mul_seminorm_le,
+    LocallyConvex.Analysis.exists_plane_bound}
   \leanok
   \uses{def:hom-poly}
   For a homogeneous polynomial $p$ of degree $n$ and any $c$, $v$,
@@ -557,8 +557,8 @@ $\|p_{\mathbb{C}}(\cdots)\| = 2^n \|p(\cos(\theta/2) x + \sin(\theta/2) y)\|$.
 
 \begin{lemma}[Jensen's inequality on the auxiliary line]
   \label{lem:jensen-aux-line}
-  \lean{LCAnalysis.mk_add_circleMap_smul_auxDir, LCAnalysis.posLog_le_integral_circle,
-    LCAnalysis.posLog_seminorm_le_integral_circle, LCAnalysis.exists_clm_eq_seminorm_real}
+  \lean{LocallyConvex.Analysis.mk_add_circleMap_smul_auxDir, LocallyConvex.Analysis.posLog_le_integral_circle,
+    LocallyConvex.Analysis.posLog_seminorm_le_integral_circle, LocallyConvex.Analysis.exists_clm_eq_seminorm_real}
   \leanok
   \uses{lem:complexify-poly, lem:hartogs}
   Let $p$ be a continuous real homogeneous polynomial of degree $n$, $q$ a continuous seminorm on
@@ -581,8 +581,8 @@ $\|p_{\mathbb{C}}(\cdots)\| = 2^n \|p(\cos(\theta/2) x + \sin(\theta/2) y)\|$.
 
 \begin{proposition}[Bochnak--Siciak {\cite[Prop.~5.4]{BS71b}}]
   \label{prop:bs-54}
-  \lean{LCAnalysis.exists_geometric_of_circle, LCAnalysis.exists_nhds_complexify_geometric,
-    LCAnalysis.exists_nhds_hasSum_complexify, LCAnalysis.Complexification.mackeyComplete}
+  \lean{LocallyConvex.Analysis.exists_geometric_of_circle, LocallyConvex.Analysis.exists_nhds_complexify_geometric,
+    LocallyConvex.Analysis.exists_nhds_hasSum_complexify, LocallyConvex.Analysis.Complexification.mackeyComplete}
   \leanok
   \uses{lem:fwd-diff, lem:jensen-aux-line, def:mackey-complete}
   Let $\sum_n p_n$ be a series of continuous real homogeneous polynomials such that
@@ -615,8 +615,8 @@ points into play.
 
 \begin{theorem}[Bochnak--Siciak {\cite[Thm.~7.1]{BS71b}}]
   \label{thm:bs-71}
-  \lean{LCAnalysis.realAnalyticOn_of_bsAnalyticOn, LCAnalysis.realAnalyticOn_iff_bsAnalyticOn,
-    LCAnalysis.ComplexAnalyticOn.comp_sub_const, LCAnalysis.Complexification.baireSpace}
+  \lean{LocallyConvex.Analysis.realAnalyticOn_of_bsAnalyticOn, LocallyConvex.Analysis.realAnalyticOn_iff_bsAnalyticOn,
+    LocallyConvex.Analysis.ComplexAnalyticOn.comp_sub_const, LocallyConvex.Analysis.Complexification.baireSpace}
   \leanok
   \uses{prop:bs-54, thm:bs-52, lem:real-analytic-local, def:real-analytic, def:bs-analytic}
   Let $E$ be a real locally convex space such that $E_{\mathbb{C}} = E \times E$ is a Baire space
@@ -643,7 +643,7 @@ continuity for every $q$.
 
 \begin{lemma}[Baire's theorem for separately continuous maps {\cite[Lemma~36.2]{Muj86}}]
   \label{lem:sep-baire}
-  \lean{LCAnalysis.exists_ball_seminorm_bound}
+  \lean{LocallyConvex.Analysis.exists_ball_seminorm_bound}
   \leanok
   If $g(\zeta, \sigma)$ is continuous in $\zeta \in B(a, R)$ and in $\sigma \in \bar B(c, S)$
   separately, then $q \circ g$ is bounded on $B(b, \rho) \times \bar B(c, S)$ for some ball
@@ -658,9 +658,9 @@ continuity for every $q$.
 
 \begin{lemma}[Weakly holomorphic maps and seminorms]
   \label{lem:weak-seminorm}
-  \lean{LCAnalysis.posLog_le_circleAverage_of_dominated, LCAnalysis.seminorm_sub_le_of_dominated,
-    LCAnalysis.hartogs_lemma_real, LCAnalysis.differentiableOn_iteratedDeriv_of_bound,
-    LCAnalysis.tendsto_seminorm_sub_of_hasSum}
+  \lean{LocallyConvex.Analysis.posLog_le_circleAverage_of_dominated, LocallyConvex.Analysis.seminorm_sub_le_of_dominated,
+    LocallyConvex.Analysis.hartogs_lemma_real, LocallyConvex.Analysis.differentiableOn_iteratedDeriv_of_bound,
+    LocallyConvex.Analysis.tendsto_seminorm_sub_of_hasSum}
   \leanok
   \uses{lem:hartogs}
   Let $A \colon B(c, 3r) \to F$ be such that $\ell \circ A$ is holomorphic for every continuous
@@ -680,7 +680,7 @@ continuity for every $q$.
 
 \begin{theorem}[Hartogs {\cite[Lemma~36.3, Thm.~36.1]{Muj86}}]
   \label{thm:hartogs-separate}
-  \lean{LCAnalysis.hartogs_continuousAt, LCAnalysis.continuousOn_of_separately}
+  \lean{LocallyConvex.Analysis.hartogs_continuousAt, LocallyConvex.Analysis.continuousOn_of_separately}
   \leanok
   \uses{lem:sep-baire, lem:weak-seminorm}
   Let $U \subseteq \mathbb{C}^2$ be open and $g \colon U \to F$ complex analytic in each variable
@@ -702,8 +702,8 @@ continuity for every $q$.
 
 \begin{proposition}[Weak holomorphy in Mackey complete spaces]
   \label{prop:weak-holomorphic}
-  \lean{LCAnalysis.norm_avg_sub_coeff_le, LCAnalysis.exists_coeff_of_weak,
-    LCAnalysis.CAnalyticOn.of_weak}
+  \lean{LocallyConvex.Analysis.norm_avg_sub_coeff_le, LocallyConvex.Analysis.exists_coeff_of_weak,
+    LocallyConvex.Analysis.CAnalyticOn.of_weak}
   \leanok
   \uses{def:mackey-complete}
   Let $F$ be Mackey complete and $f \colon U \to F$ continuous on an open set
@@ -726,8 +726,8 @@ continuity for every $q$.
 
 \begin{theorem}[Hartogs, joint analyticity {\cite[Thm.~36.1]{Muj86}}]
   \label{thm:hartogs-joint}
-  \lean{LCAnalysis.differentiableAt_line_of_separately,
-    LCAnalysis.complexAnalyticOn_of_separately}
+  \lean{LocallyConvex.Analysis.differentiableAt_line_of_separately,
+    LocallyConvex.Analysis.complexAnalyticOn_of_separately}
   \leanok
   \uses{thm:hartogs-separate, prop:weak-holomorphic, thm:complex-analytic-iff}
   If $F$ is Mackey complete, a map $g \colon U \to F$ on an open set $U \subseteq \mathbb{C}^2$
@@ -745,9 +745,9 @@ continuity for every $q$.
 
 \begin{example}[Separate does not imply joint analyticity without completeness]
   \label{ex:hartogs-incomplete}
-  \lean{LCAnalysis.diagCoeff₂_notMem, LCAnalysis.cAnalyticOn_sepG_fst,
-    LCAnalysis.cAnalyticOn_sepG_snd, LCAnalysis.not_complexAnalyticOn_sepG,
-    LCAnalysis.not_mackeyComplete_sepSpan}
+  \lean{LocallyConvex.Analysis.diagCoeff₂_notMem, LocallyConvex.Analysis.cAnalyticOn_sepG_fst,
+    LocallyConvex.Analysis.cAnalyticOn_sepG_snd, LocallyConvex.Analysis.not_complexAnalyticOn_sepG,
+    LocallyConvex.Analysis.not_mackeyComplete_sepSpan}
   \leanok
   \uses{thm:hartogs-joint}
   Let $F \subseteq \mathbb{C}^{\mathbb{N} \times \mathbb{N}}$ (product topology) be the span of the
@@ -774,10 +774,10 @@ completeness is needed there; continuity needs none.
 
 \begin{theorem}[Products {\cite[Thms.~36.5, 36.8]{Muj86}}]
   \label{thm:separate-products}
-  \lean{LCAnalysis.GateauxAnalyticOn.continuousOn_of_locallyBoundedOn,
-    LCAnalysis.GateauxAnalyticOn.complexAnalyticOn_of_locallyBoundedOn,
-    LCAnalysis.GateauxAnalyticOn.cAnalyticOn_line, LCAnalysis.gateauxAnalyticOn_of_separately,
-    LCAnalysis.complexAnalyticOn_of_separately_of_locallyBoundedOn}
+  \lean{LocallyConvex.Analysis.GateauxAnalyticOn.continuousOn_of_locallyBoundedOn,
+    LocallyConvex.Analysis.GateauxAnalyticOn.complexAnalyticOn_of_locallyBoundedOn,
+    LocallyConvex.Analysis.GateauxAnalyticOn.cAnalyticOn_line, LocallyConvex.Analysis.gateauxAnalyticOn_of_separately,
+    LocallyConvex.Analysis.complexAnalyticOn_of_separately_of_locallyBoundedOn}
   \leanok
   \uses{thm:hartogs-joint, thm:complex-analytic-iff, lem:weak-seminorm}
   A Gâteaux analytic map which is locally bounded for every continuous seminorm is continuous,
@@ -798,11 +798,11 @@ completeness is needed there; continuity needs none.
 
 \begin{theorem}[Zorn's theorem for one seminorm {\cite[Lemma~36.6, Prop.~36.7, Thm.~36.5]{Muj86}}]
   \label{thm:zorn}
-  \lean{LCAnalysis.taylorCoeff_smul, LCAnalysis.planeFun_line_identity,
-    LCAnalysis.planeFun_hasSum_shift, LCAnalysis.seminorm_taylorCoeff_sub_le,
-    LCAnalysis.qCont_taylorCoeff, LCAnalysis.seminorm_taylorCoeff_le_of_shift,
-    LCAnalysis.exists_nhds_seminorm_bound, LCAnalysis.exists_taylorCoeff_ball_bound,
-    LCAnalysis.exists_nhds_seminorm_bound_of_near}
+  \lean{LocallyConvex.Analysis.taylorCoeff_smul, LocallyConvex.Analysis.planeFun_line_identity,
+    LocallyConvex.Analysis.planeFun_hasSum_shift, LocallyConvex.Analysis.seminorm_taylorCoeff_sub_le,
+    LocallyConvex.Analysis.qCont_taylorCoeff, LocallyConvex.Analysis.seminorm_taylorCoeff_le_of_shift,
+    LocallyConvex.Analysis.exists_nhds_seminorm_bound, LocallyConvex.Analysis.exists_taylorCoeff_ball_bound,
+    LocallyConvex.Analysis.exists_nhds_seminorm_bound_of_near}
   \leanok
   \uses{thm:hartogs-separate, lem:weak-seminorm}
   Let $E$ be a Baire space, $f$ Gâteaux analytic on $U$, $q$ a continuous seminorm on $F$, and
@@ -830,8 +830,8 @@ completeness is needed there; continuity needs none.
 
 \begin{theorem}[Hartogs' theorem on products {\cite[Lemma~36.2, Thm.~36.8]{Muj86}}]
   \label{thm:hartogs-products}
-  \lean{LCAnalysis.exists_near_seminorm_bound, LCAnalysis.locallyBoundedOn_of_separately,
-    LCAnalysis.complexAnalyticOn_of_separately_prod}
+  \lean{LocallyConvex.Analysis.exists_near_seminorm_bound, LocallyConvex.Analysis.locallyBoundedOn_of_separately,
+    LocallyConvex.Analysis.complexAnalyticOn_of_separately_prod}
   \leanok
   \uses{thm:zorn, thm:separate-products}
   Let $E_1$ and $E_1 \times E_2$ be Baire spaces, $E_2$ first countable (e.g.\ Fréchet spaces), and

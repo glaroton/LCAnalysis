@@ -3,7 +3,7 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.FundamentalTheorem
+import LocallyConvexAnalysis.FundamentalTheorem
 
 /-!
 # Mackey completeness through Lipschitz curves
@@ -30,7 +30,7 @@ open scoped Topology Pointwise
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe v
 
@@ -524,4 +524,4 @@ theorem mackeyComplete_iff_integratesLipschitzCurves :
   ⟨fun _ ↦ MackeyComplete.integratesLipschitzCurves,
     MackeyComplete.of_integratesLipschitzCurves⟩
 
-end LCAnalysis
+end LocallyConvex.Analysis

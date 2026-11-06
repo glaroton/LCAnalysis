@@ -3,9 +3,9 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.ComplexOneVariable
-import LCAnalysis.Polynomial
-import LCAnalysis.Higher
+import LocallyConvexAnalysis.ComplexOneVariable
+import LocallyConvexAnalysis.Polynomial
+import LocallyConvexAnalysis.Higher
 
 /-!
 # Complex analytic maps between locally convex spaces
@@ -13,7 +13,7 @@ import LCAnalysis.Higher
 Glöckner–Neeb, *Infinite-Dimensional Lie Groups* (arXiv:2602.12362), §2.1: Definitions 2.1.2
 and 2.1.11 and Theorem 2.1.12, equivalence of (b), (c) and (d), for maps `f : E → F` on an open
 set `U ⊆ E`, where `E` and `F` are complex locally convex spaces and `F` is **not assumed to be
-complete in any sense** (sequentially, Mackey, …). As in `LCAnalysis.ComplexOneVariable`, no
+complete in any sense** (sequentially, Mackey, …). As in `LocallyConvexAnalysis.ComplexOneVariable`, no
 completion of `F` is used: every series or limit is *given* as an element of `F`, convergence
 is checked seminorm by seminorm, and scalar estimates are transported through Hahn–Banach
 (`seminorm_le_of_forall_clm`).
@@ -79,11 +79,11 @@ Proposition 1.3.17, `ContDiffMBOn.iteratedDMB_perm`) in the others.
 * GN's series (2.6) is a pointwise limit of partial sums; `ComplexAnalyticOn` follows this.
   The series produced by `HolomorphicOn.complexAnalyticOn` are even unconditionally summable.
 * `E` and `F` carry both a real and a complex structure linked by `IsScalarTower ℝ ℂ _`, as in
-  `LCAnalysis.ComplexOneVariable`; local convexity is stated over `ℝ` and the complex
+  `LocallyConvexAnalysis.ComplexOneVariable`; local convexity is stated over `ℝ` and the complex
   polynormability is derived (`polynormableSpace_complex`). The implications (c) ⇒ (b) and
   (d) ⇒ (c) do not use local convexity of `E`.
 * Condition (a) of GN Theorem 2.1.12 (`C^∞_ℂ`, the complex Michal–Bastiani calculus) is not
-  defined in `LCAnalysis`; conditions (e) and (f), which require `F` Mackey complete, are not
+  defined in `LocallyConvex.Analysis`; conditions (e) and (f), which require `F` Mackey complete, are not
   treated.
 -/
 
@@ -92,7 +92,7 @@ open scoped Topology Real
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u v
 
@@ -1109,4 +1109,4 @@ theorem ComplexAnalyticOn.dMB (hf : ComplexAnalyticOn f U) (hU : IsOpen U) :
 
 end Main
 
-end LCAnalysis
+end LocallyConvex.Analysis

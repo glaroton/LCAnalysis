@@ -21,7 +21,7 @@ maps on normed spaces. The references are G--N~\S1.2 and \cite[\S I.2]{Nee06}.
 
 \begin{definition}[Directional derivative]
   \label{def:dir-deriv}
-  \lean{LCAnalysis.HasDirDerivAt, LCAnalysis.dMB}
+  \lean{LocallyConvex.Analysis.HasDirDerivAt, LocallyConvex.Analysis.dMB}
   \leanok
   Let $f \colon E \to F$ and $x, h \in E$. We say that $f$ has derivative $y \in F$ at $x$ in
   the direction $h$ if
@@ -42,7 +42,7 @@ $\dd f(x)(0) = 0$ always, and that no linearity in $h$ is built into the definit
 
 \begin{definition}[$\Ck{k}$ and smooth maps]
   \label{def:ck}
-  \lean{LCAnalysis.ContDiffMBOn, LCAnalysis.SmoothMBOn}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn, LocallyConvex.Analysis.SmoothMBOn}
   \leanok
   \uses{def:dir-deriv}
   Let $U \subseteq E$ be open. A map $f$ is $\Ck{0}$ on $U$ if it is continuous on $U$. It is
@@ -89,7 +89,7 @@ We record the two basic examples, which are used throughout.
 
 \begin{lemma}[Pairs]
   \label{lem:prod}
-  \lean{LCAnalysis.ContDiffMBOn.prodMk}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.prodMk}
   \leanok
   \uses{def:ck}
   If $f \colon U \to F$ and $g \colon U \to G$ are $\Ck{k}$, so is $x \mapsto (f(x), g(x))$.
@@ -111,7 +111,7 @@ one for each continuous seminorm.
 
 \begin{lemma}[Mean value inclusion]
   \label{lem:mean-value-inclusion}
-  \lean{LCAnalysis.sub_mem_of_hasDirDerivAt}
+  \lean{LocallyConvex.Analysis.sub_mem_of_hasDirDerivAt}
   \leanok
   \uses{def:dir-deriv}
   Let $z, w \in E$ and suppose that $f$ has derivative $D(s)$ at $z + s w$ in the direction $w$
@@ -133,7 +133,7 @@ required in Definition~\ref{def:ck} is, from the first order on, automatic.
 
 \begin{lemma}[Continuity]
   \label{lem:continuity}
-  \lean{LCAnalysis.continuousOn_of_hasDirDerivAt}
+  \lean{LocallyConvex.Analysis.continuousOn_of_hasDirDerivAt}
   \leanok
   \uses{lem:mean-value-inclusion}
   If all directional derivatives of $f$ exist on $U$ and are jointly continuous on $U \times E$,
@@ -152,7 +152,7 @@ becomes an identity.
 
 \begin{proposition}[Mean value theorem, weak form]
   \label{prop:mean-value-weak}
-  \lean{LCAnalysis.ContDiffMBOn.integral_dMB}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.integral_dMB}
   \leanok
   \uses{def:ck}
   Let $f$ be $\Ck{1}$ on a set containing the segment $\{x + t h : t \in [0,1]\}$. Then, for
@@ -183,7 +183,7 @@ and including $t = 0$.
 
 \begin{lemma}[Glöckner]
   \label{lem:glockner}
-  \lean{LCAnalysis.ContDiffMBOn.tendsto_quotient}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.tendsto_quotient}
   \leanok
   \uses{def:ck, lem:mean-value-inclusion}
   Let $g$ be $\Ck{1}$ on $U$ and $y \in U$, $v \in E$. Then
@@ -208,7 +208,7 @@ step in the chain rule. It also gives the linearity of the differential.
 
 \begin{theorem}[The differential is linear]
   \label{thm:linear}
-  \lean{LCAnalysis.ContDiffMBOn.exists_clm}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.exists_clm}
   \leanok
   \uses{lem:glockner}
   If $f$ is $\Ck{1}$ on $U$ and $x \in U$, then $h \mapsto \dd f(x)(h)$ is a continuous linear
@@ -244,7 +244,7 @@ step in the chain rule. It also gives the linearity of the differential.
 
 \begin{theorem}[Chain rule]
   \label{thm:chain-rule}
-  \lean{LCAnalysis.ContDiffMBOn.comp, LCAnalysis.ContDiffMBOn.dMB_comp}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.comp, LocallyConvex.Analysis.ContDiffMBOn.dMB_comp}
   \leanok
   \uses{lem:glockner, lem:prod}
   Let $U \subseteq E$ and $V \subseteq F$ be open, $f \colon U \to F$ with $f(U) \subseteq V$
@@ -281,7 +281,7 @@ and are continuous.
 
 \begin{theorem}[Continuous partial derivatives]
   \label{thm:partials}
-  \lean{LCAnalysis.contDiffMBOn_one_of_partials}
+  \lean{LocallyConvex.Analysis.contDiffMBOn_one_of_partials}
   \leanok
   \uses{lem:mean-value-inclusion, def:ck}
   Let $U \subseteq E \times F$ be open and $f \colon U \to G$. Suppose that the partial
@@ -317,7 +317,7 @@ symmetric by construction.
 
 \begin{lemma}[Second differences]
   \label{lem:second-diff}
-  \lean{LCAnalysis.ContDiffMBOn.second_diff_mem}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.second_diff_mem}
   \leanok
   \uses{lem:mean-value-inclusion, thm:linear}
   Let $f$ be $\Ck{2}$ on $U$, $x \in U$ and $h_1, h_2 \in E$. For every closed convex
@@ -338,7 +338,7 @@ symmetric by construction.
 
 \begin{theorem}[Schwarz, second order]
   \label{thm:symm2}
-  \lean{LCAnalysis.ContDiffMBOn.dMB_dMB_symm}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.dMB_dMB_symm}
   \leanok
   \uses{lem:second-diff}
   If $f$ is $\Ck{2}$ on $U$ and $x \in U$, then
@@ -361,7 +361,7 @@ On normed spaces both calculi are available, and the Fréchet one is the stronge
 
 \begin{proposition}[Fréchet $\Ck{k}$ implies Michal--Bastiani $\Ck{k}$]
   \label{prop:frechet-to-mb}
-  \lean{LCAnalysis.ContDiffOn.contDiffMBOn, HasFDerivAt.hasDirDerivAt}
+  \lean{LocallyConvex.Analysis.ContDiffOn.contDiffMBOn, HasFDerivAt.hasDirDerivAt}
   \leanok
   \uses{def:ck}
   Let $E$ and $F$ be normed spaces. If $f$ is $\Ck{k}$ on $U$ in the sense of Fréchet, then it

@@ -17,7 +17,7 @@ differentials. The references are the results of G--N quoted in each proof.
 
 \begin{theorem}[Bilinear maps]
   \label{thm:bilinear}
-  \lean{LCAnalysis.hasDirDerivAt_bilin, LCAnalysis.contDiffMBOn_bilin}
+  \lean{LocallyConvex.Analysis.hasDirDerivAt_bilin, LocallyConvex.Analysis.contDiffMBOn_bilin}
   \leanok
   \uses{def:ck, thm:partials}
   Let $\beta \colon A \times B \to F$ be continuous and bilinear. Then $\beta$ is $\Ck{k}$ for
@@ -38,7 +38,7 @@ $\beta(a, w)$, which must be jointly continuous in $(a, w)$.
 
 \begin{corollary}[Product rule]
   \label{cor:product}
-  \lean{LCAnalysis.ContDiffMBOn.bilin, LCAnalysis.ContDiffMBOn.dMB_bilin}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.bilin, LocallyConvex.Analysis.ContDiffMBOn.dMB_bilin}
   \leanok
   \uses{thm:bilinear, thm:chain-rule, lem:prod}
   If $f \colon U \to A$ and $g \colon U \to B$ are $\Ck{k}$ and $\beta$ is continuous and
@@ -70,7 +70,7 @@ as regular as $f$, and its derivatives are the iterated differentials of $f$ alo
 
 \begin{lemma}[Derivatives along a line]
   \label{lem:line}
-  \lean{LCAnalysis.ContDiffMBOn.hasDerivAt_iteratedDMB_line, LCAnalysis.ContDiffMBOn.continuousOn_iteratedDMB_line}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.hasDerivAt_iteratedDMB_line, LocallyConvex.Analysis.ContDiffMBOn.continuousOn_iteratedDMB_line}
   \leanok
   \uses{thm:iterated-regular}
   Let $f$ be $\Ck{k}$ on $U$, $j < k$ and $\psi$ a continuous linear functional on $F$. Then
@@ -86,7 +86,7 @@ as regular as $f$, and its derivatives are the iterated differentials of $f$ alo
 
 \begin{theorem}[Taylor's formula, weak form]
   \label{thm:taylor}
-  \lean{LCAnalysis.ContDiffMBOn.taylor}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.taylor}
   \leanok
   \uses{lem:line}
   Let $f$ be $\Ck{k+1}$ on a set containing the segment $[x, x+h]$. For every continuous linear
@@ -120,7 +120,7 @@ as regular as $f$, and its derivatives are the iterated differentials of $f$ alo
 
 \begin{theorem}[Second-order chain rule]
   \label{thm:chain-second}
-  \lean{LCAnalysis.dMB_dMB_comp}
+  \lean{LocallyConvex.Analysis.dMB_dMB_comp}
   \leanok
   \uses{thm:chain-rule}
   Let $\tau \colon U \to V$ and $g \colon V \to F$ be $\Ck{2}$, with $U \subseteq E$ and

@@ -3,7 +3,7 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.ComplexOneVariable
+import LocallyConvexAnalysis.ComplexOneVariable
 
 /-! # A Hartogs lemma for vector-valued holomorphic families
 
@@ -33,7 +33,7 @@ open scoped Topology ENNReal
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 /-! ### Sub-mean value inequalities -/
 
@@ -314,4 +314,4 @@ theorem hartogs_lemma {g : ℕ → ℂ → F} (hc : ∀ n, Continuous (g n))
 
 end Hartogs
 
-end LCAnalysis
+end LocallyConvex.Analysis

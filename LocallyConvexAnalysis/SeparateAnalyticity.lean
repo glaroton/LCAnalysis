@@ -3,11 +3,11 @@ Copyright (c) 2026 Gabriel Larotonda. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Larotonda
 -/
-import LCAnalysis.Hartogs
+import LocallyConvexAnalysis.Hartogs
 
 /-! # Separately analytic maps on products of locally convex spaces
 
-Hartogs' theorem in `ℂ²` (`LCAnalysis.Hartogs`) extends to maps on open subsets of products
+Hartogs' theorem in `ℂ²` (`LocallyConvexAnalysis.Hartogs`) extends to maps on open subsets of products
 `E₁ × E₂` of complex locally convex spaces (compare Mujica, *Complex Analysis in Banach Spaces*,
 North-Holland Math. Studies 120 (1986), Theorems 36.5 and 36.8, for Banach spaces).
 
@@ -28,7 +28,7 @@ North-Holland Math. Studies 120 (1986), Theorems 36.5 and 36.8, for Banach space
   boundedness on a product of open sets (his Lemma 36.2), and his Theorem 36.5 propagates local
   boundedness of a Gâteaux holomorphic map over a connected domain, through Cauchy–Hadamard and
   another use of Baire's theorem (his Proposition 36.7). The locally convex version, one seminorm
-  at a time, is in `LCAnalysis.Zorn` (`complexAnalyticOn_of_separately_prod`).
+  at a time, is in `LocallyConvexAnalysis.Zorn` (`complexAnalyticOn_of_separately_prod`).
 -/
 
 open Set Filter Function Metric
@@ -36,7 +36,7 @@ open scoped Topology Pointwise
 
 noncomputable section
 
-namespace LCAnalysis
+namespace LocallyConvex.Analysis
 
 universe u v w
 
@@ -205,4 +205,4 @@ theorem complexAnalyticOn_of_separately_of_locallyBoundedOn [MackeyComplete F]
 
 end Product
 
-end LCAnalysis
+end LocallyConvex.Analysis
