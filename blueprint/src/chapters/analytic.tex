@@ -565,6 +565,80 @@ points into play.
   glues the local extensions. The converse is Theorem~\ref{thm:real-analytic-basic}.
 \end{proof}
 
+\section{Separately holomorphic maps}
+
+Hartogs' theorem asserts that a function of two complex variables which is holomorphic in each
+variable separately is continuous, hence holomorphic; no continuity is assumed. We prove the
+continuity for maps with values in a complex locally convex space $F$, without completeness,
+following Mujica \cite[\S36]{Muj86} one continuous seminorm $q$ at a time: continuity in $F$ is
+continuity for every $q$.
+
+\begin{lemma}[Baire's theorem for separately continuous maps {\cite[Lemma~36.2]{Muj86}}]
+  \label{lem:sep-baire}
+  \lean{LCAnalysis.exists_ball_seminorm_bound}
+  \leanok
+  If $g(\zeta, \sigma)$ is continuous in $\zeta \in B(a, R)$ and in $\sigma \in \bar B(c, S)$
+  separately, then $q \circ g$ is bounded on $B(b, \rho) \times \bar B(c, S)$ for some ball
+  $B(b, \rho) \subseteq B(a, R)$.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  The closed sets $\{\zeta : q(g(\zeta, \sigma)) \le m \text{ for } \sigma \in \bar B(c, S)\}$
+  cover $B(a, R)$.
+\end{proof}
+
+\begin{lemma}[Weakly holomorphic maps and seminorms]
+  \label{lem:weak-seminorm}
+  \lean{LCAnalysis.posLog_le_circleAverage_of_dominated, LCAnalysis.seminorm_sub_le_of_dominated,
+    LCAnalysis.hartogs_lemma_real, LCAnalysis.differentiableOn_iteratedDeriv_of_bound,
+    LCAnalysis.tendsto_seminorm_sub_of_hasSum}
+  \leanok
+  \uses{lem:hartogs}
+  Let $A \colon B(c, 3r) \to F$ be such that $\ell \circ A$ is holomorphic for every continuous
+  functional $\ell$ with $|\ell| \le q$, and $q \circ A \le M$. Then $A$ is $q$-Lipschitz on
+  $\bar B(c, r)$ with constant $M/r$, and $\log^+ q(A)$ has the sub-mean value property. Hartogs'
+  lemma (Lemma~\ref{lem:hartogs}) holds for nonnegative continuous functions on a disc with the
+  sub-mean value property.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  Hahn--Banach reduces both statements to the functionals $\ell$ dominated by $q$: the Cauchy
+  estimate for $(\ell \circ A)'$, and Jensen's inequality for $\ell \circ A$ with $\ell$
+  attaining $q$ at the centre. For Hartogs' lemma, extend the functions continuously to
+  $\mathbb{C}$ (Tietze) and argue as before.
+\end{proof}
+
+\begin{theorem}[Hartogs {\cite[Lemma~36.3, Thm.~36.1]{Muj86}}]
+  \label{thm:hartogs-separate}
+  \lean{LCAnalysis.hartogs_continuousAt, LCAnalysis.continuousOn_of_separately}
+  \leanok
+  \uses{lem:sep-baire, lem:weak-seminorm}
+  Let $U \subseteq \mathbb{C}^2$ be open and $g \colon U \to F$ complex analytic in each variable
+  separately. Then $g$ is continuous. No completeness of $F$ is needed.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Fix $q$ and a bidisc of radius $4R$ about $(a, c)$ in $U$. By Lemma~\ref{lem:sep-baire},
+  $q(g) \le m$ on $B(b, \rho) \times \bar B(c, 3R)$ with $|b - a| < R$. Let $A_k(\sigma)$ be the
+  Taylor coefficients of $g(\cdot, \sigma)$ at $b$. The Cauchy estimates on a small circle give
+  $q(A_k) \le m/r_0^k$; on the circle of radius $2R$, $(2R)^k q(A_k(\sigma)) $ is bounded for each
+  $\sigma$. For $\ell$ dominated by $q$, $\ell \circ A_k$ is holomorphic by Osgood's lemma, so
+  Lemma~\ref{lem:weak-seminorm} applies to $v_k = k^{-1} \log^+((2R)^k q(A_k))$: eventually
+  $q(A_k(\sigma)) \le (2/(3R))^k$ for $|\sigma - c| \le R/2$. Hence the Taylor series
+  $\sum_k (\zeta - b)^k A_k(\sigma)$ has terms bounded by $(5/6)^k$ near $(a, c)$, and each term
+  is $q$-continuous, so $g$ is $q$-continuous at $(a, c)$.
+\end{proof}
+
+Joint complex analyticity (Definition~\ref{def:complex-analytic}) is not derived yet. Its Taylor
+coefficients along oblique lines are limits in $F$ with geometric error bounds independent of
+the seminorm, so Mackey completeness of $F$ suffices for them; whether it is needed is open
+here. Mujica's extension to products of Banach spaces \cite[Thm.~36.8]{Muj86} rests on
+\cite[Thm.~36.5]{Muj86} (Gâteaux holomorphic and locally bounded at one point implies
+holomorphic).
+
 \section{Comparison with Mathlib on Banach spaces}
 
 On Banach spaces, Mathlib's \texttt{AnalyticOnNhd} (convergent power series in norm) should be

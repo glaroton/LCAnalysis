@@ -20,3 +20,4 @@ import LCAnalysis.RealAnalytic
 import LCAnalysis.HartogsLemma
 import LCAnalysis.HomogeneousSeries
 import LCAnalysis.RealSeries
+import LCAnalysis.Hartogs
