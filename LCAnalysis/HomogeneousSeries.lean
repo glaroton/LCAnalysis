@@ -11,14 +11,15 @@ import LCAnalysis.HartogsLemma
 Pointwise convergence of a series `∑ pₙ` of continuous homogeneous polynomials between complex
 topological vector spaces, after Bochnak and Siciak, *Analytic functions in topological vector
 spaces*, Studia Math. 39 (1971), 77–112 (part II, §§4–5). Bochnak and Siciak assume
-throughout that `F` is locally convex and sequentially complete. Here completeness of `F` is
-used only through `SeriesComplete F` (absolutely summable series converge), and only for the
+throughout that `F` is locally convex and sequentially complete. Here `F` is only assumed
+**Mackey complete** (`LCAnalysis.MackeyComplete`), which is strictly weaker, and only for the
 analyticity of the sum; the Baire lemma needs neither completeness nor local convexity of `F`.
+Mackey completeness cannot be dropped (`not_mackeyComplete_geomSpan`).
 
 ## Main results
 
 * `complexAnalyticOn_of_tendsto_sum` (**Bochnak–Siciak II, Theorem 5.2**, complex case): over a
-  complex locally convex Baire space `E`, with `F` series complete, the sum of a series of
+  complex locally convex Baire space `E`, with `F` Mackey complete, the sum of a series of
   continuous homogeneous polynomials converging pointwise on an open set `H` is complex analytic
   on `H`. Its ingredients:
   * `exists_line_geometric_bound`, `exists_compact_geometric_bound`: locally uniform geometric
@@ -31,7 +32,9 @@ analyticity of the sum; the Baire lemma needs neither completeness nor local con
     pointwise limits of continuous homogeneous polynomials are continuous homogeneous
     polynomials;
   * `continuousOn_of_tendsto`: the sum is continuous;
-  * `seriesComplete_of_completeSpace`: complete locally convex spaces are series complete.
+  * `MackeyComplete.exists_hasSum_of_geometric`: in a Mackey complete space, a series with
+    geometric bounds `q (vₙ) ≤ C_q θⁿ`, the ratio `θ` being the same for all seminorms,
+    converges. The bounds along lines above have such a uniform ratio.
 
 * `IsContHomPoly.seminorm_le_of_shift`: a bound `q (p (c + w)) ≤ M` on a balanced set `W`
   gives `q (p w) ≤ M` on `W`. This is a sharp complex form of Bochnak–Siciak, *Polynomials and
@@ -58,7 +61,9 @@ analyticity of the sum; the Baire lemma needs neither completeness nor local con
   (`not_eventually_affine_eq_expSum`). Hence a disc of convergence need not be a disc of
   analyticity when `F` is incomplete: by `HasPowerSeriesOnDisc.hasCDerivAt_iff`, the derivative
   off the centre exists exactly when the derived series converges in `F`, and here it does
-  not.
+  not. The partial sums of `∑ n 2^{1-n} eₙ` are Mackey–Cauchy in `geomSpan`, so `geomSpan` is
+  not Mackey complete (`not_mackeyComplete_geomSpan`): the counterexample shows that Mackey
+  completeness of `F` is needed in `complexAnalyticOn_of_tendsto_sum`.
 
 ## Implementation notes
 
@@ -555,35 +560,12 @@ theorem exists_pow_of_mem_gen {s : ℓ²}
       simp [show n ≠ k by omega, show n ≠ 0 by omega]⟩
   · exact ⟨z, 0, fun n _ ↦ geomVec_apply (mem_ball_zero_iff.1 hz) n⟩
 
-/-- **Incomplete target, one variable.** The function `z ↦ ∑ zⁿ eₙ` with values in
-`geomSpan` has no complex derivative at `1/2`: its derivative in `ℓ²` would be
-`∑ n 2^{1-n} eₙ`, which does not lie in `geomSpan` (`not_eventually_affine_eq_expSum`). -/
-theorem not_hasCDerivAt_geomFun (y : geomSpan) : ¬ HasCDerivAt geomFun (1 / 2) y := by
-  intro h
-  have hcoord : ∀ n : ℕ, (y : ℓ²) n = n * (1 / 2 : ℂ) ^ (n - 1) := by
-    intro n
-    set ℓ := (coordCLM n).comp geomSpan.subtypeL
-    have h1 : Tendsto (fun w : ℂ ↦ w⁻¹ • (ℓ (geomFun (1 / 2 + w)) - ℓ (geomFun (1 / 2))))
-        (𝓝[≠] 0) (𝓝 (ℓ y)) := by
-      refine ((ℓ.continuous.tendsto y).comp h).congr fun w ↦ ?_
-      simp only [Function.comp, map_smul, map_sub]
-    have h2 : Tendsto (fun w : ℂ ↦ w⁻¹ • ((1 / 2 + w) ^ n - (1 / 2 : ℂ) ^ n)) (𝓝[≠] 0)
-        (𝓝 (n * (1 / 2 : ℂ) ^ (n - 1))) := by
-      have hd := hasDerivAt_pow n (1 / 2 : ℂ)
-      rw [hasDerivAt_iff_tendsto_slope_zero] at hd
-      simpa using hd
-    have hnear : ∀ᶠ w in 𝓝 (0 : ℂ), ‖1 / 2 + w‖ < 1 := by
-      have hc : Continuous fun w : ℂ ↦ ‖1 / 2 + w‖ := by fun_prop
-      exact hc.continuousAt.eventually (gt_mem_nhds (by norm_num))
-    have h3 : (fun w : ℂ ↦ w⁻¹ • (ℓ (geomFun (1 / 2 + w)) - ℓ (geomFun (1 / 2)))) =ᶠ[𝓝[≠] 0]
-        fun w : ℂ ↦ w⁻¹ • ((1 / 2 + w) ^ n - (1 / 2 : ℂ) ^ n) := by
-      filter_upwards [nhdsWithin_le_nhds hnear] with w hw
-      have hh : ‖(1 / 2 : ℂ)‖ < 1 := by norm_num
-      have e : ∀ z : ℂ, ‖z‖ < 1 → ℓ (geomFun z) = z ^ n := fun z hz ↦ by
-        simp only [ℓ, ContinuousLinearMap.comp_apply, Submodule.subtypeL_apply, coordCLM_apply]
-        rw [coe_geomFun hz, geomVec_apply hz]
-      rw [e _ hw, e _ hh]
-    exact tendsto_nhds_unique (h1.congr' h3) h2
+/-- The vector with coordinates `n 2^{1-n}` (the derivative of `∑ zⁿ eₙ` at `1/2`) does not lie
+in `geomSpan`: its coordinates are not eventually an exponential sum
+(`not_eventually_affine_eq_expSum`). -/
+theorem not_forall_coord_eq_geomSpan (y : geomSpan) :
+    ¬ ∀ n : ℕ, (y : ℓ²) n = n * (1 / 2 : ℂ) ^ (n - 1) := by
+  intro hcoord
   obtain ⟨m, c, g, hg⟩ := Submodule.mem_span_set'.1 y.2
   choose μ K hμK using fun i ↦ exists_pow_of_mem_gen (g i).2
   set KK := ∑ i, K i
@@ -606,11 +588,113 @@ theorem not_hasCDerivAt_geomFun (y : geomSpan) : ¬ HasCDerivAt geomFun (1 / 2) 
   rw [e, ← hyn, Finset.mul_sum]
   exact Finset.sum_congr rfl fun i _ ↦ by ring
 
+/-- **Incomplete target, one variable.** The function `z ↦ ∑ zⁿ eₙ` with values in
+`geomSpan` has no complex derivative at `1/2`: its derivative in `ℓ²` would be
+`∑ n 2^{1-n} eₙ`, which does not lie in `geomSpan` (`not_eventually_affine_eq_expSum`). -/
+theorem not_hasCDerivAt_geomFun (y : geomSpan) : ¬ HasCDerivAt geomFun (1 / 2) y := by
+  intro h
+  refine not_forall_coord_eq_geomSpan y fun n ↦ ?_
+  set ℓ := (coordCLM n).comp geomSpan.subtypeL
+  have h1 : Tendsto (fun w : ℂ ↦ w⁻¹ • (ℓ (geomFun (1 / 2 + w)) - ℓ (geomFun (1 / 2))))
+      (𝓝[≠] 0) (𝓝 (ℓ y)) := by
+    refine ((ℓ.continuous.tendsto y).comp h).congr fun w ↦ ?_
+    simp only [Function.comp, map_smul, map_sub]
+  have h2 : Tendsto (fun w : ℂ ↦ w⁻¹ • ((1 / 2 + w) ^ n - (1 / 2 : ℂ) ^ n)) (𝓝[≠] 0)
+      (𝓝 (n * (1 / 2 : ℂ) ^ (n - 1))) := by
+    have hd := hasDerivAt_pow n (1 / 2 : ℂ)
+    rw [hasDerivAt_iff_tendsto_slope_zero] at hd
+    simpa using hd
+  have hnear : ∀ᶠ w in 𝓝 (0 : ℂ), ‖1 / 2 + w‖ < 1 := by
+    have hc : Continuous fun w : ℂ ↦ ‖1 / 2 + w‖ := by fun_prop
+    exact hc.continuousAt.eventually (gt_mem_nhds (by norm_num))
+  have h3 : (fun w : ℂ ↦ w⁻¹ • (ℓ (geomFun (1 / 2 + w)) - ℓ (geomFun (1 / 2)))) =ᶠ[𝓝[≠] 0]
+      fun w : ℂ ↦ w⁻¹ • ((1 / 2 + w) ^ n - (1 / 2 : ℂ) ^ n) := by
+    filter_upwards [nhdsWithin_le_nhds hnear] with w hw
+    have hh : ‖(1 / 2 : ℂ)‖ < 1 := by norm_num
+    have e : ∀ z : ℂ, ‖z‖ < 1 → ℓ (geomFun z) = z ^ n := fun z hz ↦ by
+      simp only [ℓ, ContinuousLinearMap.comp_apply, Submodule.subtypeL_apply, coordCLM_apply]
+      rw [coe_geomFun hz, geomVec_apply hz]
+    rw [e _ hw, e _ hh]
+  exact tendsto_nhds_unique (h1.congr' h3) h2
+
 /-- Without completeness of `F` the disc of convergence of a power series need not be a disc of
 analyticity: `∑ zⁿ eₙ` converges in `geomSpan` on the unit disc (`hasPowerSeriesOnDisc_geomFun`)
 but is not complex analytic there. -/
 theorem not_cAnalyticOn_geomFun : ¬ CAnalyticOn geomFun (ball 0 1) := fun h ↦
   not_hasCDerivAt_geomFun _ (h.hasCDerivAt (by norm_num : (1 / 2 : ℂ) ∈ ball (0 : ℂ) 1))
+
+/-- **`geomSpan` is not Mackey complete.** The partial sums of `∑ n 2^{1-n} eₙ` are
+Mackey–Cauchy in `geomSpan` (the `eₙ` are unit vectors and the coefficients are summable), but
+the limit in `ℓ²` is not in `geomSpan` (`not_forall_coord_eq_geomSpan`). So Mackey completeness
+of `F` cannot be dropped from `complexAnalyticOn_of_tendsto_sum`, already for `E = ℂ`
+(`not_cAnalyticOn_geomFun`). -/
+theorem not_mackeyComplete_geomSpan : ¬ MackeyComplete geomSpan := by
+  intro hM
+  set t : ℕ → ℝ := fun n ↦ n * (1 / 2 : ℝ) ^ (n - 1)
+  have ht0 : ∀ n, 0 ≤ t n := fun n ↦ by positivity
+  have hts : Summable t := by
+    refine ((summable_pow_mul_geometric_of_norm_lt_one 1
+      (by norm_num : ‖(1 / 2 : ℝ)‖ < 1)).mul_left 2).congr fun n ↦ ?_
+    rcases n with _ | n
+    · simp [t]
+    · simp only [t, Nat.add_sub_cancel, pow_succ]
+      push_cast
+      ring
+  set u : ℕ → geomSpan := fun N ↦ ∑ n ∈ range N, (t n : ℂ) • geomCoeff n
+  set r : ℕ → ℝ := fun k ↦ ∑' j, t (j + k) + (1 / 2 : ℝ) ^ k
+  have hr0 : ∀ k, 0 < r k := fun k ↦
+    add_pos_of_nonneg_of_pos (tsum_nonneg fun j ↦ ht0 _) (by positivity)
+  have hr : Tendsto r atTop (𝓝 0) := by
+    have h := (tendsto_sum_nat_add t).add
+      (tendsto_pow_atTop_nhds_zero_of_lt_one (by norm_num : (0 : ℝ) ≤ 1 / 2) (by norm_num))
+    rw [zero_add] at h
+    exact h
+  have hnorm : ∀ n, ‖geomCoeff n‖ = 1 := fun n ↦ by
+    rw [← Submodule.norm_coe]
+    simp [geomCoeff, lp.norm_single]
+  have hdiff : ∀ k l, k ≤ l → ‖u l - u k‖ ≤ r k := by
+    intro k l hkl
+    have e : u l - u k = ∑ n ∈ Ico k l, (t n : ℂ) • geomCoeff n := by
+      simp only [u]
+      rw [← Finset.sum_range_add_sum_Ico _ hkl]
+      abel
+    rw [e]
+    calc ‖∑ n ∈ Ico k l, (t n : ℂ) • geomCoeff n‖ ≤ ∑ n ∈ Ico k l, t n := by
+          refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun n _ ↦ ?_)
+          rw [norm_smul, hnorm, mul_one, Complex.norm_real, Real.norm_of_nonneg (ht0 n)]
+      _ = ∑ j ∈ range (l - k), t (j + k) := by
+          rw [Finset.sum_Ico_eq_sum_range]
+          exact Finset.sum_congr rfl fun j _ ↦ by rw [add_comm]
+      _ ≤ ∑' j, t (j + k) :=
+          (hts.comp_injective (add_left_injective k)).sum_le_tsum _ fun j _ ↦ ht0 _
+      _ ≤ r k := le_add_of_nonneg_right (by positivity)
+  have hB : Bornology.IsVonNBounded ℝ (closedBall (0 : geomSpan) 1) :=
+    (NormedSpace.isVonNBounded_iff ℝ).2 isBounded_closedBall
+  obtain ⟨y, hy⟩ := hM.exists_tendsto u (closedBall 0 1) r hB hr fun k l hkl ↦ by
+    refine ⟨(r k)⁻¹ • (u l - u k), ?_, ?_⟩
+    · rw [mem_closedBall_zero_iff, norm_smul, Real.norm_of_nonneg (inv_nonneg.2 (hr0 k).le)]
+      exact inv_mul_le_one_of_le₀ (hdiff k l hkl) (hr0 k).le
+    · change r k • ((r k)⁻¹ • (u l - u k)) = u l - u k
+      rw [smul_smul, mul_inv_cancel₀ (hr0 k).ne', one_smul]
+  refine not_forall_coord_eq_geomSpan y fun n ↦ ?_
+  set ℓ := (coordCLM n).comp geomSpan.subtypeL
+  have hcoord : ∀ N, n < N → ℓ (u N) = t n := by
+    intro N hN
+    simp only [ℓ, u, map_sum, map_smul, ContinuousLinearMap.comp_apply,
+      Submodule.subtypeL_apply, coordCLM_apply, geomCoeff, lp.single_apply, smul_eq_mul]
+    rw [Finset.sum_eq_single n]
+    · simp
+    · intro m _ hmn
+      simp [Ne.symm hmn]
+    · intro hn
+      exact absurd (Finset.mem_range.2 hN) hn
+  have hlim : Tendsto (fun N ↦ ℓ (u N)) atTop (𝓝 (t n : ℂ)) :=
+    tendsto_const_nhds.congr' (eventually_atTop.2 ⟨n + 1, fun N hN ↦ (hcoord N (by omega)).symm⟩)
+  have := tendsto_nhds_unique ((ℓ.continuous.tendsto y).comp hy) hlim
+  simp only [ℓ, ContinuousLinearMap.comp_apply, Submodule.subtypeL_apply,
+    coordCLM_apply] at this
+  rw [this]
+  simp [t]
 
 end Counterexamples
 
@@ -818,14 +902,16 @@ variable [PolynormableSpace ℂ F]
 
 omit [ContinuousSMul ℂ F] in
 /-- **Bounds along a complex line** (the case needed of Bochnak–Siciak II, Proposition 4.1):
-if `∑ pₙ` converges pointwise on an open set `H` and `x + z₀ y ∈ H`, then for every continuous
-seminorm `q` there are `r > 0`, `θ < 1` and `C` with `q (pₙ (x + z y)) ≤ C θⁿ` for
-`|z - z₀| ≤ r`. Bochnak and Siciak use Siciak's polynomial lemma; here Baire's theorem in `ℂ`,
-the Bernstein–Walsh inequality and Hartogs' lemma (`hartogs_lemma`) are used. -/
+if `∑ pₙ` converges pointwise on an open set `H` and `x + z₀ y ∈ H`, then there are `r > 0`
+and `θ < 1` such that for every continuous seminorm `q` there is `C` with
+`q (pₙ (x + z y)) ≤ C θⁿ` for `|z - z₀| ≤ r`. The ratio `θ` depends only on the geometry of `H`
+along the line, not on `q`; this is what makes Mackey completeness of `F` sufficient later.
+Bochnak and Siciak use Siciak's polynomial lemma; here Baire's theorem in `ℂ`, the
+Bernstein–Walsh inequality and Hartogs' lemma (`hartogs_lemma`) are used. -/
 theorem exists_line_geometric_bound (hp : ∀ n, IsContHomPoly ℂ n (p n)) {H : Set E}
     (hH : IsOpen H) (hconv : ∀ a ∈ H, ∃ y, Tendsto (fun N ↦ ∑ n ∈ range N, p n a) atTop (𝓝 y))
-    {q : Seminorm ℂ F} (hq : Continuous q) {x y : E} {z₀ : ℂ} (hz₀ : x + z₀ • y ∈ H) :
-    ∃ r > 0, ∃ θ : ℝ, 0 ≤ θ ∧ θ < 1 ∧ ∃ C, 0 ≤ C ∧
+    {x y : E} {z₀ : ℂ} (hz₀ : x + z₀ • y ∈ H) :
+    ∃ r > 0, ∃ θ : ℝ, 0 ≤ θ ∧ θ < 1 ∧ ∀ q : Seminorm ℂ F, Continuous q → ∃ C, 0 ≤ C ∧
       ∀ n, ∀ z ∈ closedBall z₀ r, q (p n (x + z • y)) ≤ C * θ ^ n := by
   -- Step 1: a dilation `λ > 1` keeping a disc about `z₀` inside `H`
   have hΦ : Continuous fun w : ℂ × ℂ ↦ w.1 • (x + w.2 • y) := by fun_prop
@@ -849,6 +935,21 @@ theorem exists_line_geometric_bound (hp : ∀ n, IsContHomPoly ℂ n (p n)) {H :
   set g : ℕ → ℂ → F := fun n z ↦ p n ((lam : ℂ) • (x + z • y))
   have hgline : ∀ n, g n = fun z ↦ p n ((lam : ℂ) • x + z • ((lam : ℂ) • y)) := fun n ↦ by
     funext z; simp only [g, smul_add, smul_comm (lam : ℂ) z y]
+  -- the ratio `θ = λ^{-1/2}`, independent of the seminorm
+  set ε : ℝ := Real.log lam / 2
+  have hε : 0 < ε := by simp only [ε]; exact half_pos (Real.log_pos hlam)
+  set θ : ℝ := Real.exp (-ε)
+  have hθpos : 0 < θ := Real.exp_pos _
+  have hθ1 : θ < 1 := Real.exp_lt_one_iff.2 (by linarith)
+  have hθlam : ∀ n : ℕ, Real.exp (n * ε) / lam ^ n = θ ^ n := by
+    intro n
+    have hl : lam ^ n = Real.exp (n * (2 * ε)) := by
+      rw [Real.exp_nat_mul, show 2 * ε = Real.log lam by simp only [ε]; ring,
+        Real.exp_log hlam0]
+    rw [hl, ← Real.exp_sub, ← Real.exp_nat_mul]
+    congr 1
+    ring
+  refine ⟨R₀ / 2, by positivity, θ, hθpos.le, hθ1, fun q hq ↦ ?_⟩
   have hpt : ∀ z ∈ closedBall z₀ R₀, ∃ C, ∀ n, q (g n z) ≤ C := by
     intro z hz
     obtain ⟨yy, hyy⟩ := hconv _ (hinH z hz)
@@ -945,23 +1046,10 @@ theorem exists_line_geometric_bound (hp : ∀ n, IsContHomPoly ℂ n (p n)) {H :
       _ = Real.exp (n * B) := by
           rw [Real.exp_nat_mul, Real.exp_log (by positivity)]
   -- Step 4: Hartogs' lemma
-  set ε : ℝ := Real.log lam / 2
-  have hε : 0 < ε := by simp only [ε]; exact half_pos (Real.log_pos hlam)
   obtain ⟨N, hN⟩ := hartogs_lemma (g := g)
     (fun n ↦ by rw [hgline n]; exact ((hp n).line _ _).1)
     (fun n ℓ ↦ by rw [hgline n]; exact ((hp n).line _ _).2 ℓ) hq hR₀ hBW hpt hε
   -- Step 5: undo the dilation
-  set θ : ℝ := Real.exp (-ε)
-  have hθpos : 0 < θ := Real.exp_pos _
-  have hθ1 : θ < 1 := Real.exp_lt_one_iff.2 (by linarith)
-  have hθlam : ∀ n : ℕ, Real.exp (n * ε) / lam ^ n = θ ^ n := by
-    intro n
-    have hl : lam ^ n = Real.exp (n * (2 * ε)) := by
-      rw [Real.exp_nat_mul, show 2 * ε = Real.log lam by simp only [ε]; ring,
-        Real.exp_log hlam0]
-    rw [hl, ← Real.exp_sub, ← Real.exp_nat_mul]
-    congr 1
-    ring
   have hpn : ∀ n z, q (p n (x + z • y)) = q (g n z) / lam ^ n := by
     intro n z
     simp only [g]
@@ -977,7 +1065,7 @@ theorem exists_line_geometric_bound (hp : ∀ n, IsContHomPoly ℂ n (p n)) {H :
   have hS0 : 0 ≤ ∑ n ∈ range N, |D n| / θ ^ n :=
     Finset.sum_nonneg fun i _ ↦ by positivity
   have hC1 : 1 ≤ C := by simp only [C]; linarith
-  refine ⟨R₀ / 2, by positivity, θ, hθpos.le, hθ1, C, by linarith, fun n z hz ↦ ?_⟩
+  refine ⟨C, by linarith, fun n z hz ↦ ?_⟩
   by_cases hn : n < N
   · have hle : |D n| / θ ^ n ≤ C := by
       have := Finset.single_le_sum (f := fun n ↦ |D n| / θ ^ n) (fun i _ ↦ by positivity)
@@ -993,17 +1081,18 @@ theorem exists_line_geometric_bound (hp : ∀ n, IsContHomPoly ℂ n (p n)) {H :
       _ ≤ C * θ ^ n := le_mul_of_one_le_left (by positivity) hC1
 
 omit [ContinuousSMul ℂ F] in
-/-- The bounds of `exists_line_geometric_bound` are uniform on compact subsets of the line. -/
+/-- The bounds of `exists_line_geometric_bound` are uniform on compact subsets of the line, still
+with a ratio `θ` independent of the seminorm. -/
 theorem exists_compact_geometric_bound (hp : ∀ n, IsContHomPoly ℂ n (p n)) {H : Set E}
     (hH : IsOpen H) (hconv : ∀ a ∈ H, ∃ y, Tendsto (fun N ↦ ∑ n ∈ range N, p n a) atTop (𝓝 y))
-    {q : Seminorm ℂ F} (hq : Continuous q) {x y : E} {K : Set ℂ} (hK : IsCompact K)
-    (hKH : ∀ z ∈ K, x + z • y ∈ H) :
-    ∃ θ : ℝ, 0 ≤ θ ∧ θ < 1 ∧ ∃ C, 0 ≤ C ∧ ∀ n, ∀ z ∈ K, q (p n (x + z • y)) ≤ C * θ ^ n := by
+    {x y : E} {K : Set ℂ} (hK : IsCompact K) (hKH : ∀ z ∈ K, x + z • y ∈ H) :
+    ∃ θ : ℝ, 0 ≤ θ ∧ θ < 1 ∧ ∀ q : Seminorm ℂ F, Continuous q → ∃ C, 0 ≤ C ∧
+      ∀ n, ∀ z ∈ K, q (p n (x + z • y)) ≤ C * θ ^ n := by
   classical
-  have hloc : ∀ z ∈ K, ∃ r > 0, ∃ θ : ℝ, 0 ≤ θ ∧ θ < 1 ∧ ∃ C, 0 ≤ C ∧
-      ∀ n, ∀ w ∈ closedBall z r, q (p n (x + w • y)) ≤ C * θ ^ n := fun z hz ↦
-    exists_line_geometric_bound hp hH hconv hq (hKH z hz)
-  choose! r hr θ hθ0 hθ1 C hC0 hC using hloc
+  have hloc : ∀ z ∈ K, ∃ r > 0, ∃ θ : ℝ, 0 ≤ θ ∧ θ < 1 ∧ ∀ q : Seminorm ℂ F, Continuous q →
+      ∃ C, 0 ≤ C ∧ ∀ n, ∀ w ∈ closedBall z r, q (p n (x + w • y)) ≤ C * θ ^ n := fun z hz ↦
+    exists_line_geometric_bound hp hH hconv (hKH z hz)
+  choose! r hr θ hθ0 hθ1 hθC using hloc
   obtain ⟨t, htK, hcover⟩ := hK.elim_nhds_subcover (fun z ↦ closedBall z (r z))
     (fun z hz ↦ closedBall_mem_nhds z (hr z hz))
   set Θ : NNReal := t.sup fun z ↦ (θ z).toNNReal
@@ -1014,8 +1103,9 @@ theorem exists_compact_geometric_bound (hp : ∀ n, IsContHomPoly ℂ n (p n)) {
   have hθΘ : ∀ z ∈ t, θ z ≤ Θ := fun z hz ↦
     (Real.le_coe_toNNReal _).trans
       (by exact_mod_cast Finset.le_sup (f := fun z ↦ (θ z).toNNReal) hz)
-  refine ⟨Θ, Θ.2, hΘ1, ∑ z ∈ t, C z, Finset.sum_nonneg fun z hz ↦ hC0 z (htK z hz),
-    fun n w hw ↦ ?_⟩
+  refine ⟨Θ, Θ.2, hΘ1, fun q hq ↦ ?_⟩
+  choose! C hC0 hC using fun z (hz : z ∈ K) ↦ hθC z hz q hq
+  refine ⟨∑ z ∈ t, C z, Finset.sum_nonneg fun z hz ↦ hC0 z (htK z hz), fun n w hw ↦ ?_⟩
   obtain ⟨z, hzt, hwz⟩ := mem_iUnion₂.1 (hcover hw)
   calc q (p n (x + w • y)) ≤ C z * θ z ^ n := hC z (htK z hzt) n w hwz
     _ ≤ (∑ z ∈ t, C z) * Θ ^ n := by
@@ -1030,30 +1120,81 @@ end Propagation
 
 section Gateaux
 
-/-- `F` is **series complete** if every series which is absolutely summable for each continuous
-seminorm converges. Sequentially complete locally convex spaces, which Bochnak and Siciak assume
-throughout, are series complete. Some such hypothesis is needed: see
-`not_cAnalyticOn_geomFun`. -/
-def SeriesComplete (F : Type*) [AddCommGroup F] [Module ℂ F] [TopologicalSpace F] : Prop :=
-  ∀ v : ℕ → F, (∀ q : Seminorm ℂ F, Continuous q → Summable fun n ↦ q (v n)) → ∃ s, HasSum v s
-
 variable {E : Type*} [AddCommGroup E] [Module ℂ E] [TopologicalSpace E] [IsTopologicalAddGroup E]
   [ContinuousSMul ℂ E] {F : Type*} [AddCommGroup F] [Module ℂ F] [TopologicalSpace F]
   [IsTopologicalAddGroup F] [ContinuousSMul ℂ F] [PolynormableSpace ℂ F]
   (A : ∀ n, ContinuousMultilinearMap ℂ (fun _ : Fin n ↦ E) F) {H : Set E}
 
+omit [IsTopologicalAddGroup F] [ContinuousSMul ℂ F] in
+/-- In a Mackey complete space, a series whose terms satisfy `q (vₙ) ≤ C_q θⁿ` for every
+continuous seminorm `q`, with **one** ratio `θ < 1` for all `q`, converges. Indeed, with
+`θ < θ' < 1`, the partial sums `uₙ` satisfy `u_l - u_k ∈ θ'^k • B` for `k ≤ l`, where the set
+`B` of the vectors `θ'^{-k} (u_l - u_k)` is bounded: the partial sums are Mackey–Cauchy. If the
+ratio depended on `q`, the set `B` need not be bounded. -/
+theorem MackeyComplete.exists_hasSum_of_geometric [Module ℝ F] [IsScalarTower ℝ ℂ F]
+    [MackeyComplete F] {v : ℕ → F} {θ : ℝ} (hθ0 : 0 ≤ θ) (hθ1 : θ < 1)
+    (hv : ∀ q : Seminorm ℂ F, Continuous q → ∃ C, ∀ n, q (v n) ≤ C * θ ^ n) :
+    ∃ s, HasSum v s := by
+  set θ' : ℝ := (1 + θ) / 2
+  have hθ'0 : 0 < θ' := by simp only [θ']; linarith
+  have hθ'1 : θ' < 1 := by simp only [θ']; linarith
+  have hθθ' : θ ≤ θ' := by simp only [θ']; linarith
+  have h1θ : 0 < 1 - θ := by linarith
+  set u : ℕ → F := fun N ↦ ∑ n ∈ range N, v n
+  have hdiff : ∀ k l, k ≤ l → u l - u k = ∑ n ∈ Ico k l, v n := fun k l hkl ↦ by
+    simp only [u]
+    rw [← Finset.sum_range_add_sum_Ico _ hkl]
+    abel
+  set B : Set F := {w | ∃ k l, k ≤ l ∧ w = (θ' ^ k)⁻¹ • (u l - u k)}
+  have hB : Bornology.IsVonNBounded ℂ B := by
+    refine (PolynormableSpace.withSeminorms ℂ F).isVonNBounded_iff_seminorm_bounded.2
+      fun q ↦ ?_
+    obtain ⟨C, hC⟩ := hv q.1 q.2
+    have hC' : 0 ≤ |C| / (1 - θ) := div_nonneg (abs_nonneg C) h1θ.le
+    refine ⟨|C| / (1 - θ) + 1, by linarith, ?_⟩
+    rintro _ ⟨k, l, hkl, rfl⟩
+    have hpos : 0 < θ' ^ k := pow_pos hθ'0 k
+    have h1 : q.1 (u l - u k) ≤ |C| * (θ ^ k / (1 - θ)) := by
+      rw [hdiff k l hkl]
+      calc q.1 (∑ n ∈ Ico k l, v n) ≤ ∑ n ∈ Ico k l, q.1 (v n) :=
+            Finset.le_sum_of_subadditive _ (map_zero _).le (map_add_le_add _) _ _
+        _ ≤ ∑ n ∈ Ico k l, |C| * θ ^ n := Finset.sum_le_sum fun n _ ↦
+            (hC n).trans (mul_le_mul_of_nonneg_right (le_abs_self C) (by positivity))
+        _ = |C| * ∑ n ∈ Ico k l, θ ^ n := by rw [Finset.mul_sum]
+        _ ≤ |C| * (θ ^ k / (1 - θ)) := by
+            gcongr
+            exact geom_sum_Ico_le_of_lt_one hθ0 hθ1
+    calc q.1 ((θ' ^ k)⁻¹ • (u l - u k)) = (θ' ^ k)⁻¹ * q.1 (u l - u k) := by
+          rw [RCLike.real_smul_eq_coe_smul (K := ℂ), map_smul_eq_mul, RCLike.norm_ofReal,
+            abs_of_nonneg (by positivity)]
+      _ ≤ (θ' ^ k)⁻¹ * (|C| * (θ ^ k / (1 - θ))) := by gcongr
+      _ = |C| / (1 - θ) * (θ ^ k / θ' ^ k) := by ring
+      _ ≤ |C| / (1 - θ) * 1 := mul_le_mul_of_nonneg_left
+          (div_le_one_of_le₀ (pow_le_pow_left₀ hθ0 hθθ' k) hpos.le) hC'
+      _ < |C| / (1 - θ) + 1 := by linarith
+  obtain ⟨y, hy⟩ := MackeyComplete.exists_tendsto u B (fun k ↦ θ' ^ k) (hB.restrict_scalars ℝ)
+    (tendsto_pow_atTop_nhds_zero_of_lt_one hθ'0.le hθ'1) fun k l hkl ↦
+      ⟨(θ' ^ k)⁻¹ • (u l - u k), ⟨k, l, hkl, rfl⟩, by
+        change θ' ^ k • ((θ' ^ k)⁻¹ • (u l - u k)) = u l - u k
+        rw [smul_smul, mul_inv_cancel₀ (pow_pos hθ'0 k).ne', one_smul]⟩
+  refine ⟨y, hasSum_of_tendsto_of_dominated hy fun q hq ↦ ?_⟩
+  obtain ⟨C, hC⟩ := hv q hq
+  exact ⟨fun n ↦ C * θ ^ n, (summable_geometric_of_lt_one hθ0 hθ1).mul_left C, hC⟩
+
 omit [ContinuousSMul ℂ F] in
-/-- Geometric bounds for the coefficients of the series along a line. -/
+/-- Geometric bounds for the coefficients of the series along a line, with a ratio `θ`
+independent of the seminorm. -/
 theorem exists_dirCoeff_bound (hH : IsOpen H)
     (hconv : ∀ a ∈ H, ∃ y, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 y))
-    {x y : E} {R : ℝ} (hR : 0 < R) (hsub : ∀ z ∈ closedBall (0 : ℂ) R, x + z • y ∈ H)
-    {q : Seminorm ℂ F} (hq : Continuous q) :
-    ∃ θ : ℝ, 0 ≤ θ ∧ θ < 1 ∧ ∃ C, 0 ≤ C ∧
+    {x y : E} {R : ℝ} (hR : 0 < R) (hsub : ∀ z ∈ closedBall (0 : ℂ) R, x + z • y ∈ H) :
+    ∃ θ : ℝ, 0 ≤ θ ∧ θ < 1 ∧ ∀ q : Seminorm ℂ F, Continuous q → ∃ C, 0 ≤ C ∧
       ∀ n k, q (dirCoeff (A n).toMultilinearMap x k y) ≤ C * θ ^ n / R ^ k := by
-  obtain ⟨θ, hθ0, hθ1, C, hC0, hC⟩ := exists_compact_geometric_bound
-    (p := fun n a ↦ A n fun _ ↦ a) (fun n ↦ ⟨A n, fun _ ↦ rfl⟩) hH hconv hq
+  obtain ⟨θ, hθ0, hθ1, hθC⟩ := exists_compact_geometric_bound
+    (p := fun n a ↦ A n fun _ ↦ a) (fun n ↦ ⟨A n, fun _ ↦ rfl⟩) hH hconv
     (isCompact_closedBall 0 R) hsub
-  refine ⟨θ, hθ0, hθ1, C, hC0, fun n k ↦ ?_⟩
+  refine ⟨θ, hθ0, hθ1, fun q hq ↦ ?_⟩
+  obtain ⟨C, hC0, hC⟩ := hθC q hq
+  refine ⟨C, hC0, fun n k ↦ ?_⟩
   by_cases hk : k ≤ n
   · refine seminorm_coeff_le_of_circle q (N := n) (fun k ↦ dirCoeff (A n).toMultilinearMap x k y)
       hR (fun t ht ↦ ?_) hk
@@ -1065,9 +1206,10 @@ theorem exists_dirCoeff_bound (hH : IsOpen H)
 variable [T2Space F]
 
 /-- **Expansion along lines** (Bochnak–Siciak II, Theorem 5.1, complex case): if `∑ pₙ`
-converges to `f` on an open set `H` and `F` is series complete, then on each complex line
+converges to `f` on an open set `H` and `F` is Mackey complete, then on each complex line
 `z ↦ x + z y` the sum is a power series on every disc whose closure lies in `H`. -/
-theorem hasPowerSeriesOnDisc_of_closedBall (hF : SeriesComplete F) (hH : IsOpen H) {f : E → F}
+theorem hasPowerSeriesOnDisc_of_closedBall [Module ℝ F] [IsScalarTower ℝ ℂ F]
+    [MackeyComplete F] (hH : IsOpen H) {f : E → F}
     (hf : ∀ a ∈ H, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 (f a)))
     {x y : E} {R : ℝ} (hR : 0 < R) (hsub : ∀ z ∈ closedBall (0 : ℂ) R, x + z • y ∈ H) :
     HasPowerSeriesOnDisc (fun z ↦ f (x + z • y))
@@ -1077,11 +1219,11 @@ theorem hasPowerSeriesOnDisc_of_closedBall (hF : SeriesComplete F) (hH : IsOpen 
   set c : ℕ → ℕ → F := fun n k ↦ dirCoeff (A n).toMultilinearMap x k y
   have hb : ∀ k, HasSum (fun n ↦ c n k) (∑' n, c n k) := by
     intro k
-    obtain ⟨s, hs⟩ := hF (fun n ↦ c n k) fun q hq ↦ by
-      obtain ⟨θ, hθ0, hθ1, C, hC0, hC⟩ := exists_dirCoeff_bound A hH hconv hR hsub hq
-      refine Summable.of_nonneg_of_le (fun n ↦ apply_nonneg q _) (fun n ↦ hC n k) ?_
-      simp_rw [mul_div_right_comm]
-      exact (summable_geometric_of_lt_one hθ0 hθ1).mul_left _
+    obtain ⟨θ, hθ0, hθ1, hθC⟩ := exists_dirCoeff_bound A hH hconv hR hsub
+    obtain ⟨s, hs⟩ := MackeyComplete.exists_hasSum_of_geometric (v := fun n ↦ c n k) hθ0 hθ1
+        fun q hq ↦ by
+      obtain ⟨C, -, hC⟩ := hθC q hq
+      exact ⟨C / R ^ k, fun n ↦ (hC n k).trans_eq (by ring)⟩
     rwa [hs.tsum_eq]
   intro w hw
   rw [zero_add]
@@ -1100,7 +1242,8 @@ theorem hasPowerSeriesOnDisc_of_closedBall (hF : SeriesComplete F) (hH : IsOpen 
     simp only [dirCoeff_eq_zero _ _ hk, smul_zero]
   refine hasSum_of_tendsto_of_dominated ?_ fun q hq ↦ ?_
   · refine tendsto_nhds_iff_seminorm.2 fun q hq ε hε ↦ ?_
-    obtain ⟨θ, hθ0, hθ1, C, hC0, hC⟩ := exists_dirCoeff_bound A hH hconv hR hsub hq
+    obtain ⟨θ, hθ0, hθ1, hθC⟩ := exists_dirCoeff_bound A hH hconv hR hsub
+    obtain ⟨C, hC0, hC⟩ := hθC q hq
     set β : ℕ → ℝ := fun K ↦ C / (1 - θ) * (ρ ^ K / (1 - ρ))
     have hβ : Tendsto β atTop (𝓝 0) := by
       have := ((tendsto_pow_atTop_nhds_zero_of_lt_one hρ0 hρ1).div_const (1 - ρ)).const_mul
@@ -1149,7 +1292,8 @@ theorem hasPowerSeriesOnDisc_of_closedBall (hF : SeriesComplete F) (hH : IsOpen 
         _ = β K := by simp only [β]; ring
     filter_upwards [hβ.eventually (gt_mem_nhds hε)] with K hK
     exact (key K).trans_lt hK
-  · obtain ⟨θ, hθ0, hθ1, C, hC0, hC⟩ := exists_dirCoeff_bound A hH hconv hR hsub hq
+  · obtain ⟨θ, hθ0, hθ1, hθC⟩ := exists_dirCoeff_bound A hH hconv hR hsub
+    obtain ⟨C, hC0, hC⟩ := hθC q hq
     refine ⟨fun k ↦ C / (1 - θ) * ρ ^ k,
       (summable_geometric_of_lt_one hρ0 hρ1).mul_left _, fun k ↦ ?_⟩
     have hsumm : Summable fun n ↦ C / R ^ k * θ ^ n :=
@@ -1163,9 +1307,10 @@ theorem hasPowerSeriesOnDisc_of_closedBall (hF : SeriesComplete F) (hH : IsOpen 
       _ = C / (1 - θ) * ρ ^ k := by simp only [ρ, div_pow]; field_simp
 
 /-- **Gâteaux analyticity of the sum** (Bochnak–Siciak II, Theorem 5.1, complex case, with a
-series complete target): the sum of a series of continuous homogeneous polynomials converging
+Mackey complete target): the sum of a series of continuous homogeneous polynomials converging
 on an open set `H` is Gâteaux analytic on `H`. No Baire hypothesis is needed. -/
-theorem gateauxAnalyticOn_of_tendsto (hF : SeriesComplete F) (hH : IsOpen H) {f : E → F}
+theorem gateauxAnalyticOn_of_tendsto [Module ℝ F] [IsScalarTower ℝ ℂ F] [MackeyComplete F]
+    (hH : IsOpen H) {f : E → F}
     (hf : ∀ a ∈ H, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 (f a))) :
     GateauxAnalyticOn f H := by
   intro x _ y z₀ hz₀
@@ -1183,7 +1328,7 @@ theorem gateauxAnalyticOn_of_tendsto (hF : SeriesComplete F) (hH : IsOpen H) {f 
     have h := hball this
     simp only [Set.mem_ofPred_eq, add_smul] at h
     rwa [add_assoc]
-  have hps := hasPowerSeriesOnDisc_of_closedBall A hF hH hf (by positivity) hsub
+  have hps := hasPowerSeriesOnDisc_of_closedBall A hH hf (by positivity) hsub
   intro w hw
   have := hps w hw
   simp only [zero_add] at this
@@ -1364,7 +1509,8 @@ variable {E : Type*} [AddCommGroup E] [Module ℂ E] [TopologicalSpace E] [IsTop
 
 omit [ContinuousSMul ℂ F] in
 /-- The coefficients along a line through a point of `H` are summable. -/
-theorem hasSum_dirCoeff (hF : SeriesComplete F) (hH : IsOpen H)
+theorem hasSum_dirCoeff [Module ℝ F] [IsScalarTower ℝ ℂ F] [MackeyComplete F]
+    (hH : IsOpen H)
     (hconv : ∀ a ∈ H, ∃ y, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 y))
     {x : E} (hx : x ∈ H) (y : E) (k : ℕ) :
     HasSum (fun n ↦ dirCoeff (A n).toMultilinearMap x k y)
@@ -1374,21 +1520,21 @@ theorem hasSum_dirCoeff (hF : SeriesComplete F) (hH : IsOpen H)
   obtain ⟨ε, hε, hball⟩ := Metric.isOpen_iff.1 hΩ 0 (by simpa using hx)
   have hsub : ∀ z ∈ closedBall (0 : ℂ) (ε / 2), x + z • y ∈ H := fun z hz ↦
     hball (closedBall_subset_ball (by linarith) hz)
-  obtain ⟨s, hs⟩ := hF (fun n ↦ dirCoeff (A n).toMultilinearMap x k y) fun q hq ↦ by
-    obtain ⟨θ, hθ0, hθ1, C, hC0, hC⟩ :=
-      exists_dirCoeff_bound A hH hconv (half_pos hε) hsub hq
-    refine Summable.of_nonneg_of_le (fun n ↦ apply_nonneg q _) (fun n ↦ hC n k) ?_
-    simp_rw [mul_div_right_comm]
-    exact (summable_geometric_of_lt_one hθ0 hθ1).mul_left _
+  obtain ⟨θ, hθ0, hθ1, hθC⟩ := exists_dirCoeff_bound A hH hconv (half_pos hε) hsub
+  obtain ⟨s, hs⟩ := MackeyComplete.exists_hasSum_of_geometric
+      (v := fun n ↦ dirCoeff (A n).toMultilinearMap x k y) hθ0 hθ1 fun q hq ↦ by
+    obtain ⟨C, -, hC⟩ := hθC q hq
+    exact ⟨C / (ε / 2) ^ k, fun n ↦ (hC n k).trans_eq (by ring)⟩
   rwa [hs.tsum_eq]
 
 /-- **Continuity of the sum** (Bochnak–Siciak II, proof of Theorem 5.2): over a Baire space,
 the sum of a series of continuous homogeneous polynomials converging on an open set `H` is
-continuous on `H`, if `F` is series complete. At `x ∈ H`, the Taylor coefficients
+continuous on `H`, if `F` is Mackey complete. At `x ∈ H`, the Taylor coefficients
 `h ↦ ∑ₙ dirCoeff (Aₙ) x k h` are continuous homogeneous polynomials
 (`isContHomPoly_of_tendsto`), their series converges to `f (x + h)` near `h = 0`
 (`hasPowerSeriesOnDisc_of_closedBall`), and `continuousAt_zero_of_tendsto_sum` applies. -/
-theorem continuousOn_of_tendsto [BaireSpace E] (hF : SeriesComplete F) (hH : IsOpen H)
+theorem continuousOn_of_tendsto [BaireSpace E] [Module ℝ F] [IsScalarTower ℝ ℂ F]
+    [MackeyComplete F] (hH : IsOpen H)
     {f : E → F} (hf : ∀ a ∈ H, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 (f a))) :
     ContinuousOn f H := by
   have hconv : ∀ a ∈ H, ∃ y, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 y) :=
@@ -1400,7 +1546,7 @@ theorem continuousOn_of_tendsto [BaireSpace E] (hF : SeriesComplete F) (hH : IsO
     intro k
     refine isContHomPoly_of_tendsto (Q := fun N h ↦ ∑ n ∈ range N,
       dirCoeff (A n).toMultilinearMap x k h) (fun N ↦ ?_)
-      fun h ↦ (hasSum_dirCoeff A hF hH hconv hx h k).tendsto_sum_nat
+      fun h ↦ (hasSum_dirCoeff A hH hconv hx h k).tendsto_sum_nat
     have e : (fun h ↦ ∑ n ∈ range N, dirCoeff (A n).toMultilinearMap x k h) =
         ∑ n ∈ range N, dirCoeff (A n).toMultilinearMap x k := by
       ext h; simp [Finset.sum_apply]
@@ -1428,33 +1574,12 @@ theorem continuousOn_of_tendsto [BaireSpace E] (hF : SeriesComplete F) (hH : IsO
         (by rw [norm_mul]; norm_num; linarith) hw
       rw [smul_smul]
       exact (balancedCore_subset _ this : (z * (1 / 2)) • w ∈ {h : E | x + h ∈ H})
-    have hps := hasPowerSeriesOnDisc_of_closedBall A hF hH hf (by norm_num) hsub 1 (by norm_num)
+    have hps := hasPowerSeriesOnDisc_of_closedBall A hH hf (by norm_num) hsub 1 (by norm_num)
     simp only [one_pow, one_smul, zero_add] at hps
     exact hps.tendsto_sum_nat
   have hc := continuousAt_zero_of_tendsto_sum hT hU (f := fun h ↦ f (x + h)) hexp
   have := hc.comp_of_eq (continuous_sub_right x).continuousAt (sub_self x)
   simpa [Function.comp_def] using this.continuousWithinAt
-
-/-- Complete locally convex spaces are series complete. -/
-theorem seriesComplete_of_completeSpace {G : Type*} [AddCommGroup G] [Module ℂ G]
-    [UniformSpace G] [IsUniformAddGroup G] [CompleteSpace G] [PolynormableSpace ℂ G] :
-    SeriesComplete G := by
-  intro v hv
-  refine ⟨_, (summable_iff_vanishing.2 fun e he ↦ ?_).hasSum⟩
-  obtain ⟨s, r, hr, hsub⟩ := ((PolynormableSpace.withSeminorms ℂ G).mem_nhds_iff 0 e).1 he
-  set p : {p : Seminorm ℂ G // Continuous p} → Seminorm ℂ G := fun p ↦ p.1
-  have hg : Summable fun k ↦ ∑ i ∈ s, p i (v k) := summable_sum fun i _ ↦ hv (p i) i.2
-  obtain ⟨u, hu⟩ := hg.vanishing (Iio_mem_nhds hr)
-  refine ⟨u, fun t ht ↦ hsub ?_⟩
-  rw [Seminorm.mem_ball, sub_zero]
-  have h1 : (s.sup p) (∑ k ∈ t, v k) ≤ ∑ i ∈ s, p i (∑ k ∈ t, v k) := by
-    have := Seminorm.finset_sup_le_sum p s (∑ k ∈ t, v k)
-    simpa using this
-  have h2 : ∑ i ∈ s, p i (∑ k ∈ t, v k) ≤ ∑ k ∈ t, ∑ i ∈ s, p i (v k) := by
-    rw [Finset.sum_comm]
-    exact Finset.sum_le_sum fun i _ ↦
-      Finset.le_sum_of_subadditive (p i) (map_zero _).le (map_add_le_add _) _ _
-  exact (h1.trans h2).trans_lt (hu t ht)
 
 end Theorem52
 
@@ -1471,15 +1596,17 @@ variable {E : Type*} [AddCommGroup E] [Module ℝ E] [Module ℂ E] [IsScalarTow
 attribute [local instance] polynormableSpace_complex
 
 /-- **Bochnak–Siciak II, Theorem 5.2** (complex case). Let `E` be a complex locally convex
-**Baire** space and `F` a series complete complex locally convex space (e.g. a complete one,
-`seriesComplete_of_completeSpace`). If a series `∑ pₙ` of continuous homogeneous polynomials
-converges on an open set `H ⊆ E`, then its sum is complex analytic on `H`.
+**Baire** space and `F` a **Mackey complete** complex locally convex space (e.g. a sequentially
+complete one, `SeqComplete.mackeyComplete`). If a series `∑ pₙ` of continuous homogeneous
+polynomials converges on an open set `H ⊆ E`, then its sum is complex analytic on `H`.
 
 Both hypotheses are needed: `not_continuousAt_bsSum` (with `E` not Baire) and
-`not_cAnalyticOn_geomFun` (with `F` incomplete, already for `E = ℂ`). Bochnak and Siciak assume
-`F` sequentially complete. The proof replaces their potential-theoretic polynomial lemma by
+`not_cAnalyticOn_geomFun` with `not_mackeyComplete_geomSpan` (with `F` not Mackey complete,
+already for `E = ℂ`). Bochnak and Siciak assume `F` sequentially complete; Mackey completeness
+suffices because the geometric bounds along lines have a ratio independent of the seminorm
+(`exists_line_geometric_bound`). The proof replaces their potential-theoretic polynomial lemma by
 Hartogs' lemma (`hartogs_lemma`), proved from Jensen's formula. -/
-theorem complexAnalyticOn_of_tendsto_sum [BaireSpace E] (hF : SeriesComplete F)
+theorem complexAnalyticOn_of_tendsto_sum [BaireSpace E] [MackeyComplete F]
     {p : ℕ → E → F} (hp : ∀ n, IsContHomPoly ℂ n (p n)) {H : Set E} (hH : IsOpen H)
     {f : E → F} (hf : ∀ x ∈ H, Tendsto (fun N ↦ ∑ n ∈ range N, p n x) atTop (𝓝 (f x))) :
     ComplexAnalyticOn f H := by
@@ -1487,7 +1614,7 @@ theorem complexAnalyticOn_of_tendsto_sum [BaireSpace E] (hF : SeriesComplete F)
   have hf' : ∀ a ∈ H, Tendsto (fun N ↦ ∑ n ∈ range N, A n fun _ ↦ a) atTop (𝓝 (f a)) :=
     fun a ha ↦ by simpa only [hA] using hf a ha
   exact (complexAnalyticOn_iff_gateauxAnalyticOn hH).2
-    ⟨continuousOn_of_tendsto A hF hH hf', gateauxAnalyticOn_of_tendsto A hF hH hf'⟩
+    ⟨continuousOn_of_tendsto A hH hf', gateauxAnalyticOn_of_tendsto A hH hf'⟩
 
 end Main
 

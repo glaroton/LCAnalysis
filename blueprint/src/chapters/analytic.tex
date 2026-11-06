@@ -328,7 +328,8 @@ $F$ sequentially complete; the results below use no completeness of $F$.
 \begin{remark}[Counterexamples]
   \label{rem:bs-counterexamples}
   \lean{LCAnalysis.not_continuousAt_bsSum, LCAnalysis.not_baireSpace_finSeq,
-    LCAnalysis.hasPowerSeriesOnDisc_geomFun, LCAnalysis.not_cAnalyticOn_geomFun}
+    LCAnalysis.hasPowerSeriesOnDisc_geomFun, LCAnalysis.not_cAnalyticOn_geomFun,
+    LCAnalysis.not_mackeyComplete_geomSpan}
   \leanok
   \emph{$E$ not Baire} \cite[Counterexample~5.1]{BS71b}: on the finitely supported sequences
   with the norm of $\ell^2$, $\sum_n (n x_n)^n$ converges everywhere, but its sum is not
@@ -336,6 +337,8 @@ $F$ sequentially complete; the results below use no completeness of $F$.
   $F = \operatorname{span}\{e_n, (z^n)_n : |z| < 1\} \subseteq \ell^2$, the power series
   $\sum_n z^n e_n$ converges on the unit disc, but its sum has no complex derivative at $1/2$,
   since $\sum_n n 2^{1-n} e_n \notin F$. A disc of convergence need not be a disc of analyticity.
+  The partial sums of $\sum_n n 2^{1-n} e_n$ are Mackey--Cauchy in $F$, so $F$ is not Mackey
+  complete (Definition~\ref{def:mackey-complete}).
 \end{remark}
 
 \begin{lemma}[Hartogs' lemma]
@@ -367,9 +370,10 @@ potential theory (Siciak's extremal function, Fekete points); only lines are nee
   \lean{LCAnalysis.exists_line_geometric_bound, LCAnalysis.exists_compact_geometric_bound}
   \leanok
   \uses{lem:hartogs, lem:hom-poly-shift}
-  If $\sum_n p_n$ converges pointwise on an open set $H$, then for every continuous seminorm $q$
-  and every compact set $K \subseteq \mathbb{C}$ with $x + K y \subseteq H$ there are
-  $\theta < 1$ and $C$ with $q(p_n(x + z y)) \le C \theta^n$ for $z \in K$.
+  If $\sum_n p_n$ converges pointwise on an open set $H$, then for every compact set
+  $K \subseteq \mathbb{C}$ with $x + K y \subseteq H$ there is $\theta < 1$ such that for every
+  continuous seminorm $q$ there is $C$ with $q(p_n(x + z y)) \le C \theta^n$ for $z \in K$. The
+  ratio $\theta$ does not depend on $q$.
 \end{proposition}
 
 \begin{proof}
@@ -379,8 +383,9 @@ potential theory (Siciak's extremal function, Fekete points); only lines are nee
   small disc where it is uniformly bounded, and the Cauchy estimates for polynomials (by discrete
   Fourier inversion over roots of unity) give the Bernstein--Walsh bound
   $q(g_n) \le e^{nB}$ on the whole disc. Hartogs' lemma with $\varepsilon < \log \lambda$ gives
-  $q(p_n(x + zy)) = \lambda^{-n} q(g_n(z)) \le (e^{\varepsilon}/\lambda)^n$. Cover $K$ by
-  finitely many discs.
+  $q(p_n(x + zy)) = \lambda^{-n} q(g_n(z)) \le (e^{\varepsilon}/\lambda)^n$ for large $n$.
+  Only the constant and the threshold depend on $q$: $\lambda$ depends on $H$ along the line and
+  $\varepsilon = \tfrac12 \log \lambda$. Cover $K$ by finitely many discs.
 \end{proof}
 
 \begin{theorem}[Pointwise limits of polynomials {\cite[Thm.~2]{BS71a}}]
@@ -402,12 +407,12 @@ potential theory (Siciak's extremal function, Fekete points); only lines are nee
 \begin{theorem}[Bochnak--Siciak {\cite[Thms.~5.1, 5.2]{BS71b}}]
   \label{thm:bs-52}
   \lean{LCAnalysis.complexAnalyticOn_of_tendsto_sum, LCAnalysis.gateauxAnalyticOn_of_tendsto,
-    LCAnalysis.continuousOn_of_tendsto, LCAnalysis.seriesComplete_of_completeSpace}
+    LCAnalysis.continuousOn_of_tendsto, LCAnalysis.MackeyComplete.exists_hasSum_of_geometric}
   \leanok
-  \uses{prop:bs-lines, thm:bs-limits, prop:bs-baire, thm:complex-analytic-iff}
-  Let $E$ be a complex locally convex Baire space and $F$ a complex locally convex space in which
-  every series that is absolutely summable for each continuous seminorm converges (for instance a
-  complete one). If a series $\sum_n p_n$ of continuous homogeneous polynomials converges on an
+  \uses{prop:bs-lines, thm:bs-limits, prop:bs-baire, thm:complex-analytic-iff,
+    def:mackey-complete}
+  Let $E$ be a complex locally convex Baire space and $F$ a Mackey complete complex locally
+  convex space (for instance a sequentially complete one). If a series $\sum_n p_n$ of continuous homogeneous polynomials converges on an
   open set $H$, then its sum is complex analytic on $H$.
 \end{theorem}
 
@@ -415,13 +420,15 @@ potential theory (Siciak's extremal function, Fekete points); only lines are nee
   \leanok
   By Proposition~\ref{prop:bs-lines} the series converges locally uniformly with geometric rate
   on every complex line, so the sum is Gâteaux analytic, with Taylor coefficients
-  $T_k(h) = \sum_n (\text{coefficient of } t^k \text{ in } p_n(x + th))$, which lie in $F$ by the
-  completeness hypothesis. By Theorem~\ref{thm:bs-limits} each $T_k$ is a continuous homogeneous
+  $T_k(h) = \sum_n (\text{coefficient of } t^k \text{ in } p_n(x + th))$. These series have
+  geometric bounds $C_q \theta^n$ with $\theta$ independent of $q$, so their partial sums are
+  Mackey--Cauchy and the $T_k(h)$ lie in $F$. By Theorem~\ref{thm:bs-limits} each $T_k$ is a continuous homogeneous
   polynomial, and $f(x + h) = \sum_k T_k(h)$ near $h = 0$, so $f$ is continuous at $x$ by
   Proposition~\ref{prop:bs-baire}. Theorem~\ref{thm:complex-analytic-iff} concludes.
 \end{proof}
 
-Both hypotheses are needed (Remark~\ref{rem:bs-counterexamples}). The real case
+Both hypotheses are needed (Remark~\ref{rem:bs-counterexamples}). Bochnak and Siciak assume
+$F$ sequentially complete; Mackey completeness is strictly weaker. The real case
 \cite[Prop.~5.4, Thm.~5.2]{BS71b} is not formalized yet.
 
 \section{Comparison with Mathlib on Banach spaces}
