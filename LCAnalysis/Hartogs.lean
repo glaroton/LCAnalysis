@@ -5,6 +5,7 @@ Authors: Gabriel Larotonda
 -/
 import LCAnalysis.HartogsLemma
 import LCAnalysis.ComplexAnalytic
+import LCAnalysis.WeakHolomorphic
 
 /-! # Hartogs' theorem on separately holomorphic maps
 
@@ -25,6 +26,9 @@ Lemma 36.3 and Theorem 36.1 for `n = 2`), one continuous seminorm at a time.
 * `exists_ball_seminorm_bound`: Mujica's Lemma 36.2 (Baire) for one seminorm.
 * `hartogs_continuousAt`, `continuousOn_of_separately`: **Hartogs' theorem**, continuity of
   separately complex analytic maps on open subsets of `ℂ²`.
+* `differentiableAt_line_of_separately`: Osgood's lemma along complex lines, scalar case.
+* `complexAnalyticOn_of_separately`: **Hartogs' theorem**, joint complex analyticity, for a
+  Mackey complete target.
 
 ## Implementation notes
 
@@ -32,10 +36,10 @@ Lemma 36.3 and Theorem 36.1 for `n = 2`), one continuous seminorm at a time.
   run for a fixed `q`: the point `b` given by Baire's theorem, and the Taylor coefficients
   `Aₖ(σ)` of `g(·, σ)` at `b`, depend on `q`. The coefficients are only known to be weakly
   holomorphic and `q`-Lipschitz, which is all that Jensen's inequality and Hartogs' lemma need.
-* Joint complex analyticity (`ComplexAnalyticOn`) is not derived here. Its Taylor coefficients
-  along oblique lines, such as the mixed coefficients `∂ζʲ ∂σᵏ g / j! k!`, are limits of
-  elements of `F` with geometric error bounds independent of the seminorm, so Mackey
-  completeness of `F` suffices for them; whether it can be dropped is not settled here.
+* Joint complex analyticity needs the Taylor coefficients of `g` along oblique complex lines in
+  `F`. They are limits of elements of `F` with geometric error bounds independent of the
+  seminorm (`exists_coeff_of_weak`), so Mackey completeness of `F` suffices; whether it can be
+  dropped is not settled here. Continuity needs no completeness.
 -/
 
 open Set Filter Function Metric MeasureTheory Real
@@ -627,5 +631,128 @@ theorem continuousOn_of_separately {g : ℂ → ℂ → F} {U : Set (ℂ × ℂ)
   · exact (h₂ ζ).mono_of_isOpen isOpen_ball fun σ hσ ↦ hbox ζ hζ σ hσ
 
 end Main
+
+/-! ### Scalar functions: holomorphy along complex lines (Osgood) -/
+
+/-- A continuous, separately holomorphic scalar function on a closed bidisc about `p` is
+holomorphic along the complex lines through `p` with slope `|λ| ≤ 1` in the first variable. -/
+theorem differentiableAt_line_of_le {h : ℂ → ℂ → ℂ} {U : Set (ℂ × ℂ)} (hU : IsOpen U)
+    (hc : ContinuousOn (uncurry h) U)
+    (h₁ : ∀ σ, DifferentiableOn ℂ (fun ζ ↦ h ζ σ) {ζ | (ζ, σ) ∈ U})
+    (h₂ : ∀ ζ, DifferentiableOn ℂ (h ζ) {σ | (ζ, σ) ∈ U}) {p : ℂ × ℂ} (hp : p ∈ U)
+    {y : ℂ × ℂ} (hy : ‖y.2‖ ≤ ‖y.1‖) :
+    DifferentiableAt ℂ (fun t : ℂ ↦ h (p.1 + t * y.1) (p.2 + t * y.2)) 0 := by
+  by_cases hy1 : y.1 = 0
+  · have hy2 : y.2 = 0 := by rw [hy1, norm_zero] at hy; exact norm_le_zero_iff.1 hy
+    simp only [hy1, hy2, mul_zero, add_zero]
+    exact differentiableAt_const _
+  obtain ⟨ε, hε, hεU⟩ := Metric.isOpen_iff.1 hU p hp
+  set r := ε / 2
+  have hr : 0 < r := half_pos hε
+  have hbox : ∀ ζ ∈ closedBall p.1 r, ∀ σ ∈ closedBall p.2 r, (ζ, σ) ∈ U := by
+    intro ζ hζ σ hσ
+    refine hεU ?_
+    rw [← ball_prod_same]
+    exact ⟨closedBall_subset_ball (half_lt_self hε) hζ,
+      closedBall_subset_ball (half_lt_self hε) hσ⟩
+  have hy1n : 0 < ‖y.1‖ := norm_pos_iff.2 hy1
+  set R := r / ‖y.1‖
+  have hR : 0 < R := div_pos hr hy1n
+  have hmap : ∀ w : ℂ, ‖w‖ ≤ R → ∀ z : ℂ, dist (z + y.1 * w) z ≤ r := by
+    intro w hw z
+    rw [dist_eq_norm, add_sub_cancel_left, norm_mul]
+    calc ‖y.1‖ * ‖w‖ ≤ ‖y.1‖ * R := by gcongr
+      _ = r := by simp only [R]; field_simp
+  set G : ℂ → ℂ → ℂ := fun ζ σ ↦ h (p.1 + y.1 * ζ) (p.2 + y.1 * σ)
+  obtain ⟨M, hM⟩ := (isCompact_closedBall p.1 r |>.prod (isCompact_closedBall p.2 r)
+    ).exists_bound_of_continuousOn (hc.mono fun z hz ↦ hbox z.1 hz.1 z.2 hz.2)
+  have hO : OsgoodHyp G R M := by
+    refine ⟨hR, fun ζ hζ ↦ ?_, fun σ hσ ↦ ?_, fun ζ hζ σ hσ ↦ ?_⟩
+    · refine DifferentiableOn.diffContOnCl ?_
+      rw [closure_ball 0 hR.ne']
+      refine (h₂ _).comp ((differentiableOn_const _).add
+        ((differentiableOn_const _).mul differentiableOn_id)) fun σ hσ ↦ ?_
+      exact hbox _ (hmap ζ (by simpa using hζ) p.1) _ (hmap σ (by simpa using hσ) p.2)
+    · refine (h₁ _).comp ((differentiableOn_const _).add
+        ((differentiableOn_const _).mul differentiableOn_id)) fun ζ hζ ↦ ?_
+      exact hbox _ (hmap ζ (by simpa using (mem_ball_zero_iff.1 hζ).le) p.1) _
+        (hmap σ (by simpa using (mem_ball_zero_iff.1 hσ).le) p.2)
+    · exact hM (_, _) ⟨hmap ζ (by simpa using hζ) p.1,
+        hmap σ (by simpa using (mem_sphere_zero_iff_norm.1 hσ).le) p.2⟩
+  set lam := y.2 / y.1
+  have hlam : ‖lam‖ ≤ 1 := by
+    rw [norm_div, div_le_one hy1n]; exact hy
+  have hser : ∀ t : ℂ, ‖t‖ < R / 2 → HasSum (fun m ↦ t ^ m •
+      ∑ q ∈ Finset.HasAntidiagonal.antidiagonal m, osgoodCoeff₂ G q.1 q.2 * lam ^ q.1)
+      (h (p.1 + (0 + t) * y.1) (p.2 + (0 + t) * y.2)) := by
+    intro t ht
+    have := hO.hasSum_line hlam ht
+    have e : G t (lam * t) = h (p.1 + (0 + t) * y.1) (p.2 + (0 + t) * y.2) := by
+      simp only [G, lam, zero_add]
+      congr 2 <;> field_simp
+    rw [← e]
+    simpa only [smul_eq_mul] using this
+  have hd := differentiableOn_of_hasSum (g := fun t : ℂ ↦ h (p.1 + t * y.1) (p.2 + t * y.2))
+    (x := 0) (half_pos hR) hser
+  exact hd.differentiableAt (ball_mem_nhds 0 (half_pos hR))
+
+/-- **Scalar Osgood lemma along lines**: a continuous, separately holomorphic function on an
+open set `U ⊆ ℂ²` is holomorphic along every complex line. -/
+theorem differentiableAt_line_of_separately {h : ℂ → ℂ → ℂ} {U : Set (ℂ × ℂ)} (hU : IsOpen U)
+    (hc : ContinuousOn (uncurry h) U)
+    (h₁ : ∀ σ, DifferentiableOn ℂ (fun ζ ↦ h ζ σ) {ζ | (ζ, σ) ∈ U})
+    (h₂ : ∀ ζ, DifferentiableOn ℂ (h ζ) {σ | (ζ, σ) ∈ U}) {p : ℂ × ℂ} (hp : p ∈ U)
+    (y : ℂ × ℂ) : DifferentiableAt ℂ (fun t : ℂ ↦ h (p.1 + t * y.1) (p.2 + t * y.2)) 0 := by
+  rcases le_total ‖y.2‖ ‖y.1‖ with hy | hy
+  · exact differentiableAt_line_of_le hU hc h₁ h₂ hp hy
+  · have := differentiableAt_line_of_le (h := fun ζ σ ↦ h σ ζ) (U := Prod.swap ⁻¹' U)
+      (hU.preimage continuous_swap) (hc.comp continuous_swap.continuousOn fun z hz ↦ hz)
+      (fun σ ↦ h₂ σ) (fun ζ ↦ h₁ ζ) (p := p.swap) (by simpa using hp) (y := y.swap)
+      (by simpa using hy)
+    simpa using this
+
+/-! ### Joint complex analyticity -/
+
+section Joint
+
+variable {F : Type*} [AddCommGroup F] [Module ℝ F] [Module ℂ F] [IsScalarTower ℝ ℂ F]
+  [TopologicalSpace F] [IsTopologicalAddGroup F] [ContinuousSMul ℂ F]
+  [LocallyConvexSpace ℝ F] [T2Space F]
+
+attribute [local instance] polynormableSpace_complex
+
+/-- **Hartogs' theorem** (Mujica, Theorem 36.1 for `n = 2`), for a **Mackey complete** complex
+locally convex space `F`: a map on an open subset of `ℂ²` which is complex analytic in each
+variable separately is complex analytic. It is continuous (`continuousOn_of_separately`, no
+completeness); along each complex line it is weakly holomorphic (Osgood's lemma for the
+functions `ℓ ∘ g`, `differentiableAt_line_of_separately`), hence complex analytic there by
+`CAnalyticOn.of_weak`, which is where Mackey completeness enters; Glöckner–Neeb, Theorem 2.1.12
+(`complexAnalyticOn_iff_gateauxAnalyticOn`) concludes. -/
+theorem complexAnalyticOn_of_separately [MackeyComplete F] {g : ℂ → ℂ → F}
+    {U : Set (ℂ × ℂ)} (hU : IsOpen U)
+    (h₁ : ∀ σ, CAnalyticOn (fun ζ ↦ g ζ σ) {ζ | (ζ, σ) ∈ U})
+    (h₂ : ∀ ζ, CAnalyticOn (g ζ) {σ | (ζ, σ) ∈ U}) : ComplexAnalyticOn (uncurry g) U := by
+  have hc := continuousOn_of_separately hU h₁ h₂
+  refine (complexAnalyticOn_iff_gateauxAnalyticOn hU).2 ⟨hc, fun x _ y ↦ ?_⟩
+  have hline : Continuous fun z : ℂ ↦ x + z • y := continuous_const.add
+    (continuous_id.smul continuous_const)
+  have hV : IsOpen {z : ℂ | x + z • y ∈ U} := hU.preimage hline
+  refine CAnalyticOn.of_weak hV (hc.comp hline.continuousOn fun z hz ↦ hz) fun ℓ z₀ hz₀ ↦ ?_
+  refine DifferentiableAt.differentiableWithinAt ?_
+  set p : ℂ × ℂ := x + z₀ • y
+  have hd := differentiableAt_line_of_separately (h := fun ζ σ ↦ ℓ (g ζ σ)) hU
+    (ℓ.continuous.comp_continuousOn hc) (fun σ ↦ (h₁ σ).differentiableOn_clm ℓ)
+    (fun ζ ↦ (h₂ ζ).differentiableOn_clm ℓ) (p := p) hz₀ y
+  have he : (ℓ ∘ fun z : ℂ ↦ uncurry g (x + z • y)) =
+      (fun t : ℂ ↦ ℓ (g (p.1 + t * y.1) (p.2 + t * y.2))) ∘ fun z ↦ z - z₀ := by
+    funext z
+    simp only [Function.comp, uncurry, p, Prod.fst_add, Prod.snd_add, Prod.smul_fst,
+      Prod.smul_snd, smul_eq_mul]
+    congr 2 <;> ring
+  rw [he]
+  refine DifferentiableAt.comp z₀ ?_ (differentiableAt_id.sub_const z₀)
+  simpa using hd
+
+end Joint
 
 end LCAnalysis

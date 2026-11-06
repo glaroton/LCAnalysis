@@ -632,12 +632,53 @@ continuity for every $q$.
   is $q$-continuous, so $g$ is $q$-continuous at $(a, c)$.
 \end{proof}
 
-Joint complex analyticity (Definition~\ref{def:complex-analytic}) is not derived yet. Its Taylor
-coefficients along oblique lines are limits in $F$ with geometric error bounds independent of
-the seminorm, so Mackey completeness of $F$ suffices for them; whether it is needed is open
-here. Mujica's extension to products of Banach spaces \cite[Thm.~36.8]{Muj86} rests on
-\cite[Thm.~36.5]{Muj86} (Gâteaux holomorphic and locally bounded at one point implies
-holomorphic).
+\begin{proposition}[Weak holomorphy in Mackey complete spaces]
+  \label{prop:weak-holomorphic}
+  \lean{LCAnalysis.norm_avg_sub_coeff_le, LCAnalysis.exists_coeff_of_weak,
+    LCAnalysis.CAnalyticOn.of_weak}
+  \leanok
+  \uses{def:mackey-complete}
+  Let $F$ be Mackey complete and $f \colon U \to F$ continuous on an open set
+  $U \subseteq \mathbb{C}$, with $\ell \circ f$ holomorphic for every continuous functional $\ell$.
+  Then $f$ is complex analytic.
+\end{proposition}
+
+\begin{proof}
+  \leanok
+  With $\omega = e^{2\pi i/N}$ and $j < N$, the average
+  $S_N = N^{-1} \sum_{i<N} \omega^{i(N-j)} f(x + \tfrac{\rho}{2}\omega^i) \in F$ satisfies
+  $|\ell(S_N) - (\rho/2)^j c_j^\ell| \le 2 M_\ell 2^{-N}$, where $c_j^\ell$ is the $j$-th Taylor
+  coefficient of $\ell \circ f$ at $x$ and $M_\ell$ bounds $|\ell \circ f|$ on the circle of radius
+  $\rho$: only the coefficients of index $\ge N$ alias onto $c_j$. By Hahn--Banach,
+  $q(S_{N+1} - S_N) \le 4 M_q 2^{-N}$ for every continuous seminorm $q$, with the ratio $1/2$
+  independent of $q$, so $(S_N)$ converges in $F$. Its limit gives the coefficient $a_j \in F$
+  with $\ell(a_j) = c_j^\ell$, and the Taylor series converges in $F$
+  (\texttt{WeakTaylorOn.hasPowerSeriesOnDisc}).
+\end{proof}
+
+\begin{theorem}[Hartogs, joint analyticity {\cite[Thm.~36.1]{Muj86}}]
+  \label{thm:hartogs-joint}
+  \lean{LCAnalysis.differentiableAt_line_of_separately,
+    LCAnalysis.complexAnalyticOn_of_separately}
+  \leanok
+  \uses{thm:hartogs-separate, prop:weak-holomorphic, thm:complex-analytic-iff}
+  If $F$ is Mackey complete, a map $g \colon U \to F$ on an open set $U \subseteq \mathbb{C}^2$
+  which is complex analytic in each variable separately is complex analytic.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  By Theorem~\ref{thm:hartogs-separate}, $g$ is continuous. For each functional $\ell$,
+  $\ell \circ g$ is continuous and separately holomorphic, so by Osgood's lemma it has a double
+  power series and is holomorphic along every complex line (swap the variables if the slope
+  exceeds $1$). By Proposition~\ref{prop:weak-holomorphic}, $g$ is complex analytic along every
+  complex line, i.e.\ Gâteaux analytic, and Theorem~\ref{thm:complex-analytic-iff} concludes.
+\end{proof}
+
+Mackey completeness enters only through the Taylor coefficients along oblique lines; continuity
+needs no completeness, and whether joint analyticity does is open here. Mujica's extension to
+products of Banach spaces \cite[Thm.~36.8]{Muj86} rests on \cite[Thm.~36.5]{Muj86}
+(Gâteaux holomorphic and locally bounded at one point implies holomorphic).
 
 \section{Comparison with Mathlib on Banach spaces}
 
