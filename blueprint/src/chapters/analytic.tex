@@ -675,8 +675,34 @@ continuity for every $q$.
   complex line, i.e.\ Gâteaux analytic, and Theorem~\ref{thm:complex-analytic-iff} concludes.
 \end{proof}
 
-Mackey completeness enters only through the Taylor coefficients along oblique lines; continuity
-needs no completeness, and whether joint analyticity does is open here. Mujica's extension to
+\begin{example}[Separate does not imply joint analyticity without completeness]
+  \label{ex:hartogs-incomplete}
+  \lean{LCAnalysis.diagCoeff₂_notMem, LCAnalysis.cAnalyticOn_sepG_fst,
+    LCAnalysis.cAnalyticOn_sepG_snd, LCAnalysis.not_complexAnalyticOn_sepG,
+    LCAnalysis.not_mackeyComplete_sepSpan}
+  \leanok
+  \uses{thm:hartogs-joint}
+  Let $F \subseteq \mathbb{C}^{\mathbb{N} \times \mathbb{N}}$ (product topology) be the span of the
+  matrices $\alpha(n) \sigma^m$ and $\zeta^n \beta(m)$, and $G(\zeta, \sigma) = (\zeta^n \sigma^m)$.
+  Then $G \colon \mathbb{C}^2 \to F$ is complex analytic in each variable (and continuous), but not
+  complex analytic. In particular $F$ is not Mackey complete.
+\end{example}
+
+\begin{proof}
+  \leanok
+  The Taylor coefficients of $G$ in $\zeta$ at any point, $\binom{n}{k} \zeta_0^{n-k} \sigma^m$, and
+  those in $\sigma$, lie in $F$, and the series converge coordinatewise. The second Taylor
+  coefficient of $t \mapsto G(t, t)$ is $e_{20} + e_{11} + e_{02}$. If it were a combination of
+  matrices $\alpha_i(n) \sigma_i^m$ and $\zeta_j^n \beta_j(m)$, take
+  $P = X \prod_{\sigma_i \ne 0} (X - \sigma_i)$ and $Q = X \prod_{\zeta_j \ne 0} (X - \zeta_j)$. The
+  form $x \mapsto \sum_{s, r} q_s p_r x(s, r)$ vanishes on $\alpha(n)\sigma_i^m$ (it is
+  $P(\sigma_i) \sum_s q_s \alpha(s)$) and on $\zeta_j^n \beta(m)$, but equals $q_1 p_1 \ne 0$ on
+  $e_{20} + e_{11} + e_{02}$, since $p_0 = q_0 = 0$. The last claim follows from
+  Theorem~\ref{thm:hartogs-joint}.
+\end{proof}
+
+So Mackey completeness enters only through the Taylor coefficients along oblique lines, and some
+completeness is needed there; continuity needs none. Mujica's extension to
 products of Banach spaces \cite[Thm.~36.8]{Muj86} rests on \cite[Thm.~36.5]{Muj86}
 (Gâteaux holomorphic and locally bounded at one point implies holomorphic).
 

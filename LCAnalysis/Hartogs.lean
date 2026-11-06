@@ -29,6 +29,11 @@ Lemma 36.3 and Theorem 36.1 for `n = 2`), one continuous seminorm at a time.
 * `differentiableAt_line_of_separately`: Osgood's lemma along complex lines, scalar case.
 * `complexAnalyticOn_of_separately`: **Hartogs' theorem**, joint complex analyticity, for a
   Mackey complete target.
+* `not_complexAnalyticOn_sepG`, `not_mackeyComplete_sepSpan`: without completeness, joint
+  analyticity fails. In the span `sepSpan ⊆ ℂ^{ℕ × ℕ}` of the matrices `α(n) σᵐ`, `ζⁿ β(m)`,
+  `G(ζ, σ) = (ζⁿ σᵐ)` is separately analytic, but `e₂₀ + e₁₁ + e₀₂ ∉ sepSpan`
+  (`diagCoeff₂_notMem`: the test `∑ q_s p_r x(s, r)` with `P = X ∏ (X - σᵢ)`,
+  `Q = X ∏ (X - ζⱼ)` kills the span and not this vector).
 
 ## Implementation notes
 
@@ -38,8 +43,8 @@ Lemma 36.3 and Theorem 36.1 for `n = 2`), one continuous seminorm at a time.
   holomorphic and `q`-Lipschitz, which is all that Jensen's inequality and Hartogs' lemma need.
 * Joint complex analyticity needs the Taylor coefficients of `g` along oblique complex lines in
   `F`. They are limits of elements of `F` with geometric error bounds independent of the
-  seminorm (`exists_coeff_of_weak`), so Mackey completeness of `F` suffices; whether it can be
-  dropped is not settled here. Continuity needs no completeness.
+  seminorm (`exists_coeff_of_weak`), so Mackey completeness of `F` suffices, and some
+  completeness is necessary (`not_complexAnalyticOn_sepG`). Continuity needs no completeness.
 -/
 
 open Set Filter Function Metric MeasureTheory Real
@@ -754,5 +759,197 @@ theorem complexAnalyticOn_of_separately [MackeyComplete F] {g : ℂ → ℂ → 
   simpa using hd
 
 end Joint
+
+/-! ### A counterexample without completeness -/
+
+section Counterexample
+
+/-- The matrices `α(n) σᵐ` and `ζⁿ β(m)`, rank one with a geometric factor. -/
+def geomRankOne : Set (ℕ × ℕ → ℂ) :=
+  {x | ∃ σ ζ : ℂ, (∃ α : ℕ → ℂ, x = fun p ↦ α p.1 * σ ^ p.2) ∨
+    (∃ β : ℕ → ℂ, x = fun p ↦ ζ ^ p.1 * β p.2)}
+
+/-- Their linear span in `ℂ^{ℕ × ℕ}` (product topology), a non-closed subspace. -/
+def sepSpan : Submodule ℂ (ℕ × ℕ → ℂ) := Submodule.span ℂ geomRankOne
+
+instance : LocallyConvexSpace ℝ sepSpan :=
+  LocallyConvexSpace.induced (sepSpan.subtype.restrictScalars ℝ)
+
+/-- The bilinear test `T(P, Q)(x) = ∑_{s, r < D} q_s p_r x(s, r)`. -/
+def testSum (P Q : Polynomial ℂ) (D : ℕ) (x : ℕ × ℕ → ℂ) : ℂ :=
+  ∑ s ∈ Finset.range D, ∑ r ∈ Finset.range D, Q.coeff s * P.coeff r * x (s, r)
+
+theorem testSum_eq_zero_of_mem {P Q : Polynomial ℂ} {D : ℕ} (hP : P.natDegree < D)
+    (hQ : Q.natDegree < D) {x : ℕ × ℕ → ℂ} {σ ζ : ℂ}
+    (hx : (∃ α : ℕ → ℂ, x = fun p ↦ α p.1 * σ ^ p.2) ∨
+      (∃ β : ℕ → ℂ, x = fun p ↦ ζ ^ p.1 * β p.2))
+    (hσ : P.eval σ = 0) (hζ : Q.eval ζ = 0) : testSum P Q D x = 0 := by
+  rcases hx with ⟨α, rfl⟩ | ⟨β, rfl⟩
+  · have h : ∀ s, ∑ r ∈ Finset.range D, Q.coeff s * P.coeff r * (α s * σ ^ r) =
+        Q.coeff s * α s * P.eval σ := fun s ↦ by
+      rw [Polynomial.eval_eq_sum_range' hP, Finset.mul_sum]
+      exact Finset.sum_congr rfl fun r _ ↦ by ring
+    simp only [testSum, h, hσ, mul_zero, Finset.sum_const_zero]
+  · have h : ∑ s ∈ Finset.range D, ∑ r ∈ Finset.range D, Q.coeff s * P.coeff r * (ζ ^ s * β r) =
+        Q.eval ζ * ∑ r ∈ Finset.range D, P.coeff r * β r := by
+      rw [Polynomial.eval_eq_sum_range' hQ, Finset.sum_mul]
+      refine Finset.sum_congr rfl fun s _ ↦ ?_
+      rw [Finset.mul_sum]
+      exact Finset.sum_congr rfl fun r _ ↦ by ring
+    simp only [testSum, h, hζ, zero_mul]
+
+/-- `X ∏ᵢ (X - cᵢ)` over the nonzero `cᵢ`: it vanishes at every `cᵢ`, has no constant term,
+and a nonzero coefficient of `X`. -/
+def annPoly {k : ℕ} (c : Fin k → ℂ) : Polynomial ℂ :=
+  Polynomial.X * ∏ i, (if c i = 0 then 1 else Polynomial.X - Polynomial.C (c i))
+
+theorem annPoly_eval {k : ℕ} (c : Fin k → ℂ) (i : Fin k) : (annPoly c).eval (c i) = 0 := by
+  rw [annPoly, Polynomial.eval_mul, Polynomial.eval_X, Polynomial.eval_prod]
+  by_cases hi : c i = 0
+  · rw [hi, zero_mul]
+  · refine mul_eq_zero_of_right _ (Finset.prod_eq_zero (Finset.mem_univ i) ?_)
+    simp [hi]
+
+theorem annPoly_coeff_zero {k : ℕ} (c : Fin k → ℂ) : (annPoly c).coeff 0 = 0 := by
+  simp [annPoly]
+
+theorem annPoly_coeff_one {k : ℕ} (c : Fin k → ℂ) : (annPoly c).coeff 1 ≠ 0 := by
+  rw [annPoly, Polynomial.coeff_X_mul, Polynomial.coeff_zero_eq_eval_zero,
+    Polynomial.eval_prod]
+  refine Finset.prod_ne_zero_iff.2 fun i _ ↦ ?_
+  by_cases hi : c i = 0 <;> simp [hi]
+
+/-- The second Taylor coefficient of `t ↦ G(t, t)`, `e₂₀ + e₁₁ + e₀₂`. -/
+def diagCoeff₂ : ℕ × ℕ → ℂ := fun p ↦ if p.1 + p.2 = 2 then 1 else 0
+
+/-- **The mixed coefficient is not in the span.** -/
+theorem diagCoeff₂_notMem : diagCoeff₂ ∉ sepSpan := by
+  intro h
+  obtain ⟨k, f, g, hfg⟩ := Submodule.mem_span_set'.1 h
+  choose σ ζ hσζ using fun i ↦ (g i).2
+  set P := annPoly σ
+  set Q := annPoly ζ
+  set D := max P.natDegree Q.natDegree + 3
+  have hP : P.natDegree < D := by omega
+  have hQ : Q.natDegree < D := by omega
+  have hlin : testSum P Q D diagCoeff₂ =
+      ∑ i, f i * testSum P Q D (g i) := by
+    rw [← hfg]
+    simp only [testSum, Finset.sum_apply, Pi.smul_apply, smul_eq_mul, Finset.mul_sum]
+    rw [Finset.sum_comm (s := Finset.univ)]
+    refine Finset.sum_congr rfl fun x _ ↦ ?_
+    rw [Finset.sum_comm (s := Finset.univ)]
+    exact Finset.sum_congr rfl fun r _ ↦ Finset.sum_congr rfl fun i _ ↦ by ring
+  have h0 : testSum P Q D diagCoeff₂ = 0 := by
+    rw [hlin]
+    exact Finset.sum_eq_zero fun i _ ↦ by
+      rw [testSum_eq_zero_of_mem hP hQ (hσζ i) (annPoly_eval σ i) (annPoly_eval ζ i), mul_zero]
+  have h1 : testSum P Q D diagCoeff₂ = Q.coeff 1 * P.coeff 1 := by
+    have hD : 2 < D := by omega
+    simp only [testSum, diagCoeff₂]
+    rw [Finset.sum_eq_single 1, Finset.sum_eq_single 1]
+    · simp
+    · intro r _ hr
+      have : ¬ (1 + r = 2) := by omega
+      simp [this]
+    · intro hr; exact absurd (Finset.mem_range.2 (by omega)) hr
+    · intro s _ hs
+      refine Finset.sum_eq_zero fun r _ ↦ ?_
+      by_cases h2 : s + r = 2
+      · rcases (show s = 0 ∨ s = 2 by omega) with rfl | rfl
+        · simp [Q, annPoly_coeff_zero]
+        · have : r = 0 := by omega
+          subst this; simp [P, annPoly_coeff_zero]
+      · simp [h2]
+    · intro hs; exact absurd (Finset.mem_range.2 (by omega)) hs
+  exact mul_ne_zero (annPoly_coeff_one ζ) (annPoly_coeff_one σ) (h1 ▸ h0)
+
+/-- `G(ζ, σ) = (ζⁿ σᵐ)_{n, m}`, as a map into `sepSpan`. -/
+def sepG (ζ σ : ℂ) : sepSpan :=
+  ⟨fun p ↦ ζ ^ p.1 * σ ^ p.2, Submodule.subset_span ⟨σ, 0, Or.inl ⟨fun n ↦ ζ ^ n, rfl⟩⟩⟩
+
+theorem sepSpan_hasSum_iff {f : ℕ → sepSpan} {a : sepSpan} :
+    HasSum f a ↔ ∀ p, HasSum (fun k ↦ (f k : ℕ × ℕ → ℂ) p) ((a : ℕ × ℕ → ℂ) p) := by
+  have hi : Topology.IsInducing (sepSpan.subtype) := Topology.IsInducing.subtypeVal
+  rw [← hi.hasSum_iff f a]
+  exact Pi.hasSum
+
+/-- `(z + x)ⁿ = ∑_{k ≤ n} zᵏ C(n, k) xⁿ⁻ᵏ`, as an unconditional sum over `k ∈ ℕ`. -/
+theorem hasSum_binomial (x z : ℂ) (n : ℕ) :
+    HasSum (fun k ↦ z ^ k * ((n.choose k : ℂ) * x ^ (n - k))) ((x + z) ^ n) := by
+  have h : HasSum (fun k ↦ z ^ k * ((n.choose k : ℂ) * x ^ (n - k)))
+      (∑ k ∈ Finset.range (n + 1), z ^ k * ((n.choose k : ℂ) * x ^ (n - k))) :=
+    hasSum_sum_of_ne_finset_zero fun k hk ↦ by
+      rw [Finset.mem_range, not_lt] at hk
+      simp [Nat.choose_eq_zero_of_lt (by omega : n < k)]
+  convert h using 1
+  rw [add_comm, add_pow]
+  exact Finset.sum_congr rfl fun k _ ↦ by ring
+
+/-- `G` is complex analytic in `ζ`. -/
+theorem cAnalyticOn_sepG_fst (σ : ℂ) : CAnalyticOn (fun ζ ↦ sepG ζ σ) univ := by
+  intro x _
+  refine ⟨1, one_pos, subset_univ _, fun k ↦ ⟨fun p ↦ (p.1.choose k : ℂ) * x ^ (p.1 - k) *
+    σ ^ p.2, Submodule.subset_span ⟨σ, 0, Or.inl ⟨fun n ↦ (n.choose k : ℂ) * x ^ (n - k),
+      rfl⟩⟩⟩, fun z _ ↦ ?_⟩
+  refine sepSpan_hasSum_iff.2 fun p ↦ ?_
+  simp only [Submodule.coe_smul, Pi.smul_apply, smul_eq_mul, sepG]
+  have := (hasSum_binomial x z p.1).mul_right (σ ^ p.2)
+  convert this using 1
+  funext k; ring
+
+/-- `G` is complex analytic in `σ`. -/
+theorem cAnalyticOn_sepG_snd (ζ : ℂ) : CAnalyticOn (sepG ζ) univ := by
+  intro x _
+  refine ⟨1, one_pos, subset_univ _, fun k ↦ ⟨fun p ↦ ζ ^ p.1 * ((p.2.choose k : ℂ) *
+    x ^ (p.2 - k)), Submodule.subset_span ⟨0, ζ, Or.inr ⟨fun m ↦ (m.choose k : ℂ) * x ^ (m - k),
+      rfl⟩⟩⟩, fun z _ ↦ ?_⟩
+  refine sepSpan_hasSum_iff.2 fun p ↦ ?_
+  simp only [Submodule.coe_smul, Pi.smul_apply, smul_eq_mul, sepG]
+  have := (hasSum_binomial x z p.2).mul_left (ζ ^ p.1)
+  convert this using 1
+  funext k; ring
+
+attribute [local instance] polynormableSpace_complex in
+/-- **Separate analyticity does not imply joint analyticity without completeness.** The map
+`G(ζ, σ) = (ζⁿ σᵐ)` into `sepSpan ⊆ ℂ^{ℕ × ℕ}` is complex analytic in each variable on `ℂ²`
+(and continuous, `continuousOn_of_separately`), but not complex analytic: the second Taylor
+coefficient of `t ↦ G(t, t)` would be `e₂₀ + e₁₁ + e₀₂ ∉ sepSpan` (`diagCoeff₂_notMem`). -/
+theorem not_complexAnalyticOn_sepG : ¬ ComplexAnalyticOn (uncurry sepG) univ := by
+  intro h
+  have hg := ((complexAnalyticOn_iff_gateauxAnalyticOn isOpen_univ).1 h).2 0 (mem_univ _) (1, 1)
+  obtain ⟨r, hr, -, a, ha⟩ := hg 0 (by simp)
+  have hcoord : ∀ p : ℕ × ℕ, ∀ z : ℂ, ‖z‖ < r →
+      HasSum (fun k ↦ z ^ k • (a k : ℕ × ℕ → ℂ) p) (z ^ (p.1 + p.2)) := by
+    intro p z hz
+    have := sepSpan_hasSum_iff.1 (ha z hz) p
+    simpa [sepG, uncurry, pow_add] using this
+  have hδ : ∀ p : ℕ × ℕ, ∀ z : ℂ, ‖z‖ < r →
+      HasSum (fun k ↦ z ^ k • (if k = p.1 + p.2 then (1 : ℂ) else 0)) (z ^ (p.1 + p.2)) := by
+    intro p z _
+    have := hasSum_ite_eq (p.1 + p.2) (z ^ (p.1 + p.2))
+    convert this using 1
+    funext k; split_ifs with hk <;> simp [hk]
+  have heq : (a 2 : ℕ × ℕ → ℂ) = diagCoeff₂ := by
+    funext p
+    have h1 := coeff_eq_iteratedDeriv_of_hasSum (g := fun z : ℂ ↦ z ^ (p.1 + p.2)) (x := 0)
+      (c := fun k ↦ (a k : ℕ × ℕ → ℂ) p) hr (fun z hz ↦ by simpa using hcoord p z hz) 2
+    have h2 := coeff_eq_iteratedDeriv_of_hasSum (g := fun z : ℂ ↦ z ^ (p.1 + p.2)) (x := 0)
+      (c := fun k ↦ if k = p.1 + p.2 then (1 : ℂ) else 0) hr
+      (fun z hz ↦ by simpa using hδ p z hz) 2
+    rw [h1, ← h2, diagCoeff₂]
+    simp only [eq_comm]
+  exact diagCoeff₂_notMem (heq ▸ (a 2).2)
+
+/-- **`sepSpan` is not Mackey complete**: otherwise `G` would be complex analytic
+(`complexAnalyticOn_of_separately`). -/
+theorem not_mackeyComplete_sepSpan : ¬ MackeyComplete sepSpan := by
+  intro hM
+  refine not_complexAnalyticOn_sepG (complexAnalyticOn_of_separately isOpen_univ
+    (fun σ ↦ ?_) (fun ζ ↦ ?_))
+  · simpa using cAnalyticOn_sepG_fst σ
+  · simpa using cAnalyticOn_sepG_snd ζ
+
+end Counterexample
 
 end LCAnalysis
