@@ -58,10 +58,11 @@ As in `LCAnalysis.ComplexAnalytic`, **no completeness** of the spaces is assumed
   `α ∘ f ∘ π₊ + β ∘ f ∘ π₋`, where `π₋` and `β` are conjugate linear; both terms are real smooth
   with complex linear differentials (`HolomorphicOn.clm_comp_comp`), which by Theorem 2.1.12
   is complex analyticity.
+* The converse of `RealAnalyticOn.bsAnalyticOn` (GN Remark 2.2.7, Bochnak–Siciak Theorem 7.1)
+  is `realAnalyticOn_of_bsAnalyticOn` in `LCAnalysis.RealSeries`.
 * Not formalized yet: the identity theorems (GN Theorems 2.1.16 and 2.2.8), complex analytic
-  extensions with values in a complex space (GN Proposition 2.2.12), inversion in continuous
-  inverse algebras (GN Proposition 2.2.13), and the converse of `RealAnalyticOn.bsAnalyticOn`
-  for Fréchet spaces (GN Remark 2.2.7, Bochnak–Siciak Theorem 7.1).
+  extensions with values in a complex space (GN Proposition 2.2.12), and inversion in continuous
+  inverse algebras (GN Proposition 2.2.13).
 -/
 
 open Set Filter Function

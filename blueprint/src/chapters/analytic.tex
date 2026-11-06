@@ -276,7 +276,7 @@ Continuous linear maps and constants are real analytic. The identity theorems
 \begin{remark}[Two notions of real analyticity]
   Real analytic maps are BS analytic (Theorem~\ref{thm:real-analytic-basic}). The converse holds
   when $E$ is a Fréchet space \cite[Rem.~2.2.7]{GN26}, and more generally when $E_{\mathbb{C}}$ is
-  a Baire space \cite[Thm.~7.1]{BS71b}, \cite[2.9]{Glo02}. For BS analyticity, closedness under
+  a Baire space \cite[Thm.~7.1]{BS71b}, \cite[2.9]{Glo02}; see Theorem~\ref{thm:bs-71}. For BS analyticity, closedness under
   composition is only known when the spaces are Baire \cite[Thm.~7.3]{BS71b}; this is why the
   theory of analytic manifolds and Lie groups uses Milnor's definition.
 \end{remark}
@@ -428,8 +428,142 @@ potential theory (Siciak's extremal function, Fekete points); only lines are nee
 \end{proof}
 
 Both hypotheses are needed (Remark~\ref{rem:bs-counterexamples}). Bochnak and Siciak assume
-$F$ sequentially complete; Mackey completeness is strictly weaker. The real case
-\cite[Prop.~5.4, Thm.~5.2]{BS71b} is not formalized yet.
+$F$ sequentially complete; Mackey completeness is strictly weaker.
+
+\section{Series of real homogeneous polynomials}
+
+Let $E$, $F$ be real locally convex spaces. A continuous real $n$-linear map $A$ extends to a
+continuous complex $n$-linear map
+$A_{\mathbb{C}}(z_1, \dots, z_n) = \sum_{S \subseteq \{1, \dots, n\}} i^{|S|} A(w_S)$, where
+$(w_S)_j = \operatorname{Im} z_j$ for $j \in S$ and $\operatorname{Re} z_j$ otherwise; the
+diagonal of $A_{\mathbb{C}}$ is the complexification $p_{\mathbb{C}}$ of the homogeneous
+polynomial $p$ of $A$.
+
+\begin{lemma}[Complexification of polynomials]
+  \label{lem:complexify-poly}
+  \lean{ContinuousMultilinearMap.complexify, ContinuousMultilinearMap.complexify_apply_ofReal,
+    LCAnalysis.IsContHomPoly.complexify, LCAnalysis.IsContHomPoly.isContHomPoly_complexify,
+    LCAnalysis.IsContHomPoly.complexify_ofReal}
+  \leanok
+  \uses{def:hom-poly, def:complexification}
+  $A_{\mathbb{C}}$ is complex multilinear and continuous, and extends $A$. Hence $p_{\mathbb{C}}$
+  is a continuous complex homogeneous polynomial of degree $n$ on $E_{\mathbb{C}}$ with
+  $p_{\mathbb{C}}(x) = p(x)$ for $x \in E$.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  Real multilinearity and continuity are clear. In the $j$-th slot,
+  $A_{\mathbb{C}}(\dots, u, \dots) = R(\operatorname{Re} u) + i R(\operatorname{Im} u)$ with $R$ real
+  linear (pair $S \not\ni j$ with $S \cup \{j\}$), which commutes with multiplication by $i$.
+\end{proof}
+
+\begin{lemma}[Forward differences]
+  \label{lem:fwd-diff}
+  \lean{LCAnalysis.IsContHomPoly.sum_fwdDiff, LCAnalysis.IsContHomPoly.factorial_mul_seminorm_le,
+    LCAnalysis.exists_plane_bound}
+  \leanok
+  \uses{def:hom-poly}
+  For a homogeneous polynomial $p$ of degree $n$ and any $c$, $v$,
+  $\sum_{j=0}^n (-1)^{n-j} \binom{n}{j} p(c + jv) = n!\, p(v)$. Consequently, if
+  $(q(p_n(sx + ty)))_n$ is bounded at each point of the square $|s|, |t| < 2$, then
+  $q(p_n(sx + ty)) \le M K^n$ for $|s|, |t| \le 1$, with $M$, $K$ depending on $q$.
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  The identity is the $n$-th forward difference of $t \mapsto p(c + tv)$. Baire's theorem in
+  $\mathbb{R}^2$ gives a disc $B(c, \rho)$ in the $(s, t)$-plane where $q \circ p_n \le m$ for
+  all $n$; the identity bounds $q(p_n(v)) \le 2^n m / n!$ for $|v| < \rho/(n+1)$, and
+  homogeneity and $(n+1)^n / n! \le e^{n+1}$ give the claim.
+\end{proof}
+
+The key observation replaces Siciak's polynomial lemma. For $x, y \in E$, the complex line
+$\lambda \mapsto (x + iy) + \tfrac{\lambda}{2}(x - iy)$ meets the complex multiples of real
+vectors on the circle $|\lambda| = 2$:
+\[
+  (x + iy) + e^{i\theta}(x - iy) = 2 e^{i\theta/2} \big(\cos(\theta/2) x + \sin(\theta/2) y\big).
+\]
+On this circle $p_{\mathbb{C}}$ is therefore determined by the values of $p$ at real points:
+$\|p_{\mathbb{C}}(\cdots)\| = 2^n \|p(\cos(\theta/2) x + \sin(\theta/2) y)\|$.
+
+\begin{lemma}[Jensen's inequality on the auxiliary line]
+  \label{lem:jensen-aux-line}
+  \lean{LCAnalysis.mk_add_circleMap_smul_auxDir, LCAnalysis.posLog_le_integral_circle,
+    LCAnalysis.posLog_seminorm_le_integral_circle, LCAnalysis.exists_clm_eq_seminorm_real}
+  \leanok
+  \uses{lem:complexify-poly, lem:hartogs}
+  Let $p$ be a continuous real homogeneous polynomial of degree $n$, $q$ a continuous seminorm on
+  $F$ and $\kappa > 0$. If $v$ is the real or the imaginary part of $p_{\mathbb{C}}(x + iy)$, then
+  \[
+    \log^+ \frac{q(v)}{\kappa^n} \le \frac{1}{2\pi} \int_0^{2\pi}
+      \log^+ \Big( \big(\tfrac{2}{\kappa}\big)^n q\big(p(\cos(\theta/2) x + \sin(\theta/2) y)\big)
+      \Big) \, d\theta .
+  \]
+\end{lemma}
+
+\begin{proof}
+  \leanok
+  Take a real functional $\varphi$ with $\varphi(v) = q(v)$ and $|\varphi| \le q$ (Hahn--Banach)
+  and its complexification $\varphi_{\mathbb{C}}$, so that $q(v) \le |\varphi_{\mathbb{C}}(p_{\mathbb{C}}(x
+  + iy))|$. Apply the sub-mean value inequality for $\log^+$ of the polynomial
+  $\lambda \mapsto \kappa^{-n} \varphi_{\mathbb{C}}(p_{\mathbb{C}}((x + iy) + \tfrac{\lambda}{2}(x - iy)))$
+  on the circle $|\lambda| = 2$, and the identity above.
+\end{proof}
+
+\begin{proposition}[Bochnak--Siciak {\cite[Prop.~5.4]{BS71b}}]
+  \label{prop:bs-54}
+  \lean{LCAnalysis.exists_geometric_of_circle, LCAnalysis.exists_nhds_complexify_geometric,
+    LCAnalysis.exists_nhds_hasSum_complexify, LCAnalysis.Complexification.mackeyComplete}
+  \leanok
+  \uses{lem:fwd-diff, lem:jensen-aux-line, def:mackey-complete}
+  Let $\sum_n p_n$ be a series of continuous real homogeneous polynomials such that
+  $(q(p_n(y)))_n$ is bounded for every continuous seminorm $q$ and every $y$ in a
+  $0$-neighborhood $Y$. Then there is a $0$-neighborhood $Z$ in $E_{\mathbb{C}}$ such that
+  $q(\operatorname{Re} p_{n,\mathbb{C}}(z)), q(\operatorname{Im} p_{n,\mathbb{C}}(z)) \le C (9/10)^n$
+  for $z \in Z$, with $C$ depending on $z$ and $q$ only. If $F$ is Mackey complete, the
+  complexified series converges on $Z$. No Baire assumption on $E$ is needed.
+\end{proposition}
+
+\begin{proof}
+  \leanok
+  Choose a continuous seminorm $N$ and $r > 0$ with $\{N < r\} \subseteq Y$, and let $Z$ be the
+  set of $x + iy$ with $N(x), N(y) < r/5$. Then $sx + ty \in Y$ for $|s|, |t| < 2$, and
+  $\tfrac52(\cos(\theta/2) x + \sin(\theta/2) y) \in Y$. Apply Lemma~\ref{lem:jensen-aux-line}
+  with $\kappa = 4/5$: the functions
+  $f_n(\theta) = \frac1n \log^+ \big((5/2)^n q(p_n(\cos(\theta/2) x + \sin(\theta/2) y))\big)$ tend
+  to $0$ pointwise, and are bounded uniformly by Lemma~\ref{lem:fwd-diff}. By dominated
+  convergence their averages tend to $0$, so $q(v_n) \le (4/5)^n (9/8)^n = (9/10)^n$ for large
+  $n$. The ratio does not depend on $q$, so the partial sums are Mackey--Cauchy in
+  $F_{\mathbb{C}}$, which is Mackey complete with $F$.
+\end{proof}
+
+Bochnak and Siciak prove Proposition~\ref{prop:bs-54} with Siciak's polynomial lemma for a real
+segment \cite[\S4]{BS71b}: a family of polynomials which is pointwise bounded on $[-1, 1]$ is
+bounded by $M \omega^n$ on a neighborhood of $[-1, 1]$ depending only on $\omega > 1$. Its
+proof needs potential theory (extremal functions of increasing unions of compact sets). The
+auxiliary line avoids it: the homogeneity of $p_n$ in two real variables brings the complex
+points into play.
+
+\begin{theorem}[Bochnak--Siciak {\cite[Thm.~7.1]{BS71b}}]
+  \label{thm:bs-71}
+  \lean{LCAnalysis.realAnalyticOn_of_bsAnalyticOn, LCAnalysis.realAnalyticOn_iff_bsAnalyticOn,
+    LCAnalysis.ComplexAnalyticOn.comp_sub_const, LCAnalysis.Complexification.baireSpace}
+  \leanok
+  \uses{prop:bs-54, thm:bs-52, lem:real-analytic-local, def:real-analytic, def:bs-analytic}
+  Let $E$ be a real locally convex space such that $E_{\mathbb{C}} = E \times E$ is a Baire space
+  (e.g. a Fréchet space) and $F$ a Mackey complete real locally convex space. Then a map
+  $f \colon U \to F$ is real analytic if and only if it is BS analytic.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Around $a \in U$, the BS series converges on a $0$-neighborhood, so its terms are bounded
+  there. By Proposition~\ref{prop:bs-54} the complexified series converges on a
+  $0$-neighborhood $Z$ of $E_{\mathbb{C}}$, and its sum is complex analytic on the interior of $Z$
+  by Theorem~\ref{thm:bs-52}. Translated to $a$, it extends $f$ near $a$; Lemma~\ref{lem:real-analytic-local}
+  glues the local extensions. The converse is Theorem~\ref{thm:real-analytic-basic}.
+\end{proof}
 
 \section{Comparison with Mathlib on Banach spaces}
 
