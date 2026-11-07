@@ -530,6 +530,45 @@ theorem SmoothMBOn.smoothMBOn_weakIntegral [MackeyComplete F] {T : Set ℝ} (hT 
     SmoothMBOn (fun x ↦ weakIntegral (fun t ↦ f (x, t)) a b) U := fun k ↦
   ContDiffMBOn.contDiffMBOn_weakIntegral_of_mackey hT hab hTab hU (hf (k + 1))
 
+omit [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [LocallyConvexSpace ℝ E] [T2Space E] in
+/-- In a Mackey complete space, the curves `t ↦ f (x, t)` of a `C^1` map `f` on `U ×ˢ T` have
+weak integrals over `[a, b] ⊆ T`. -/
+theorem ContDiffMBOn.exists_hasWeakIntegral_slice [MackeyComplete F] {T : Set ℝ}
+    (hab : a ≤ b) (hTab : Icc a b ⊆ T) {f : E × ℝ → F} {U : Set E}
+    (hf : ContDiffMBOn 1 f (U ×ˢ T)) {x : E} (hx : x ∈ U) :
+    ∃ y, HasWeakIntegral (fun t ↦ f (x, t)) a b y := by
+  have h2 : ContinuousOn (dMB f) ((U ×ˢ T) ×ˢ univ) := hf.2.2
+  refine exists_hasWeakIntegral_of_hasDirDerivAt_of_le hab
+    (hf.continuousOn.comp (by fun_prop : Continuous fun t : ℝ ↦ (x, t)).continuousOn
+      fun t ht ↦ ⟨hx, hTab ht⟩)
+    (γ' := fun t ↦ dMB f ((x, t), (0, 1)))
+    (h2.comp (by fun_prop : Continuous fun t : ℝ ↦ ((x, t), ((0 : E), (1 : ℝ)))).continuousOn
+      fun t ht ↦ ⟨⟨hx, hTab ht⟩, mem_univ _⟩) fun t ht ↦ ?_
+  exact (hf.2.1 (x, t) ⟨hx, hTab ht⟩ (0, 1)).congr fun s ↦ by simp
+
+/-- Differentiation under the integral sign, Mackey complete case:
+`d(∫_a^b f(·, t) dt)(x)(h) = ∫_a^b d₁f((x, t), h) dt` for `f` of class `C^2`. -/
+theorem ContDiffMBOn.dMB_weakIntegral_of_mackey [MackeyComplete F] {T : Set ℝ} (hT : IsOpen T)
+    (hab : a ≤ b) (hTab : Icc a b ⊆ T) {f : E × ℝ → F} {U : Set E} (hU : IsOpen U)
+    (hf : ContDiffMBOn 2 f (U ×ˢ T)) {x : E} (hx : x ∈ U) (h : E) :
+    dMB (fun x ↦ weakIntegral (fun t ↦ f (x, t)) a b) (x, h) =
+      weakIntegral (fun t ↦ dMB f ((x, t), (h, 0))) a b := by
+  have hf1 : ContDiffMBOn 1 f (U ×ˢ T) := hf.of_le (by omega)
+  let L : (E × E) × ℝ →L[ℝ] (E × ℝ) × (E × ℝ) :=
+    (((ContinuousLinearMap.fst ℝ E E).comp (ContinuousLinearMap.fst ℝ (E × E) ℝ)).prod
+      (ContinuousLinearMap.snd ℝ (E × E) ℝ)).prod
+    (((ContinuousLinearMap.snd ℝ E E).comp (ContinuousLinearMap.fst ℝ (E × E) ℝ)).prod 0)
+  have hL : ∀ q, L q = ((q.1.1, q.2), (q.1.2, 0)) := fun q ↦ rfl
+  have hpre : L ⁻¹' ((U ×ˢ T) ×ˢ univ) = (U ×ˢ univ) ×ˢ T := by
+    ext q; simp [hL]
+  have hg := ContDiffMBOn.comp_clm L ((hU.prod hT).prod isOpen_univ) hf.2.2
+  rw [hpre] at hg
+  refine (ContDiffMBOn.contDiffMBOn_one_of_hasWeakIntegral hU hT hab hTab hf1
+    (fun x hx ↦ hasWeakIntegral_weakIntegral (hf1.exists_hasWeakIntegral_slice hab hTab hx))
+    (J := fun q ↦ weakIntegral (fun t ↦ dMB f ((q.1, t), (q.2, 0))) a b)
+    (fun x hx h ↦ hasWeakIntegral_weakIntegral
+      (hg.exists_hasWeakIntegral_slice hab hTab (x := (x, h)) ⟨hx, mem_univ _⟩))).2 x hx h
+
 omit [LocallyConvexSpace ℝ E] [T2Space E] in
 /-- Differentiation under the integral sign, sequentially complete case:
 `d(∫_a^b f(·, t) dt)(x)(h) = ∫_a^b d₁f((x, t), h) dt` for `f` of class `C^1`. -/
