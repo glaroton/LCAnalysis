@@ -6,6 +6,7 @@ Authors: Gabriel Larotonda
 import LocallyConvexAnalysis.MichalBastiani
 import LocallyConvexAnalysis.MBFrechet
 import LocallyConvexAnalysis.BoundedBelow
+import LocallyConvexAnalysis.OperatorValued
 import LocallyConvexAnalysis.Higher
 import LocallyConvexAnalysis.Rules
 import LocallyConvexAnalysis.Integral

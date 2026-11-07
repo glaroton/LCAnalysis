@@ -83,6 +83,13 @@ the form "G–N 1.2.13" point to the numbered results of Glöckner and Neeb [GN2
 | Between normed spaces, Michal–Bastiani `C^{k+1}` implies Fréchet `C^k` | `ContDiffMBOn.contDiffOn` | G–N 2.3.17 |
 | Between normed spaces, the two notions of smoothness agree | `smoothMBOn_iff_contDiffOn` | G–N 2.3.17 |
 
+### Operator-valued maps — [`OperatorValued.lean`](LocallyConvexAnalysis/OperatorValued.lean)
+
+| Result | Lean | Source |
+|---|---|---|
+| `E` locally convex, `F₁`, `F₂` normed: if `(y, ξ) ↦ g(y) ξ` is `C^{k+1}`, then `g : U → L(F₁, F₂)` is `C^k` for the operator norm | `contDiffMBOn_of_unc_clm` | |
+| Continuity and directional derivatives in the operator norm | `continuousOn_of_unc_clm`, `hasDirDerivAt_of_unc_clm` | |
+
 ### Bounded below derivatives — [`BoundedBelow.lean`](LocallyConvexAnalysis/BoundedBelow.lean)
 
 | Result | Lean | Source |

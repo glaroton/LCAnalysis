@@ -80,6 +80,42 @@ Since the loss of one derivative disappears when $k = \infty$, we obtain the fol
   Theorem~\ref{thm:mb-to-frechet} and Proposition~\ref{prop:frechet-to-mb}.
 \end{proof}
 
+\section{Operator-valued maps on locally convex spaces}
+
+\begin{theorem}[Operator-valued maps]
+  \label{thm:operator-valued}
+  \lean{LocallyConvex.Analysis.hasDirDerivAt_slice_of_unc_clm,
+    LocallyConvex.Analysis.dMB_unc_clm_smul, LocallyConvex.Analysis.dMB_unc_clm_add,
+    LocallyConvex.Analysis.hasDerivAt_line_of_unc_clm,
+    LocallyConvex.Analysis.exists_bound_unc_clm,
+    LocallyConvex.Analysis.continuousOn_of_unc_clm,
+    LocallyConvex.Analysis.hasDirDerivAt_of_unc_clm,
+    LocallyConvex.Analysis.contDiffMBOn_of_unc_clm}
+  \leanok
+  \uses{thm:mb-to-frechet}
+  Let $E$ be a locally convex space, $F_1$, $F_2$ normed spaces, $U \subseteq E$ open and
+  $g \colon U \to \Lin(F_1, F_2)$. If $\hat g(y, \xi) = g(y)\xi$ is $\Ck{k+1}$ on $U \times F_1$
+  in the sense of Michal--Bastiani, then $g$ is $\Ck{k}$ for the operator norm on
+  $\Lin(F_1, F_2)$.
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Let $D(y, \xi, w) = \dd\hat g((y, \xi), (w, 0))$; it is linear in $\xi$ and in $w$, and
+  continuous. Continuity at $(y_0, 0, 0)$ gives a convex neighborhood $N$ of $y_0$, a
+  neighborhood $W$ of $0$ and $C$ with $\|D(y, \xi, w)\| \le C\|\xi\|$ for $y \in N$,
+  $w \in W$. If $y - y_0 \in rW$, the mean value inequality along the segment
+  $[y_0, y] \subseteq N$ gives $\|g(y) - g(y_0)\| \le rC$: $g$ is continuous. The operator
+  $h(y, w) = D(y, \cdot, w)$ is the directional derivative of $g$ for the operator norm, by the
+  mean value inequality applied to $s \mapsto g(y + sw)\xi - s\,h(y, w)\xi$ and the continuity of
+  $h$, which is the case $k = 0$ applied to $h$ on $U \times E$. The induction runs on the domain
+  $E \times E$ of the derivative.
+\end{proof}
+
+The statement is meaningless if $F_1$ is not normable: no vector topology on $\Lin(F_1, F_2)$
+makes the evaluation continuous. Theorem~\ref{thm:mb-to-frechet} is the case where $E$ is normed;
+there the multilinear version is needed for the induction.
+
 \section{Maps with bounded below derivative}
 
 In this section we consider a Banach space $E$ (complete), a normed space $F$ (complete or not),
