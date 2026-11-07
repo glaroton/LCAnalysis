@@ -292,7 +292,9 @@ following statements, with no existence hypotheses left.
 
 \begin{corollary}[Parameter-dependent integrals]
   \label{cor:param}
-  \lean{LocallyConvex.Analysis.ContDiffMBOn.contDiffMBOn_weakIntegral, LocallyConvex.Analysis.ContDiffMBOn.contDiffMBOn_weakIntegral_of_mackey, LocallyConvex.Analysis.SmoothMBOn.smoothMBOn_weakIntegral, LocallyConvex.Analysis.ContDiffMBOn.dMB_weakIntegral}
+  \lean{LocallyConvex.Analysis.ContDiffMBOn.contDiffMBOn_weakIntegral, LocallyConvex.Analysis.ContDiffMBOn.contDiffMBOn_weakIntegral_of_mackey, LocallyConvex.Analysis.SmoothMBOn.smoothMBOn_weakIntegral, LocallyConvex.Analysis.ContDiffMBOn.dMB_weakIntegral,
+    LocallyConvex.Analysis.ContDiffMBOn.exists_hasWeakIntegral_slice,
+    LocallyConvex.Analysis.ContDiffMBOn.dMB_weakIntegral_of_mackey}
   \leanok
   \uses{thm:param-induction, thm:exists-seq, thm:exists-mackey}
   Let $f$ be a map on $U \times T$ with $[a, b] \subseteq T$, and
@@ -300,7 +302,8 @@ following statements, with no existence hypotheses left.
   \begin{enumerate}
     \item If $F$ is sequentially complete and $f$ is $\Ck{k}$, then $I$ is $\Ck{k}$, and
     $\dd I(x)(h) = \int_a^b \dd f\bigl((x,t), (h,0)\bigr)\, dt$ for $k \geq 1$.
-    \item If $F$ is Mackey complete and $f$ is $\Ck{k+1}$, then $I$ is $\Ck{k}$.
+    \item If $F$ is Mackey complete and $f$ is $\Ck{k+1}$, then $I$ is $\Ck{k}$; if $f$ is
+    $\Ck{2}$, the formula for $\dd I$ of (1) holds.
     \item If $F$ is Mackey complete and $f$ is smooth, then $I$ is smooth.
   \end{enumerate}
 \end{corollary}
