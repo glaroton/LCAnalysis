@@ -17,6 +17,7 @@ import LocallyConvexAnalysis.Polynomial
 import LocallyConvexAnalysis.ComplexOneVariable
 import LocallyConvexAnalysis.ComplexAnalytic
 import LocallyConvexAnalysis.RealAnalytic
+import LocallyConvexAnalysis.AnalyticOperations
 import LocallyConvexAnalysis.HartogsLemma
 import LocallyConvexAnalysis.HomogeneousSeries
 import LocallyConvexAnalysis.RealSeries

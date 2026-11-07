@@ -246,6 +246,50 @@ property.
   expansion is that of $g$ (Theorem~\ref{thm:complex-analytic-iff}), restricted to real points.
 \end{proof}
 
+\begin{proposition}[Operations on analytic maps]
+  \label{prop:analytic-operations}
+  \lean{LocallyConvex.Analysis.ComplexAnalyticOn.prodMk, LocallyConvex.Analysis.ComplexAnalyticOn.add,
+    LocallyConvex.Analysis.ComplexAnalyticOn.sum, LocallyConvex.Analysis.ComplexAnalyticOn.bilin,
+    LocallyConvex.Analysis.RealAnalyticOn.prodMk, LocallyConvex.Analysis.RealAnalyticOn.add,
+    LocallyConvex.Analysis.RealAnalyticOn.sum, LocallyConvex.Analysis.RealAnalyticOn.clm_comp,
+    LocallyConvex.Analysis.RealAnalyticOn.comp_clm, LocallyConvex.Analysis.RealAnalyticOn.bilin}
+  \leanok
+  \uses{def:real-analytic, thm:complex-analytic-iff, thm:real-analytic-basic}
+  Pairs, sums, scalar multiples and finite sums of complex (resp.\ real) analytic maps are
+  complex (resp.\ real) analytic, and so is $x \mapsto \beta(f(x), g(x))$ for a jointly
+  continuous complex (resp.\ real) bilinear map $\beta$.
+\end{proposition}
+
+\begin{proof}
+  \leanok
+  In the complex case, by Theorem~\ref{thm:complex-analytic-iff} it suffices to see that the maps
+  are smooth with complex linear differentials, which follows from the rules of
+  Chapter~\ref{chap:rules}. In the real case, $(E \times F)_{\mathbb{C}} \cong E_{\mathbb{C}}
+  \times F_{\mathbb{C}}$ as complex locally convex spaces, so the pair of two complex analytic
+  extensions extends the pair; for $\beta$ use its complexification
+  $\beta_{\mathbb{C}}(a + ia', b + ib') = \beta(a, b) - \beta(a', b') + i(\beta(a, b') +
+  \beta(a', b))$, which is jointly continuous and complex bilinear.
+\end{proof}
+
+\begin{theorem}[The differential of a real analytic map]
+  \label{thm:real-analytic-dMB}
+  \lean{LocallyConvex.Analysis.RealAnalyticOn.dMB}
+  \leanok
+  \uses{def:real-analytic, thm:real-analytic-basic, prop:analytic-operations}
+  If $f \colon U \to F$ is real analytic on an open set $U \subseteq E$, then
+  $\dd f \colon U \times E \to F$ is real analytic. (Glöckner and Neeb use this, for $r = \omega$,
+  in \cite[Lemma~3.3.8(d)]{GN26}; the complex case is \cite[Lemma~2.6]{Glo02}.)
+\end{theorem}
+
+\begin{proof}
+  \leanok
+  Let $g$ be a complex analytic extension of $f$ on $V \subseteq E_{\mathbb{C}}$. Then $\dd g$ is
+  complex analytic on $V \times E_{\mathbb{C}}$ (Theorem~\ref{thm:complex-analytic-iff}), and
+  composed with $(E \times E)_{\mathbb{C}} \cong E_{\mathbb{C}} \times E_{\mathbb{C}}$ it extends
+  $\dd f$, since $\dd g(x, y) = \dd f(x, y)$ for $x \in U$, $y \in E$
+  (Theorem~\ref{thm:real-analytic-basic}).
+\end{proof}
+
 \begin{proposition}[Complex analytic maps are real analytic {\cite[Prop.~2.2.11]{GN26}}]
   \label{prop:complex-real-analytic}
   \lean{LocallyConvex.Analysis.ComplexAnalyticOn.realAnalyticOn}
